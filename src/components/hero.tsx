@@ -1,4 +1,3 @@
-import Image from "next/image";
 import BlurFade from "./magicui/blur-fade";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { DATA } from "@/data/resume";
@@ -6,10 +5,10 @@ import { DATA } from "@/data/resume";
 const BLUR_FADE_DELAY = 0.04;
 export const Hero = () => {
   return (
-    <section className="relative mx-auto container px-2 pt-44 lg:h-screen overflow-hidden lg:pt-0 lg:w-[740px] lg:flex lg:flex-col lg:justify-center">
-      <div className="text-left  lg:flex lg:flex-row lg:justify-center lg:items-center md:gap-x-4 ">
+    <section className="relative  container  lg:h-screen overflow-hidden lg:pt-0  lg:flex lg:flex-col lg:justify-center">
+      <div className="lg:flex lg:flex-row lg:justify-center lg:items-center md:gap-x-4 ">
         
-        <header className="lg:w-4/5 border-2">
+        <header className="lg:w-5/6 ">
           <h1 className="text-3xl font-bold lg:text-5xl  text-dark-700 dark:text-dark-200">
             Hola,{" "}
             <span className=" text-primary-600 dark:text-primary-400">
@@ -23,15 +22,15 @@ export const Hero = () => {
             {DATA.pitch}
           </h2>
         </header>
-        <div className=" flex  justify-center items-center border-2 lg:w-1/5 ">
+        <div className="lg:w-2/6 flex  justify-center items-center ">
           <BlurFade delay={BLUR_FADE_DELAY}>
             <Avatar className="">
               <AvatarImage
                 alt={DATA.name}
                 src={DATA.avatarUrl}
-                width={200}
-                height={200}
-                className="drop-shadow-sm w-[130px] rounded-full  object-contain shadow-lg dark:shadow-dark-900"
+                width={300}
+                height={300}
+                className="drop-shadow-sm rounded-full  object-contain shadow-lg dark:shadow-dark-900"
                 loading="lazy"
               />
               <AvatarFallback>{DATA.initials}</AvatarFallback>
