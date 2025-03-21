@@ -15,8 +15,10 @@ export const DATA = {
     "Docker",
     "SQL",
     "NoSQL",
-    "Automatización",
-    "Integración de APIs"
+    "Serverless",
+    "Git",
+    "Tailwind",
+    "Figma",
   ],
   navbar: [
     { href: "/", icon: HomeIcon, label: "Home" },
@@ -55,23 +57,23 @@ export const DATA = {
       badges: [],
       location: "Remote",
       title: "Full Stack Developer",
-      logoUrl: "/hashi.jpg",
+      logoUrl: "/logo-hashi.png",
       start: "Oct 2024",
-      end: "Present",
+      end: "Mar 2025",
       description:
-        "Participé en el desarrollo del MVP de una plataforma de creación de contenido automatizado con IA, enfocándome en tareas de backend y optimización de bases de datos.",
+        "Participé en el desarrollo del MVP de una plataforma de creación de contenido automatizado con IA, enfocándome en tareas de backend y optimización de creacion de guiones con IA.",
     },
     {
       company: "DonWeb - Certificados",
-      href: "https://donweb.com",
+      href: "https://certificados.donweb.com/236/236_diegobarrionuevo11@gmail.com?utm_source=talleres-certificado&utm_medium=email&utm_campaign=talleres-certificado&utm_content=Domin%C3%A1%20Search%20Console%20para%20impulsar%20el%20SEO%20de%20tu%20sitio%20web%20en%20WordPress",
       badges: [],
       location: "Remote",
       title: "Líder Técnico y Backend Developer",
-      logoUrl: "/donweb.jpg",
+      logoUrl: "/logo-donweb.png",
       start: "May 2023",
       end: "Jul 2023",
       description:
-        "Lideré el desarrollo de una plataforma automatizada para la gestión de certificados y talleres en línea, integrando APIs de emails transaccionales y Zoom, asegurando escalabilidad y seguridad.",
+        "Lideré el desarrollo de una plataforma automatizada para la confección y gestión de certificados para talleres en línea, integrando APIs de emails transaccionales y Zoom, asegurando escalabilidad y seguridad.",
     },
     {
       company: "Experiencia Freelance",
@@ -79,7 +81,7 @@ export const DATA = {
       badges: [],
       location: "Remote",
       title: "Web Developer",
-      logoUrl: "/freelance.jpg",
+      logoUrl: "/freedom.jpg",
       start: "Mar 2022",
       end: "Present",
       description:
@@ -103,22 +105,23 @@ export const DATA = {
       dates: "May 2023 - Jul 2023",
       active: true,
       description:
-        "Lideré el desarrollo de una plataforma automatizada para la gestión de certificados y talleres en línea, integrando APIs de emails transaccionales y Zoom.",
+        "Lideré el desarrollo de una plataforma automatizada para la confección y gestión de certificados para talleres en línea, integrando APIs de emails transaccionales y Zoom.",
       technologies: [
-        "Next.js",
+        "React.js",
         "TypeScript",
-        "SQL",
+        "PostgreSQL",
         "Node.js",
+        "Express.js",
         "Docker",
-        "Automatización de Procesos",
+        "Directus",
       ],
       image: "",
       video:
-        "https://pub-83c5db439b40468498f97946200806f7.r2.dev/chat-collect.mp4",
+        "https://au3p4exjgd78giaz.public.blob.vercel-storage.com/donweb-zzk5Q6gIPr1T9CHHcir6jDycl15MvE.mp4",
       links: [
         {
           type: "Website",
-          href: "https://donweb.com",
+          href: "https://certificados.donweb.com/236/236_diegobarrionuevo11@gmail.com?utm_source=talleres-certificado&utm_medium=email&utm_campaign=talleres-certificado&utm_content=Domin%C3%A1%20Search%20Console%20para%20impulsar%20el%20SEO%20de%20tu%20sitio%20web%20en%20WordPress",
           icon: <Icons.globe className="size-3" />,
         },
       ],
@@ -138,8 +141,8 @@ export const DATA = {
         "Node.js",
         "Docker",
       ],
-      image: "",
-      video: "https://cdn.magicui.design/bento-grid.mp4",
+      image: "/hero-light.png",
+      video: "",
       links: [
         {
           type: "Website",
