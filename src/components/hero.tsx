@@ -1,28 +1,30 @@
 import BlurFade from "./magicui/blur-fade";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import { DATA } from "@/data/resume";
 
 const BLUR_FADE_DELAY = 0.04;
 export const Hero = () => {
   return (
-    <section className="relative  container  lg:h-screen overflow-hidden lg:pt-0  lg:flex lg:flex-col lg:justify-center">
-      <div className="lg:flex lg:flex-row lg:justify-center lg:items-center md:gap-x-4 ">
-        
-        <header className="lg:w-5/6 ">
-          <h1 className="text-3xl font-bold lg:text-5xl  text-dark-700 dark:text-dark-200">
-            Hola,{" "}
-            <span className=" text-primary-600 dark:text-primary-400">
-              soy {DATA.name}
+    <section className="relative   sm:h-screen overflow-hidden sm:pt-0  sm:flex sm:flex-col sm:justify-center ">
+      <div className="flex flex-row sm:justify-center sm:items-center md:gap-x-4 ">
+
+        <header className=" sm:w-5/6 sm:mt-0  ">
+          <div className="w-4/6 mt-5">
+            <h1 className=" text-3xl font-bold sm:text-5xl  text-dark-700 dark:text-dark-200">
+              Hola,{" "}
+              <span className=" text-primary-600 dark:text-primary-400">
+                soy {DATA.name}
+              </span>
+            </h1>
+            <span className=" font-semibold inline-flex animate-background-shine bg-[linear-gradient(110deg,#64748b,45%,#0f172a,55%,#64748b)] dark:bg-[linear-gradient(110deg,#b6eaff,45%,#065074,55%,#b6eaff)] bg-[length:250%_100%] bg-clip-text text-xl text-transparent">
+              Desarrollador Web Fullstack
             </span>
-          </h1>
-          <span className=" font-semibold inline-flex animate-background-shine bg-[linear-gradient(110deg,#64748b,45%,#0f172a,55%,#64748b)] dark:bg-[linear-gradient(110deg,#b6eaff,45%,#065074,55%,#b6eaff)] bg-[length:250%_100%] bg-clip-text text-xl text-transparent">
-            Desarrollador Web Fullstack
-          </span>
-          <h2 className="lg:text-xl mt-6 md:mt-10 text-dark-700 dark:text-dark-200 text-pretty">
+          </div>
+          <h2 className="max-w-xs sm:max-w-none sm:text-xl mt-6 md:mt-10 text-dark-700 dark:text-dark-200 text-pretty">
             {DATA.pitch}
           </h2>
         </header>
-        <div className="lg:w-2/6 flex  justify-center items-center ">
+        <div className=" absolute top-7 w-2/6 right-0 max-h-[152px] max-w-[119px] sm:max-h-none sm:max-w-none   sm:static  sm:flex  sm:justify-center sm:items-center ">
           <BlurFade delay={BLUR_FADE_DELAY}>
             <Avatar className="">
               <AvatarImage
@@ -30,13 +32,12 @@ export const Hero = () => {
                 src={DATA.avatarUrl}
                 width={300}
                 height={300}
-                className="drop-shadow-sm rounded-full  object-contain shadow-lg dark:shadow-dark-900"
+                className="drop-shadow-sm rounded-full max-h-[160px] sm:max-h-none object-contain shadow-lg dark:shadow-dark-900"
                 loading="lazy"
               />
-              <AvatarFallback>{DATA.initials}</AvatarFallback>
             </Avatar>
           </BlurFade>
-        </div> 
+        </div>
       </div>
 
       <div className="absolute hidden md:flex bottom-40 w-full justify-center">

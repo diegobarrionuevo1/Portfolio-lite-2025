@@ -17,6 +17,7 @@ const config = {
       screens: {
         "2xl": "1400px",
       },
+      
     },
     extend: {
       fontFamily: {
@@ -79,6 +80,16 @@ const config = {
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  screens: {
+    'tablet': '640px',
+    // => @media (min-width: 640px) { ... }
+
+    'laptop': '1024px',
+    // => @media (min-width: 1024px) { ... }
+
+    'desktop': '1280px',
+    // => @media (min-width: 1280px) { ... }
+  },
 } satisfies Config;
 
 export default config;
