@@ -10,6 +10,7 @@ const BLUR_FADE_DELAY = 0.04;
 export default function Page() {
   return (
     <main className="flex flex-col min-h-[100dvh] space-y-10 mb-10">
+      
       <section className="sm:container px-3" id="hero">
         <Hero></Hero> 
       </section>

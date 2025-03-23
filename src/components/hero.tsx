@@ -1,6 +1,7 @@
 import BlurFade from "./magicui/blur-fade";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import { DATA } from "@/data/resume";
+import BlurFadeText from "./magicui/blur-fade-text";
 
 const BLUR_FADE_DELAY = 0.04;
 export const Hero = () => {
@@ -10,19 +11,25 @@ export const Hero = () => {
 
         <header className=" sm:w-5/6 sm:mt-0  ">
           <div className="w-4/6 mt-5">
-            <h1 className=" text-3xl font-bold sm:text-5xl  text-dark-700 dark:text-dark-200">
-              Hola,{" "}
-              <span className=" text-primary-600 dark:text-primary-400">
-                soy {DATA.name}
-              </span>
-            </h1>
-            <span className=" font-semibold inline-flex animate-background-shine bg-[linear-gradient(110deg,#64748b,45%,#0f172a,55%,#64748b)] dark:bg-[linear-gradient(110deg,#b6eaff,45%,#065074,55%,#b6eaff)] bg-[length:250%_100%] bg-clip-text text-xl text-transparent">
-              Desarrollador Web Fullstack
-            </span>
+          <BlurFadeText
+                delay={BLUR_FADE_DELAY}
+                className="text-3xl font-bold tracking-tighter sm:text-5xl "
+                yOffset={8}
+                text={`Hola, soy ${DATA.name} `}
+              />
+            <BlurFadeText
+              delay={BLUR_FADE_DELAY * 5}
+              className=" font-semibold inline-flex animate-background-shine bg-[linear-gradient(110deg,#64748b,45%,#0f172a,55%,#64748b)] dark:bg-[linear-gradient(110deg,#b6eaff,45%,#065074,55%,#b6eaff)] bg-[length:250%_100%] bg-clip-text text-xl text-transparent"
+              yOffset={8}
+              text="Desarrollador Web Fullstack"
+            />
           </div>
-          <h2 className="max-w-xs sm:max-w-none sm:text-xl mt-6 md:mt-10 text-dark-700 dark:text-dark-200 text-pretty">
-            {DATA.pitch}
-          </h2>
+          <BlurFadeText
+            delay={BLUR_FADE_DELAY * 1.8}
+            className="max-w-xs sm:max-w-none sm:text-xl mt-6 md:mt-10 text-dark-700 dark:text-dark-200 text-pretty"
+            yOffset={8}
+            text={DATA.pitch}
+          />
         </header>
         <div className=" absolute top-7 w-2/6 right-0 max-h-[152px] max-w-[119px] sm:max-h-none sm:max-w-none   sm:static  sm:flex  sm:justify-center sm:items-center ">
           <BlurFade delay={BLUR_FADE_DELAY}>
@@ -40,8 +47,9 @@ export const Hero = () => {
         </div>
       </div>
 
-      <div className="absolute hidden md:flex bottom-40 w-full justify-center">
-        < a
+      <div className="absolute hidden md:flex bottom-20 w-full justify-center">
+        <BlurFade delay={BLUR_FADE_DELAY * 10}>
+        <a
           href="#work"
           className="md:flex gap-2 animate-bounce text-primary-500 dark:text-primary-400 font-bold"
         >
@@ -61,6 +69,7 @@ export const Hero = () => {
             />
           </svg>
         </a>
+        </BlurFade>
       </div>
     </section>
   );

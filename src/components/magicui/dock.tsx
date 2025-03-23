@@ -30,13 +30,13 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
     },
     ref
   ) => {
-    const mouse_x = useMotionValue(Infinity);
+    const mousex = useMotionValue(Infinity);
 
     const renderChildren = () => {
       return React.Children.map(children, (child: any) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child, {
-            mousex: mouse_x,
+            mousex,
             magnification,
             distance,
           } as DockIconProps);
@@ -48,8 +48,8 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
     return (
       <motion.div
         ref={ref}
-        onMouseMove={(e) => mouse_x.set(e.pageX)}
-        onMouseLeave={() => mouse_x.set(Infinity)}
+        onMouseMove={(e) => mousex.set(e.pageX)}
+        onMouseLeave={() => mousex.set(Infinity)}
         {...props}
         className={cn(dockVariants({ className }))}
       >
@@ -75,14 +75,14 @@ const DockIcon = ({
   size,
   magnification = DEFAULT_MAGNIFICATION,
   distance = DEFAULT_DISTANCE,
-  mousex: mouseX,
+  mousex,
   className,
   children,
   ...props
 }: DockIconProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const distanceCalc = useTransform(mouseX, (val: number) => {
+  const distanceCalc = useTransform(mousex, (val: number) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
     return val - bounds.x - bounds.width / 2;
   });
