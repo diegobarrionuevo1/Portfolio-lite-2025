@@ -10,7 +10,7 @@ export const Hero = () => {
       <div className="flex flex-row sm:justify-center sm:items-center md:gap-x-4 ">
 
         <header className=" sm:w-5/6 sm:mt-0  ">
-          <div className="w-4/6 mt-5">
+          <div className=" max-w-[256px] w-4/6 mt-5 sm:max-w-none">
           <BlurFadeText
                 delay={BLUR_FADE_DELAY}
                 className="text-3xl font-bold tracking-tighter sm:text-5xl "
