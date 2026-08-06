@@ -1,76 +1,276 @@
-import BlurFade from "./magicui/blur-fade";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
-import { DATA } from "@/data/resume";
-import BlurFadeText from "./magicui/blur-fade-text";
+"use client";
 
-const BLUR_FADE_DELAY = 0.04;
+import { useEffect, useRef, useState } from "react";
+import { Button, ScrollCue, Marquee } from "@/components/ds";
+
+const MONO_ROW: React.CSSProperties = {
+  fontFamily: "var(--font-mono)",
+  fontSize: "var(--fs-micro)",
+  letterSpacing: "var(--ls-caps)",
+  textTransform: "uppercase",
+};
+
+const clipWrap: React.CSSProperties = {
+  display: "inline-block",
+  overflow: "hidden",
+  verticalAlign: "bottom",
+};
+
 export const Hero = () => {
-  return (
-    <section className="relative   sm:h-screen overflow-hidden sm:pt-0  sm:flex sm:flex-col sm:justify-center ">
-      <div className="flex flex-row sm:justify-center sm:items-center md:gap-x-4 ">
+  const ref = useRef<HTMLElement>(null);
+  const [ready, setReady] = useState(false);
 
-        <header className=" sm:w-5/6 sm:mt-0  ">
-          <div className=" max-w-[256px] w-4/6 mt-5 sm:max-w-none">
-          <BlurFadeText
-                delay={BLUR_FADE_DELAY}
-                className="text-3xl font-bold tracking-tighter sm:text-5xl "
-                yOffset={8}
-                text={`Hola, soy ${DATA.name} `}
-              />
-            <BlurFadeText
-              delay={BLUR_FADE_DELAY * 5}
-              className=" font-semibold inline-flex animate-background-shine bg-[linear-gradient(110deg,#64748b,45%,#0f172a,55%,#64748b)] dark:bg-[linear-gradient(110deg,#b6eaff,45%,#065074,55%,#b6eaff)] bg-[length:250%_100%] bg-clip-text text-xl text-transparent"
-              yOffset={8}
-              text="Desarrollador Web Fullstack"
-            />
+  useEffect(() => {
+    let cancelled = false;
+    const start = () => !cancelled && setReady(true);
+    // Wait for fonts so there is no metric jump on the display type.
+    if ("fonts" in document) {
+      (document as Document).fonts.ready.then(start);
+    } else {
+      start();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <header
+      ref={ref}
+      id="top"
+      className={`hero${ready ? " is-ready" : ""}`}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        gap: "var(--space-8)",
+        minHeight: "calc(100svh - var(--nav-h))",
+        padding: "var(--space-10) var(--page-margin) var(--space-8)",
+      }}
+    >
+      {/* 1 — mono meta row, staggered clip reveal */}
+      <div
+        style={{
+          ...MONO_ROW,
+          display: "flex",
+          gap: "var(--space-5)",
+          flexWrap: "wrap",
+          color: "var(--text-muted)",
+        }}
+      >
+        <span style={clipWrap}>
+          <span data-hero style={{ color: "var(--text-accent)" }}>
+            2022 — 2026
+          </span>
+        </span>
+        <span style={clipWrap}>
+          <span data-hero style={{ transitionDelay: "70ms" }}>
+            Córdoba, Argentina
+          </span>
+        </span>
+        <span style={clipWrap}>
+          <span data-hero style={{ transitionDelay: "140ms" }}>
+            Remoto
+          </span>
+        </span>
+      </div>
+
+      {/* 2 — the wordmark: grotesque + serif italic on the same block */}
+      <h1
+        style={{
+          margin: 0,
+          fontFamily: "var(--font-display)",
+          fontSize: "var(--fs-display-1)",
+          fontWeight: 500,
+          letterSpacing: "var(--ls-display-1)",
+          lineHeight: "var(--lh-display)",
+          textWrap: "balance",
+        }}
+      >
+        <span
+          style={{
+            display: "block",
+            overflow: "hidden",
+            paddingBottom: "0.06em",
+            marginBottom: "-0.06em",
+          }}
+        >
+          <span data-hero style={{ display: "block", transitionDelay: "120ms" }}>
+            Diego
+          </span>
+        </span>
+        <span
+          style={{
+            display: "block",
+            overflow: "hidden",
+            paddingBottom: "0.06em",
+            marginBottom: "-0.06em",
+          }}
+        >
+          <span
+            data-hero
+            style={{
+              display: "block",
+              fontFamily: "var(--font-serif)",
+              fontStyle: "italic",
+              fontWeight: 400,
+              letterSpacing: 0,
+              transitionDelay: "200ms",
+            }}
+          >
+            Barrionuevo
+          </span>
+        </span>
+      </h1>
+
+      {/* 3 — role, lede, CTAs */}
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: "var(--space-9)",
+        }}
+      >
+        <div
+          style={{
+            flex: "1 1 420px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-5)",
+          }}
+        >
+          <div
+            data-hero-rise
+            style={{
+              ...MONO_ROW,
+              color: "var(--text-secondary)",
+              transitionDelay: "260ms",
+            }}
+          >
+            Desarrollador de software full stack
           </div>
-          <BlurFadeText
-            delay={BLUR_FADE_DELAY * 1.8}
-            className="max-w-xs sm:max-w-none sm:text-xl mt-6 md:mt-10 text-dark-700 dark:text-dark-200 text-pretty"
-            yOffset={8}
-            text={DATA.pitch}
-          />
-        </header>
-        <div className=" absolute top-7 w-2/6 right-0 max-h-[152px] max-w-[119px] sm:max-h-none sm:max-w-none   sm:static  sm:flex  sm:justify-center sm:items-center ">
-          <BlurFade delay={BLUR_FADE_DELAY}>
-            <Avatar className="">
-              <AvatarImage
-                alt={DATA.name}
-                src={DATA.avatarUrl}
-                width={300}
-                height={300}
-                className="drop-shadow-sm rounded-full max-h-[160px] sm:max-h-none object-contain shadow-lg dark:shadow-dark-900"
-                loading="lazy"
-              />
-            </Avatar>
-          </BlurFade>
+          <p
+            data-hero-rise
+            style={{
+              margin: 0,
+              maxWidth: "var(--measure-lede)",
+              fontSize: "var(--fs-body-lg)",
+              lineHeight: "var(--lh-body)",
+              letterSpacing: "var(--ls-lede)",
+              color: "var(--text-secondary)",
+              textWrap: "pretty",
+              transitionDelay: "320ms",
+            }}
+          >
+            Construyo productos, automatizaciones e integraciones que resuelven
+            procesos reales de negocio — del relevamiento al deploy.
+          </p>
+        </div>
+        <div
+          data-hero-rise
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: "var(--space-3)",
+            transitionDelay: "380ms",
+          }}
+        >
+          <Button variant="primary" arrow href="#work">
+            Ver trabajo
+          </Button>
+          <Button variant="outline" href="/cv-diego-barrionuevo.pdf" download="Diego Barrionuevo - CV.pdf">
+            Descargar CV
+          </Button>
         </div>
       </div>
 
-      <div className="absolute hidden md:flex bottom-20 w-full justify-center">
-        <BlurFade delay={BLUR_FADE_DELAY * 10}>
-        <a
-          href="#work"
-          className="md:flex gap-2 animate-bounce text-primary-500 dark:text-primary-400 font-bold"
+      {/* 4 — hairline + 5 — cue and socials */}
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "var(--space-5)",
+          paddingTop: "var(--space-6)",
+        }}
+      >
+        <span
+          aria-hidden="true"
+          data-hero-line
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 1,
+            background: "var(--border-hairline)",
+          }}
+        />
+        <span data-hero-rise style={{ display: "inline-block", transitionDelay: "460ms" }}>
+          <ScrollCue href="#work">Resultados e impacto</ScrollCue>
+        </span>
+        <div
+          data-hero-rise
+          style={{
+            ...MONO_ROW,
+            display: "flex",
+            gap: "var(--space-5)",
+            color: "var(--text-muted)",
+            transitionDelay: "520ms",
+          }}
         >
-          Experiencia{" "}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="w-5 h-5"
+          <a
+            href="https://github.com/diegobarrionuevo1"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "var(--text-muted)" }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75"
-            />
-          </svg>
-        </a>
-        </BlurFade>
+            GitHub ↗
+          </a>
+          <a
+            href="https://www.linkedin.com/in/diegobarrionuevo11/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "var(--text-muted)" }}
+          >
+            LinkedIn ↗
+          </a>
+        </div>
       </div>
-    </section>
+
+      {/* Stack marquee — bridges hero into the impact band */}
+      <div
+        style={{
+          padding: "var(--space-7) 0",
+          borderTop: "1px solid var(--border-hairline)",
+          borderBottom: "1px solid var(--border-hairline)",
+          fontFamily: "var(--font-display)",
+          fontSize: "var(--fs-title-2)",
+          fontWeight: 500,
+          letterSpacing: "var(--ls-display-3)",
+          color: "var(--text-primary)",
+        }}
+      >
+        <Marquee
+          speed={34}
+          gap="var(--space-9)"
+          items={[
+            "TypeScript",
+            "Node.js",
+            "React",
+            "Next.js",
+            "PostgreSQL",
+            "Docker",
+            "Redis",
+            "Directus",
+          ]}
+        />
+      </div>
+    </header>
   );
 };
