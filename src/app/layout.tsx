@@ -3,19 +3,42 @@ import { DATA } from "@/data/resume";
 import type { Metadata } from "next";
 import "./globals.css";
 
+const NAME = "Diego Barrionuevo";
+const TITLE = "Diego Barrionuevo — Desarrollador de software full stack";
+const DESCRIPTION =
+  "Construyo productos, automatizaciones e integraciones que resuelven procesos reales de negocio. Full stack, del relevamiento al deploy.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(DATA.url),
   title: {
-    default: DATA.name,
-    template: `%s | ${DATA.name}`,
+    default: TITLE,
+    template: `%s | ${NAME}`,
   },
-  description: DATA.pitch,
+  description: DESCRIPTION,
+  applicationName: NAME,
+  authors: [{ name: NAME, url: DATA.url }],
+  creator: NAME,
+  keywords: [
+    "Diego Barrionuevo",
+    "desarrollador full stack",
+    "full stack developer",
+    "desarrollador de software",
+    "Next.js",
+    "Node.js",
+    "React",
+    "TypeScript",
+    "PostgreSQL",
+    "automatización",
+    "Córdoba",
+    "Argentina",
+    "remoto",
+  ],
   openGraph: {
-    title: `${DATA.name}`,
-    description: DATA.pitch,
+    title: TITLE,
+    description: DESCRIPTION,
     url: DATA.url,
-    siteName: `${DATA.name}`,
-    locale: "en_US",
+    siteName: NAME,
+    locale: "es_AR",
     type: "website",
   },
   robots: {
@@ -30,7 +53,8 @@ export const metadata: Metadata = {
     },
   },
   twitter: {
-    title: `${DATA.name}`,
+    title: TITLE,
+    description: DESCRIPTION,
     card: "summary_large_image",
   },
   verification: {
