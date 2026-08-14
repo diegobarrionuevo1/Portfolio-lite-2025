@@ -13,6 +13,7 @@ const CONTACTS = [
   { label: "Email", value: "diegobarrionuevo11@gmail.com", href: "mailto:diegobarrionuevo11@gmail.com" },
   { label: "LinkedIn", value: "/in/diegobarrionuevo11", href: "https://www.linkedin.com/in/diegobarrionuevo11/" },
   { label: "GitHub", value: "@diegobarrionuevo1", href: "https://github.com/diegobarrionuevo1" },
+  { label: "Blog", value: "Notas y análisis", href: "/blog" },
 ];
 
 export function Contact() {

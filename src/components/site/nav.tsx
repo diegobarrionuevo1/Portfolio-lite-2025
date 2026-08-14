@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { Badge, Button } from "@/components/ds";
 import { nightState } from "./night";
 
-const LINKS = [
-  { href: "#work", label: "Trabajo", id: "work" },
-  { href: "#stack", label: "Stack", id: "stack" },
-  { href: "#about", label: "Sobre mí", id: "about" },
+const SECTIONS = [
+  { label: "Trabajo", id: "work" },
+  { label: "Stack", id: "stack" },
+  { label: "Sobre mí", id: "about" },
 ];
+
+const LINKS = [...SECTIONS, { label: "Blog", id: "blog" }];
 
 const wordmark = (
   <>
@@ -43,6 +46,13 @@ export function Nav() {
   const badgeRef = useRef<HTMLSpanElement>(null);
   const linkRefs = useRef<Array<HTMLAnchorElement | null>>([]);
   const hovered = useRef<Set<number>>(new Set());
+
+  // The section links are in-page anchors that only exist on the home page.
+  // Anywhere else they must become absolute links back to it, and the
+  // scroll-spy has nothing to observe.
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const href = (id: string) => (id === "blog" ? "/blog" : isHome ? `#${id}` : `/#${id}`);
 
   useEffect(() => {
     const bar = barRef.current;
@@ -157,14 +167,17 @@ export function Nav() {
           pointerEvents: "none",
         }}
       >
-        <a href="#top" style={{ ...wordmarkStyle, pointerEvents: "auto", color: "var(--bone-50)" }}>
+        <a
+          href={isHome ? "#top" : "/"}
+          style={{ ...wordmarkStyle, pointerEvents: "auto", color: "var(--bone-50)" }}
+        >
           {wordmark}
         </a>
         <div className="nav-links">
           {LINKS.map((l, i) => (
             <a
-              key={l.href}
-              href={l.href}
+              key={l.id}
+              href={href(l.id)}
               className="nav-link"
               ref={(el) => {
                 linkRefs.current[i] = el;
@@ -221,7 +234,7 @@ export function Nav() {
         </span>
         <div aria-hidden="true" className="nav-links-ghost" style={{ visibility: "hidden" }}>
           {LINKS.map((l) => (
-            <span key={l.href}>{l.label}</span>
+            <span key={l.id}>{l.label}</span>
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
