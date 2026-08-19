@@ -7,8 +7,7 @@
  * below guarantees Ghost's hard limits are respected before we ever hit the API.
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
+import { spawn } from 'node:child_process';
 import { z } from 'zod';
 
 import type { FeedItem } from './feed';
@@ -146,6 +145,11 @@ const SYSTEM_PROMPT = [
   '- customExcerpt: máximo 260 caracteres.',
   '- tags: entre 2 y 5, exclusivamente de la lista permitida.',
   '- sourcesCited: todas las URLs que enlazaste, copiadas literalmente del material provisto.',
+  '',
+  '## Formato de salida (crítico)',
+  '- Respondé EXCLUSIVAMENTE con un único objeto JSON válido que cumpla el esquema de abajo.',
+  '- Sin texto antes ni después, sin ``` y sin comentarios. El primer carácter es "{".',
+  '- El HTML del cuerpo va dentro del campo "html" como string JSON correctamente escapado.',
 ].join('\n');
 
 function stripHtmlTags(html: string): string {
@@ -287,71 +291,223 @@ export function buildUserPrompt(selection: Selection): string {
   return parts.join('\n');
 }
 
-/** Per-request cap. With MAX_RETRIES this bounds the whole step at ~15 min. */
+/**
+ * Transport: the locally authenticated Claude Code CLI, not the HTTP API.
+ *
+ * This is the whole point of the file's shape. `claude -p` signs its requests
+ * with the OAuth session on this machine, so generation is covered by the
+ * subscription instead of being billed per token. The tradeoff is that headless
+ * mode has no server-side structured-output guarantee, so the schema contract
+ * moves here: we ask for strict JSON, parse it, and validate it with the very
+ * same Zod schema. An invalid shape is retried, then becomes a hard error.
+ */
+
+/** Per-attempt cap. With MAX_RETRIES this bounds the whole step at ~15 min. */
 export const REQUEST_TIMEOUT_MS = 5 * 60_000;
 export const MAX_RETRIES = 2;
 
-export function createClient(apiKey = process.env.ANTHROPIC_API_KEY): Anthropic {
-  if (apiKey === undefined || apiKey.trim() === '') {
-    throw new GenerationError('ANTHROPIC_API_KEY no está definida.');
+/**
+ * Overridable because launchd and cron start with a minimal PATH where a bare
+ * `claude` does not resolve.
+ */
+export const CLI_BIN = process.env.CLAUDE_CLI_BIN ?? 'claude';
+
+/** stdout ceiling: a long post plus the CLI's JSON envelope, with headroom. */
+const MAX_OUTPUT_BYTES = 8 * 1024 * 1024;
+
+/**
+ * This step writes prose; it must not touch the filesystem, the network or MCP.
+ * Denying the tools outright also means a cron run can never stall waiting for
+ * a permission prompt that nobody is there to answer.
+ */
+const DISALLOWED_TOOLS =
+  'Bash Read Write Edit NotebookEdit Glob Grep WebFetch WebSearch Task Agent';
+
+/** Derived from PostSchema so the prompt and the validator cannot drift apart. */
+const POST_JSON_SCHEMA = JSON.stringify(z.toJSONSchema(PostSchema), null, 2);
+
+/** Only the envelope fields we consume; the CLI emits many more. */
+export interface CliEnvelope {
+  is_error?: boolean;
+  subtype?: string;
+  stop_reason?: string | null;
+  result?: string;
+  usage?: { input_tokens?: number; output_tokens?: number };
+  api_error_status?: number | null;
+}
+
+export type CliRunner = (systemPrompt: string, userPrompt: string) => Promise<CliEnvelope>;
+
+/** Spawn the CLI, feed the prompt over stdin, collect the JSON envelope. */
+export async function runClaudeCli(
+  systemPrompt: string,
+  userPrompt: string,
+): Promise<CliEnvelope> {
+  // Stripped deliberately: if a key is present in the environment, Claude Code
+  // prefers it over the OAuth session and every run silently goes back to being
+  // billed per token — the exact thing this transport exists to avoid.
+  const env = { ...process.env };
+  delete env.ANTHROPIC_API_KEY;
+  delete env.ANTHROPIC_AUTH_TOKEN;
+
+  const args = [
+    '--print',
+    '--output-format', 'json',
+    '--model', MODEL,
+    '--system-prompt', systemPrompt,
+    '--max-turns', '1',
+    '--disallowed-tools', DISALLOWED_TOOLS,
+    '--strict-mcp-config',
+  ];
+
+  const raw = await new Promise<string>((resolve, reject) => {
+    const child = spawn(CLI_BIN, args, { env, stdio: ['pipe', 'pipe', 'pipe'] });
+    const out: string[] = [];
+    const err: string[] = [];
+    let size = 0;
+    let settled = false;
+
+    const finish = (fn: () => void): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      fn();
+    };
+
+    const timer = setTimeout(() => {
+      finish(() => {
+        child.kill('SIGKILL');
+        reject(new GenerationError(`El CLI de Claude no respondió en ${REQUEST_TIMEOUT_MS} ms.`));
+      });
+    }, REQUEST_TIMEOUT_MS);
+
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', (chunk: string) => {
+      size += chunk.length;
+      if (size > MAX_OUTPUT_BYTES) {
+        finish(() => {
+          child.kill('SIGKILL');
+          reject(new GenerationError('La salida del CLI superó el límite de buffer.'));
+        });
+        return;
+      }
+      out.push(chunk);
+    });
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', (chunk: string) => err.push(chunk));
+
+    child.on('error', (error) => {
+      finish(() =>
+        reject(
+          new GenerationError(
+            `No se pudo ejecutar "${CLI_BIN}". ¿Está instalado y en el PATH? ` +
+              `Definí CLAUDE_CLI_BIN con la ruta absoluta si corrés desde cron/launchd.`,
+            error,
+          ),
+        ),
+      );
+    });
+
+    child.on('close', (code) => {
+      finish(() => {
+        if (code === 0) {
+          resolve(out.join(''));
+          return;
+        }
+        reject(
+          new GenerationError(
+            `El CLI de Claude terminó con código ${code ?? '?'}: ${err.join('').trim().slice(0, 500)}`,
+          ),
+        );
+      });
+    });
+
+    child.stdin.on('error', () => undefined);
+    child.stdin.end(userPrompt, 'utf8');
+  });
+
+  try {
+    return JSON.parse(raw) as CliEnvelope;
+  } catch (error) {
+    throw new GenerationError(
+      `El CLI no devolvió JSON parseable: "${raw.trim().slice(0, 300)}"`,
+      error,
+    );
   }
-  // The SDK default is a 10-minute timeout with no explicit retry ceiling here,
-  // which can outlive the Actions job budget and get killed mid-run.
-  return new Anthropic({ apiKey, maxRetries: MAX_RETRIES, timeout: REQUEST_TIMEOUT_MS });
+}
+
+/**
+ * Pull the JSON object out of the model's answer.
+ *
+ * The prompt forbids prose and fences, but a single stray line would otherwise
+ * burn a whole retry, so tolerate both rather than failing on formatting.
+ */
+export function extractJsonObject(raw: string): string {
+  const trimmed = raw.trim();
+  const fenced = /^```(?:json)?\s*([\s\S]*?)\s*```$/.exec(trimmed);
+  const body = (fenced === null ? trimmed : fenced[1]!).trim();
+
+  const start = body.indexOf('{');
+  const end = body.lastIndexOf('}');
+  if (start === -1 || end === -1 || end <= start) {
+    throw new GenerationError(
+      `La respuesta no contiene un objeto JSON: "${body.slice(0, 200)}"`,
+    );
+  }
+  return body.slice(start, end + 1);
 }
 
 export async function generatePost(
   selection: Selection,
-  client: Anthropic = createClient(),
+  runner: CliRunner = runClaudeCli,
 ): Promise<GenerateResult> {
-  let message: Awaited<ReturnType<typeof client.messages.parse>>;
+  const systemPrompt = `${SYSTEM_PROMPT}\n\n## Esquema JSON exacto\n${POST_JSON_SCHEMA}`;
+  const basePrompt = buildUserPrompt(selection);
 
-  try {
-    message = await client.messages.parse({
-      model: MODEL,
-      // Thinking is on by default on claude-opus-5 and shares this budget with
-      // the response text, so keep real headroom above the expected body size.
-      max_tokens: MAX_TOKENS,
-      system: SYSTEM_PROMPT,
-      output_config: {
-        effort: 'medium',
-        format: zodOutputFormat(PostSchema),
-      },
-      messages: [{ role: 'user', content: buildUserPrompt(selection) }],
-    });
-  } catch (error) {
-    if (error instanceof Anthropic.RateLimitError) {
-      throw new GenerationError('Claude devolvió rate limit tras los reintentos del SDK.', error);
+  let repairNote = '';
+  let lastError: GenerationError | null = null;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+    const envelope = await runner(systemPrompt, `${basePrompt}${repairNote}`);
+
+    // A refusal will not improve by asking again; fail fast and keep the budget.
+    if (envelope.stop_reason === 'refusal') {
+      throw new GenerationError('Claude rechazó la solicitud.');
     }
-    if (error instanceof Anthropic.APIError) {
-      throw new GenerationError(`Claude API error ${error.status ?? '?'}: ${error.message}`, error);
+    if (envelope.is_error === true) {
+      throw new GenerationError(
+        `El CLI reportó error (subtype: ${envelope.subtype ?? 'n/d'}, ` +
+          `api_error_status: ${envelope.api_error_status ?? 'n/d'}).`,
+      );
     }
-    throw new GenerationError(
-      `Fallo inesperado llamando a Claude: ${error instanceof Error ? error.message : String(error)}`,
-      error,
-    );
+
+    try {
+      const parsed = PostSchema.parse(JSON.parse(extractJsonObject(envelope.result ?? '')));
+      return {
+        post: normalizePost(parsed),
+        usage: {
+          inputTokens: envelope.usage?.input_tokens ?? 0,
+          outputTokens: envelope.usage?.output_tokens ?? 0,
+        },
+        stopReason: envelope.stop_reason ?? null,
+      };
+    } catch (error) {
+      const detail =
+        error instanceof z.ZodError
+          ? error.issues.map((i) => `${i.path.join('.') || '(raíz)'}: ${i.message}`).join('; ')
+          : error instanceof Error
+            ? error.message
+            : String(error);
+
+      lastError = new GenerationError(
+        `La respuesta no cumple el esquema (intento ${attempt + 1}/${MAX_RETRIES + 1}): ${detail}`,
+        error,
+      );
+      repairNote =
+        `\n\nTU RESPUESTA ANTERIOR FUE INVÁLIDA: ${detail}\n` +
+        'Devolvé SOLO el objeto JSON del esquema, empezando por "{". Sin texto ni fences.';
+    }
   }
 
-  // A refusal is HTTP 200 with empty/partial content — check before reading it.
-  if (message.stop_reason === 'refusal') {
-    const category = message.stop_details?.category ?? 'desconocida';
-    throw new GenerationError(`Claude rechazó la solicitud (categoría: ${category}).`);
-  }
-  if (message.stop_reason === 'max_tokens') {
-    throw new GenerationError('La respuesta se truncó por max_tokens; el JSON quedó incompleto.');
-  }
-
-  const parsed = message.parsed_output;
-  if (parsed === null || parsed === undefined) {
-    throw new GenerationError('Claude respondió sin parsed_output utilizable.');
-  }
-
-  return {
-    post: normalizePost(parsed),
-    usage: {
-      inputTokens: message.usage.input_tokens,
-      outputTokens: message.usage.output_tokens,
-    },
-    stopReason: message.stop_reason,
-  };
+  throw lastError ?? new GenerationError('No se pudo generar un post válido.');
 }
