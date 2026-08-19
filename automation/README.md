@@ -57,12 +57,12 @@ prevent the pipeline from ever writing about them.
 
 ## Environment variables
 
-No `.env` file is committed. Set these locally in your shell and as GitHub Actions
-secrets for the scheduled run.
+No `.env` file is committed. Set these in `.env.local`, or export them in the shell
+that runs the pipeline.
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `ANTHROPIC_API_KEY` | yes | Claude API key. Used by `generate.ts`. |
+| `CLAUDE_CLI_BIN` | no | Absolute path to the `claude` binary. Defaults to `claude` on the PATH; set it when scheduling under launchd or cron, which start with a minimal PATH. |
 | `GHOST_ADMIN_API_KEY` | yes (to publish) | Ghost **Admin** API key in `id:secret` form. The secret half must be hex. Server-side only — never expose it to the browser. |
 | `GHOST_ADMIN_API_URL` | one of these two | Ghost admin domain, e.g. `https://blog.example.com`. |
 | `GHOST_URL` | one of these two | Fallback used when `GHOST_ADMIN_API_URL` is unset. |
@@ -146,20 +146,20 @@ Encoded in the system prompt in `generate.ts`:
   práctica" → **"cuándo NO usarlo"** → closing. The skeptical practitioner
   section is the differentiator and is never optional.
 
-## GitHub Actions
+## Scheduling
 
-`.github/workflows/daily-post.yml` runs at **12:00 UTC (09:00 Argentina)** and on
-`workflow_dispatch`. It uses `concurrency: daily-post` with
-`cancel-in-progress: false` so two runs can never overlap and an in-flight run is
-never killed mid-publish, and `permissions: contents: write` so it can commit the
-updated `automation/state/covered.json` back to the repo (the commit step is a
-no-op when nothing changed).
+Generation runs through the local Claude Code CLI (`claude -p`), which signs with
+the machine's OAuth session. That keeps the step on the subscription instead of
+per-token API billing, and it is also why this pipeline does not run in CI: a
+GitHub runner has no such session, and there is no subscription auth in Actions.
 
-Three things there are load-bearing:
+`generate.ts` strips `ANTHROPIC_API_KEY` from the CLI's environment on purpose.
+Claude Code prefers a key over the OAuth session when one is present, so leaving
+it in scope would silently move every run back onto per-token billing.
 
-- `pnpm/action-setup` needs an explicit `version:` — `package.json` has no
-  `packageManager` field, and with neither the step fails before anything runs.
-- `fetch-depth: 0` on the checkout — the state commit rebases onto `origin`, and
-  a depth-1 clone has no merge base to rebase against.
-- `if: always()` on the commit step — if the pipeline created the Ghost post and
-  then died, the state file on disk is the only record of it.
+Run it manually with `pnpm blog:daily`, or schedule it locally with launchd.
+
+`automation/state/covered.json` is written in place and stays there. The
+commit-it-back dance the old workflow performed existed only because a CI runner
+starts from a fresh clone every time and would otherwise lose the dedup memory
+between runs. Locally that problem does not exist.

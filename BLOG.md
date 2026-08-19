@@ -5,7 +5,7 @@ los posts y expone la API; **todo lo que ve el visitante lo renderiza Next.js** 
 design system Contraste.
 
 ```
-GitHub Actions (cron 12:00 UTC = 09:00 AR)
+pnpm blog:daily  (local, ver "Publicación diaria")
    automation/run.ts
      1. Ingesta RSS de fuentes verificadas
      2. Descarta lo ya cubierto (dedup)
@@ -71,7 +71,6 @@ NEXT_PUBLIC_SITE_URL=http://localhost:4000
 GHOST_URL=http://localhost:2368
 GHOST_CONTENT_API_KEY=<content api key>
 GHOST_ADMIN_API_KEY=<admin api key, formato id:secret>
-ANTHROPIC_API_KEY=<tu api key de Anthropic>
 REVALIDATE_SECRET=<openssl rand -hex 32>
 BLOG_AUTO_PUBLISH=false
 ```
@@ -99,11 +98,26 @@ El volumen `ghost_data` guarda la base SQLite y las imágenes: **incluilo en tus
 
 ## Publicación diaria
 
-Corre por GitHub Actions todos los días a las 09:00 de Argentina. Los secrets van en
-`Settings → Secrets and variables → Actions` del repo:
+La generación usa el CLI de Claude Code (`claude -p`), que firma con la sesión OAuth
+de la máquina: **el post lo cubre la suscripción, no se factura por token**. Por eso
+el pipeline corre localmente y no en CI — un runner de GitHub no tiene esa sesión, y
+no existe autenticación por suscripción en Actions.
 
-`GHOST_URL`, `GHOST_ADMIN_API_KEY`, `ANTHROPIC_API_KEY`, `NEXT_PUBLIC_SITE_URL`,
-`REVALIDATE_SECRET`, `BLOG_AUTO_PUBLISH`.
+Para correrlo a mano:
+
+```bash
+pnpm blog:daily
+```
+
+Variables necesarias en `.env.local`: `GHOST_URL`, `GHOST_ADMIN_API_KEY`,
+`NEXT_PUBLIC_SITE_URL`, `REVALIDATE_SECRET`, `BLOG_AUTO_PUBLISH`. Ya no hace falta
+ninguna API key de Anthropic.
+
+Si lo agendás con launchd, definí `CLAUDE_CLI_BIN` con la ruta absoluta del CLI:
+launchd arranca con un PATH mínimo donde `claude` pelado no resuelve.
+
+La memoria de deduplicación (`automation/state/covered.json`) se escribe en el working
+tree y queda ahí. Versionala cuando quieras.
 
 ### Borrador vs auto-publicar
 
