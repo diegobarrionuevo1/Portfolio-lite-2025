@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start -p 4000",
     "lint": "next lint",
-    "blog:daily": "tsx automation/run.ts",
-    "blog:daily:dry": "tsx automation/run.ts --dry-run"
+    "blog:daily": "tsx --env-file-if-exists=.env.local automation/run.ts",
+    "blog:daily:dry": "tsx --env-file-if-exists=.env.local automation/run.ts --dry-run"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.0.4",
