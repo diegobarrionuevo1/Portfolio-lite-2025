@@ -114,6 +114,14 @@ export default async function PostPage({ params }: Props) {
             flexDirection: "column",
             gap: "var(--space-7)",
             padding: "var(--section-y) var(--page-margin) var(--section-y-tight)",
+            // One reading column for the whole piece, centred on the page.
+            // Without this the body was capped at --measure-prose while the
+            // feature image spanned the full 1520px content area, so the text
+            // hugged the left edge under a much wider image. Type stays
+            // left-aligned inside the column, as the rest of the site is.
+            width: "100%",
+            maxWidth: "calc(var(--measure-prose) + 2 * var(--page-margin))",
+            margin: "0 auto",
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
