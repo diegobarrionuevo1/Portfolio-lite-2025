@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Badge, Button } from "@/components/ds";
 import { nightState } from "./night";
@@ -46,6 +46,7 @@ export function Nav() {
   const badgeRef = useRef<HTMLSpanElement>(null);
   const linkRefs = useRef<Array<HTMLAnchorElement | null>>([]);
   const hovered = useRef<Set<number>>(new Set());
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // The section links are in-page anchors that only exist on the home page.
   // Anywhere else they must become absolute links back to it, and the
@@ -53,6 +54,32 @@ export function Nav() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const href = (id: string) => (id === "blog" ? "/blog" : isHome ? `#${id}` : `/#${id}`);
+
+  // Below 860px the inline links are hidden and this sheet is the only way to
+  // reach anything but the contact CTA. It lives outside the blend layer: the
+  // nav paints with mix-blend-mode: difference, which would invert the sheet
+  // against whatever happens to sit behind it.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
+  // A same-page anchor does not remount anything, so the sheet has to be told
+  // to close on navigation as well as on tap.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const bar = barRef.current;
@@ -243,11 +270,56 @@ export function Nav() {
               Disponible para proyectos
             </Badge>
           </span>
-          <Button size="sm" variant="accent" arrow href="#contact">
+          <button
+            type="button"
+            className="nav-menu-btn"
+            aria-expanded={menuOpen}
+            aria-controls="nav-sheet"
+            onClick={() => setMenuOpen(true)}
+          >
+            Menú
+          </button>
+          <span className="nav-cta">
+            <Button size="sm" variant="accent" arrow href="#contact">
+              Contactame
+            </Button>
+          </span>
+        </div>
+      </nav>
+
+      <div
+        id="nav-sheet"
+        className="nav-sheet"
+        data-open={menuOpen ? "true" : undefined}
+        hidden={!menuOpen}
+      >
+        <div className="nav-sheet__top">
+          <button type="button" className="nav-menu-btn" onClick={() => setMenuOpen(false)}>
+            Cerrar
+          </button>
+        </div>
+        <div className="nav-sheet__links">
+          {LINKS.map((l) => (
+            <a key={l.id} href={href(l.id)} onClick={() => setMenuOpen(false)}>
+              {l.label}
+            </a>
+          ))}
+        </div>
+        <div className="nav-sheet__foot">
+          <Badge tone="accent" live>
+            Disponible para proyectos
+          </Badge>
+          <Button
+            size="lg"
+            variant="accent"
+            arrow
+            href="#contact"
+            onClick={() => setMenuOpen(false)}
+          >
             Contactame
           </Button>
         </div>
-      </nav>
+      </div>
     </>
   );
 }
