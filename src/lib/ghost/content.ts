@@ -96,12 +96,21 @@ export type PostsPage = {
   pagination: GhostPagination | null;
 };
 
-/** One page of published posts, newest first. */
+/** Newest first unless asked otherwise. */
+export type PostOrder = "newest" | "oldest";
+
+/** One page of published posts. */
 export async function getPosts({
   page = 1,
   limit = POSTS_PER_PAGE,
   tag,
-}: { page?: number; limit?: number; tag?: string } = {}): Promise<PostsPage> {
+  order = "newest",
+}: {
+  page?: number;
+  limit?: number;
+  tag?: string;
+  order?: PostOrder;
+} = {}): Promise<PostsPage> {
   const data = await request<GhostBrowseResponse<"posts", GhostPost>>("/posts/", {
     limit: Math.min(limit, MAX_LIMIT),
     page,
@@ -109,6 +118,7 @@ export async function getPosts({
     // No `fields` here: combining it with `excerpt` suppresses Ghost's
     // auto-generated excerpt for posts without a custom one.
     filter: tag ? `tag:${tag}` : undefined,
+    order: order === "oldest" ? "published_at asc" : "published_at desc",
   });
 
   return { posts: data.posts ?? [], pagination: data.meta?.pagination ?? null };
@@ -159,11 +169,21 @@ export async function getAllPostSlugs(): Promise<
   return slugs;
 }
 
-/** Public tags, for the blog index filter row. */
+/**
+ * Public tags that actually carry a post, for the blog index filter row.
+ *
+ * `count.posts` is what makes the filter honest: the allow-list in the
+ * generator holds twenty tags, so without this the row would advertise
+ * verticals that lead to an empty page.
+ */
 export async function getTags(): Promise<GhostTag[]> {
   const data = await request<GhostBrowseResponse<"tags", GhostTag>>("/tags/", {
     limit: MAX_LIMIT,
     filter: "visibility:public",
+    include: "count.posts",
   });
-  return data.tags ?? [];
+
+  return (data.tags ?? [])
+    .filter((tag) => (tag.count?.posts ?? 0) > 0)
+    .sort((a, b) => (b.count?.posts ?? 0) - (a.count?.posts ?? 0));
 }

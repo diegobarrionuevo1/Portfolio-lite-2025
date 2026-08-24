@@ -17,6 +17,8 @@ export type GhostTag = {
   feature_image: string | null;
   visibility: "public" | "internal";
   url: string;
+  /** Only present when the request asks for `include=count.posts`. */
+  count?: { posts: number };
 };
 
 export type GhostAuthor = {
