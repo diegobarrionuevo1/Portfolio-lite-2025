@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@/components/theme-provider";
-import { DATA } from "@/data/resume";
+import { siteUrl } from "@/components/blog/shared";
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -8,15 +8,21 @@ const TITLE = "Diego Barrionuevo — Desarrollador de software full stack";
 const DESCRIPTION =
   "Construyo productos, automatizaciones e integraciones que resuelven procesos reales de negocio. Full stack, del relevamiento al deploy.";
 
+// Same source as the sitemap, the RSS feed and robots.txt. Deriving the
+// canonical from a separate hardcoded value let it drift to the non-www host,
+// which 308-redirects — so every canonical pointed at a redirect while the
+// sitemap advertised the final URL.
+const SITE = siteUrl();
+
 export const metadata: Metadata = {
-  metadataBase: new URL(DATA.url),
+  metadataBase: new URL(SITE),
   title: {
     default: TITLE,
     template: `%s | ${NAME}`,
   },
   description: DESCRIPTION,
   applicationName: NAME,
-  authors: [{ name: NAME, url: DATA.url }],
+  authors: [{ name: NAME, url: SITE }],
   creator: NAME,
   keywords: [
     "Diego Barrionuevo",
@@ -36,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
-    url: DATA.url,
+    url: SITE,
     siteName: NAME,
     locale: "es_AR",
     type: "website",
