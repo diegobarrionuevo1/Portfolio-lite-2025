@@ -181,9 +181,6 @@ export const Hero = () => {
           <Button variant="primary" arrow href="#work">
             Ver trabajo
           </Button>
-          <Button variant="outline" href="/cv-diego-barrionuevo.pdf" download="Diego Barrionuevo - CV.pdf">
-            Descargar CV
-          </Button>
         </div>
       </div>
 

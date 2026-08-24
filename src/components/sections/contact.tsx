@@ -78,9 +78,6 @@ export function Contact() {
           <Button variant="accent" size="lg" arrow href="mailto:diegobarrionuevo11@gmail.com">
             Escribime
           </Button>
-          <Button variant="outline" size="lg" href="/cv-diego-barrionuevo.pdf" download="Diego Barrionuevo - CV.pdf">
-            Descargar CV
-          </Button>
         </div>
       </div>
 
