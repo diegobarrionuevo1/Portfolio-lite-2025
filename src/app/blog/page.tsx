@@ -67,7 +67,7 @@ export default async function BlogIndex() {
               textWrap: "balance",
             }}
           >
-            Lo que voy{" "}
+            Notas de{" "}
             <em
               style={{
                 fontFamily: "var(--font-serif)",
@@ -76,7 +76,7 @@ export default async function BlogIndex() {
                 letterSpacing: 0,
               }}
             >
-              aprendiendo
+              taller
             </em>
           </h1>
 
