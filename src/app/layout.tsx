@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { siteUrl } from "@/components/blog/shared";
 import type { Metadata } from "next";
@@ -89,6 +90,9 @@ export default function RootLayout({
             {children}
           </div>
         </ThemeProvider>
+        {/* Ghost counts nothing here: it never serves a reader, only the API
+            calls this site makes. Page views have to be measured on this end. */}
+        <Analytics />
       </body>
     </html>
   );
