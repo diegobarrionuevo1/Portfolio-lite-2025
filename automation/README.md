@@ -157,9 +157,49 @@ GitHub runner has no such session, and there is no subscription auth in Actions.
 Claude Code prefers a key over the OAuth session when one is present, so leaving
 it in scope would silently move every run back onto per-token billing.
 
-Run it manually with `pnpm blog:daily`, or schedule it locally with launchd.
+Run it by hand with `pnpm blog:daily`, or `pnpm blog:daily:dry` to do everything
+except write to Ghost.
+
+### The daily launchd agent
+
+`automation/daily.sh` is the entry point. It resolves the repository from its own
+location, appends a timestamped section to `~/Library/Logs/portfolio-blog-daily.log`,
+and exits with the pipeline's status.
+
+The agent itself is machine configuration and is deliberately **not** committed —
+it holds absolute paths for one user. Create
+`~/Library/LaunchAgents/com.diegobarrionuevo.blog-daily.plist` with:
+
+- `ProgramArguments` pointing at this repository's `automation/daily.sh`
+- `StartCalendarInterval` set to `Hour 9`, `Minute 0` (launchd uses local time)
+- `EnvironmentVariables` carrying **both**:
+  - `PATH` including the Node ≥ 22.13 bin directory and the directory holding `claude`
+  - `CLAUDE_CLI_BIN` set to the absolute path of the `claude` binary
+
+Both are load-bearing. launchd sources no shell profile, so a bare `node` or
+`claude` does not resolve and the job dies before it reads a single feed.
+
+Then load it:
+
+```
+launchctl bootstrap gui/$UID ~/Library/LaunchAgents/com.diegobarrionuevo.blog-daily.plist
+```
+
+Useful afterwards:
+
+```
+launchctl print gui/$UID/com.diegobarrionuevo.blog-daily   # state, run count, last exit
+launchctl kickstart -k gui/$UID/com.diegobarrionuevo.blog-daily   # run it now
+launchctl bootout gui/$UID/com.diegobarrionuevo.blog-daily        # stop scheduling it
+```
+
+A missed run is not retried on a schedule of this shape: if the machine is asleep
+at 09:00, launchd fires the job once it wakes. If it stays off all day, that day
+is skipped — the dedup memory means the story is simply picked up later, never
+published twice.
 
 `automation/state/covered.json` is written in place and stays there. The
-commit-it-back dance the old workflow performed existed only because a CI runner
-starts from a fresh clone every time and would otherwise lose the dedup memory
-between runs. Locally that problem does not exist.
+commit-it-back dance the old GitHub workflow performed existed only because a CI
+runner starts from a fresh clone every time and would otherwise lose the dedup
+memory between runs. Locally that problem does not exist, so committing it is
+optional bookkeeping.
