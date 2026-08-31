@@ -66,6 +66,23 @@ export function decideStatus(gatePassed: boolean, autoPublish: boolean): PostSta
   return gatePassed && autoPublish ? 'published' : 'draft';
 }
 
+/**
+ * Cover image for a post: a URL, not an upload.
+ *
+ * The site renders the card on demand from the title, so nothing is rasterised
+ * here, nothing is stored in Ghost, and Ghost's /content/ path can stay closed
+ * to the internet. Returns undefined when the site origin is unknown, because a
+ * half-built URL would be worse than no cover at all.
+ */
+export function coverImageUrl(
+  title: string,
+  siteUrl = process.env.NEXT_PUBLIC_SITE_URL,
+): string | undefined {
+  const base = (siteUrl ?? '').trim().replace(/\/+$/, '');
+  if (base === '') return undefined;
+  return `${base}/api/og?title=${encodeURIComponent(title)}`;
+}
+
 async function triggerRevalidate(): Promise<string> {
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? '').trim().replace(/\/+$/, '');
   const secret = (process.env.REVALIDATE_SECRET ?? '').trim();
@@ -281,6 +298,7 @@ async function main(): Promise<number> {
           title: generated.post.title,
           slug: generated.post.slug,
           html: generated.post.html,
+          featureImage: coverImageUrl(generated.post.title),
           // The internal #src-<hash> tag is what makes the next run idempotent.
           // Ghost keeps it on the post but never renders it on the front-end.
           tags: [...generated.post.tags, sourceTagName(storyKey)],
@@ -291,6 +309,9 @@ async function main(): Promise<number> {
         { status, config },
       );
       line(`Post creado con estado "${status}" (id ${ghostPost.id}).`);
+      line(
+        `Portada: ${coverImageUrl(generated.post.title) ?? 'omitida (falta NEXT_PUBLIC_SITE_URL)'}`,
+      );
     }
 
     // Mark covered even when we skipped a duplicate: the story is handled.
