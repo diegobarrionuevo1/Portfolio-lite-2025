@@ -16,6 +16,18 @@
     {
       "url": "simonwillison.net/2026/Aug/29/hy4",
       "coveredAt": "2026-08-30T21:20:27.584Z"
+    },
+    {
+      "url": "embracethered.com/blog/posts/2026/breaking-claude-code-opus-5-and-automode",
+      "coveredAt": "2026-08-30T21:22:43.281Z"
+    },
+    {
+      "url": "simonwillison.net/2026/Aug/27/breaking-claude-code-opus-5-auto-mode",
+      "coveredAt": "2026-08-30T21:22:43.281Z"
+    },
+    {
+      "url": "simonwillison.net/2026/Aug/30/understanding-chatgpt-work",
+      "coveredAt": "2026-08-31T14:25:16.851Z"
     }
   ]
 }
