@@ -13,6 +13,7 @@ ingest -> select -> generate -> verify -> publish -> mark covered -> revalidate
 ```bash
 pnpm blog:daily:dry   # full run, no write to Ghost, no state mutation
 pnpm blog:daily       # real run
+pnpm blog:post "tema"  # on-demand note about a subject
 ```
 
 `--dry-run` still calls Claude (that costs money) — it only skips the Ghost
@@ -159,6 +160,18 @@ it in scope would silently move every run back onto per-token billing.
 
 Run it by hand with `pnpm blog:daily`, or `pnpm blog:daily:dry` to do everything
 except write to Ghost.
+
+For an on-demand piece about a specific subject:
+
+```
+pnpm blog:post "ciberseguridad en dispositivos móviles"
+```
+
+Topic runs widen the ingest window to 14 days, have the CLI judge which
+headlines actually match the request (semantically — the topic may be in
+Spanish and the headlines in English), and write one directed note. When no
+source has real material on the subject, the run says so and writes nothing:
+the pipeline does not invent posts without sources.
 
 ### The daily launchd agent
 
