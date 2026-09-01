@@ -13,6 +13,7 @@
  */
 
 import { ingestFeeds } from './feed';
+import { filterByTopic } from './focus';
 import { generatePost, GenerationError, type GeneratedPost } from './generate';
 import {
   createPost,
@@ -34,10 +35,20 @@ const REVALIDATE_TIMEOUT_MS = 10_000;
 
 interface Cli {
   dryRun: boolean;
+  /** On-demand topic: the run hunts material about this instead of the day's best signal. */
+  tema?: string;
 }
 
+/** News runs use a short window; a requested topic is rarely breaking news. */
+const TOPIC_WINDOW_DAYS = 14;
+
 function parseArgs(argv: readonly string[]): Cli {
-  return { dryRun: argv.includes('--dry-run') };
+  const temaIndex = argv.indexOf('--tema');
+  const tema = temaIndex !== -1 ? argv[temaIndex + 1]?.trim() : undefined;
+  if (temaIndex !== -1 && (tema === undefined || tema === '' || tema.startsWith('--'))) {
+    throw new Error('--tema requiere un valor: pnpm blog:post "tu tema"');
+  }
+  return { dryRun: argv.includes('--dry-run'), tema };
 }
 
 function line(text = ''): void {
@@ -204,7 +215,12 @@ async function main(): Promise<number> {
 
   // ---------------------------------------------------------------- 1. ingest
   heading('1. Ingesta de feeds');
-  const ingest = await ingestFeeds();
+  if (cli.tema !== undefined) {
+    line(`Modo tema: "${cli.tema}" — ventana ampliada a ${TOPIC_WINDOW_DAYS} días.`);
+  }
+  const ingest = await ingestFeeds(
+    cli.tema !== undefined ? { windowDays: TOPIC_WINDOW_DAYS } : {},
+  );
   line(`Items dentro de la ventana: ${ingest.items.length} (feeds con datos: ${ingest.okCount})`);
   if (ingest.errors.length > 0) {
     line(`Feeds caídos (no bloquean la corrida): ${ingest.errors.length}`);
@@ -222,10 +238,30 @@ async function main(): Promise<number> {
   const covered = await loadCovered();
   line(`URLs ya cubiertas en memoria: ${covered.size}`);
 
-  const selections = selectTopics(ingest.items, covered, { maxPosts: MAX_POSTS_PER_RUN });
+  let candidates = ingest.items;
+  if (cli.tema !== undefined) {
+    heading('1b. Curaduría por tema');
+    candidates = await filterByTopic(ingest.items, cli.tema);
+    line(`Relevantes al tema: ${candidates.length} de ${ingest.items.length} items.`);
+    if (candidates.length === 0) {
+      line();
+      line('Ninguna fuente tiene material fresco sobre ese tema. El pipeline no');
+      line('escribe sin material verificable: probá con otro ángulo o en unos días.');
+      return 0;
+    }
+  }
+
+  // A requested topic produces one directed note; the daily run fans out.
+  const selections = selectTopics(candidates, covered, {
+    maxPosts: cli.tema !== undefined ? 1 : MAX_POSTS_PER_RUN,
+  });
   if (selections.length === 0) {
     line();
-    line('Todos los items recientes ya estaban cubiertos. Nada que hacer hoy.');
+    line(
+      cli.tema !== undefined
+        ? 'Lo relevante al tema ya estaba cubierto por notas anteriores.'
+        : 'Todos los items recientes ya estaban cubiertos. Nada que hacer hoy.',
+    );
     return 0;
   }
   line(
@@ -280,7 +316,7 @@ async function main(): Promise<number> {
       }
     }
 
-    const generated = await generatePost(selection);
+    const generated = await generatePost(selection, { focus: cli.tema });
     printPost(generated.post);
     line(
       `Tokens: ${generated.usage.inputTokens} entrada / ${generated.usage.outputTokens} salida (stop: ${generated.stopReason ?? 'n/d'})`,

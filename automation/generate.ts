@@ -284,7 +284,7 @@ function renderItem(item: FeedItem, label: string): string {
     .join('\n');
 }
 
-export function buildUserPrompt(selection: Selection): string {
+export function buildUserPrompt(selection: Selection, focus?: string): string {
   const parts = [
     'Material de hoy. Usá SOLO estas URLs al citar; están verificadas.',
     '',
@@ -294,6 +294,15 @@ export function buildUserPrompt(selection: Selection): string {
   selection.related.forEach((item, index) => {
     parts.push('', renderItem(item, `Contexto de apoyo ${index + 1}`));
   });
+
+  if (focus !== undefined && focus.trim() !== '') {
+    parts.push(
+      '',
+      `Pedido especial del editor: esta nota fue encargada sobre el tema "${focus.trim()}".`,
+      'Enfocá la tesis y el análisis en ese ángulo. El material sigue siendo la única',
+      'fuente de hechos: si el material toca el tema solo en parte, escribí sobre esa parte.',
+    );
+  }
 
   parts.push(
     '',
@@ -475,10 +484,10 @@ export function extractJsonObject(raw: string): string {
 
 export async function generatePost(
   selection: Selection,
-  runner: CliRunner = runClaudeCli,
+  { runner = runClaudeCli, focus }: { runner?: CliRunner; focus?: string } = {},
 ): Promise<GenerateResult> {
   const systemPrompt = `${SYSTEM_PROMPT}\n\n## Esquema JSON exacto\n${POST_JSON_SCHEMA}`;
-  const basePrompt = buildUserPrompt(selection);
+  const basePrompt = buildUserPrompt(selection, focus);
 
   let repairNote = '';
   let lastError: GenerationError | null = null;
