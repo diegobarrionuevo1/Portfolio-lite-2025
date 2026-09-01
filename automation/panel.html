@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taller Editorial — panel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --canvas: #0b0b0d; --card: #17171a; --ink: #f0ede4; --soft: #a7a49b;
+    --hair: rgba(240, 237, 228, 0.14); --flare: #d63508; --acid: #d8ff3e;
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--canvas); color: var(--ink); font-family: var(--display); min-height: 100vh; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 34px clamp(16px, 4vw, 40px) 60px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 26px; }
+  h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 600; letter-spacing: -0.02em; }
+  h1 em { font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-weight: 400; }
+  .tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); }
+  .tag b { color: var(--acid); font-weight: 500; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  input[type="text"] {
+    flex: 1; min-width: 220px; background: var(--card); border: 1px solid var(--hair);
+    border-radius: 10px; color: var(--ink); font-family: var(--display); font-size: 15px; padding: 12px 14px;
+  }
+  input[type="text"]::placeholder { color: var(--soft); }
+  input[type="text"]:focus { outline: 1px solid var(--acid); border-color: var(--acid); }
+  button {
+    font-family: var(--display); font-size: 14.5px; font-weight: 500; border-radius: 999px;
+    padding: 12px 20px; cursor: pointer; border: 1px solid var(--hair); background: var(--card); color: var(--ink);
+  }
+  button.primary { background: var(--flare); border-color: var(--flare); color: #fff; }
+  button:hover { border-color: var(--acid); }
+  button.primary:hover { filter: brightness(1.08); border-color: var(--flare); }
+  button:disabled { opacity: 0.45; cursor: default; }
+  button:focus-visible { outline: 2px solid var(--acid); outline-offset: 2px; }
+
+  .statusbar { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11.5px;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--soft); margin-bottom: 10px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--soft); }
+  .dot.run { background: var(--acid); animation: pulse 1.4s ease-in-out infinite; }
+  .dot.ok { background: var(--acid); }
+  .dot.bad { background: var(--flare); }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+
+  .term {
+    background: #060607; border: 1px solid var(--hair); border-radius: 14px;
+    padding: 16px 18px; height: 46vh; min-height: 260px; overflow-y: auto;
+    font-family: var(--mono); font-size: 12px; line-height: 1.65; white-space: pre-wrap; color: #cfccc3;
+  }
+  .term .hl { color: var(--acid); }
+  .term .err { color: #ff8a66; }
+  .term:empty::before { content: "Listo. Encargá una nota o lanzá la corrida diaria — lo que ves acá es el registro real del sistema."; color: var(--soft); }
+
+  .results { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .result {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    background: var(--card); border: 1px solid rgba(216, 255, 62, 0.35); border-radius: 12px; padding: 14px 16px;
+  }
+  .result .what { font-size: 14.5px; }
+  .result .what small { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--soft); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 3px; }
+  .result a {
+    font-family: var(--display); font-size: 13.5px; font-weight: 500; color: var(--canvas);
+    background: var(--acid); border-radius: 999px; padding: 9px 16px; text-decoration: none;
+  }
+  footer { margin-top: 22px; font-family: var(--mono); font-size: 11px; color: var(--soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Taller <em>Editorial</em> — panel</h1>
+    <span class="tag">sistema real · escribe en Ghost · <b>corridas en vivo</b></span>
+  </header>
+
+  <div class="controls">
+    <input id="tema" type="text" placeholder='Tema a pedido — p. ej. "ciberseguridad en dispositivos móviles"' />
+    <button class="primary" id="btn-tema">Encargar nota real</button>
+    <button id="btn-daily">Corrida diaria</button>
+  </div>
+
+  <div class="statusbar"><span class="dot" id="dot"></span><span id="status">inactivo</span></div>
+  <div class="term" id="term" aria-live="polite"></div>
+  <div class="results" id="results"></div>
+
+  <footer>El registro de arriba es la salida real de automation/run.ts — la misma que corre sola todos los días a las 09:00.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var term = document.getElementById("term");
+  var dot = document.getElementById("dot");
+  var status = document.getElementById("status");
+  var results = document.getElementById("results");
+  var btnTema = document.getElementById("btn-tema");
+  var btnDaily = document.getElementById("btn-daily");
+  var tema = document.getElementById("tema");
+
+  function setRunning(on, label) {
+    btnTema.disabled = on;
+    btnDaily.disabled = on;
+    dot.className = "dot" + (on ? " run" : "");
+    status.textContent = label;
+  }
+
+  function addLine(text) {
+    var span = document.createElement("span");
+    var cls = "";
+    if (/Gate:|PASA|Post creado|Portada:|Revalidate: ok|✓|Notas creadas/.test(text)) cls = "hl";
+    if (/ERROR|FALLA|falló/.test(text)) cls = "err";
+    if (cls) span.className = cls;
+    span.textContent = text + "\n";
+    term.appendChild(span);
+    term.scrollTop = term.scrollHeight;
+  }
+
+  function showDone(summary) {
+    if (summary.exit === 0 && summary.posts.length > 0) {
+      dot.className = "dot ok";
+      status.textContent = "listo — " + summary.posts.length + " nota(s) creadas en Ghost";
+      summary.posts.forEach(function (p) {
+        var row = document.createElement("div");
+        row.className = "result";
+        var what = document.createElement("div");
+        what.className = "what";
+        what.innerHTML = "Nota creada como <b>" + (p.status === "draft" ? "borrador" : p.status) + "</b><small>id " + p.id + " — abierta en su Ghost, no en una maqueta</small>";
+        row.appendChild(what);
+        if (p.editor) {
+          var a = document.createElement("a");
+          a.href = p.editor;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.textContent = "Abrir el borrador en Ghost ↗";
+          row.appendChild(a);
+        }
+        results.appendChild(row);
+      });
+    } else if (summary.exit === 0) {
+      dot.className = "dot ok";
+      status.textContent = "terminó sin crear notas (sin material o ya cubierto)";
+    } else {
+      dot.className = "dot bad";
+      status.textContent = "la corrida falló — el registro tiene el motivo";
+    }
+    btnTema.disabled = false;
+    btnDaily.disabled = false;
+  }
+
+  var es = new EventSource("/api/stream");
+  es.addEventListener("snapshot", function (e) {
+    var snap = JSON.parse(e.data);
+    term.textContent = "";
+    snap.lines.forEach(addLine);
+    if (snap.running) setRunning(true, snap.tema ? 'corriendo — tema: "' + snap.tema + '"' : "corriendo — corrida diaria");
+  });
+  es.addEventListener("started", function (e) {
+    var d = JSON.parse(e.data);
+    term.textContent = "";
+    results.textContent = "";
+    setRunning(true, d.tema ? 'corriendo — tema: "' + d.tema + '"' : "corriendo — corrida diaria");
+  });
+  es.addEventListener("line", function (e) { addLine(JSON.parse(e.data)); });
+  es.addEventListener("done", function (e) { showDone(JSON.parse(e.data)); });
+
+  function run(temaValue) {
+    fetch("/api/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(temaValue ? { tema: temaValue } : {}),
+    }).then(function (res) {
+      if (res.status === 409) { status.textContent = "ya hay una corrida en curso"; }
+    });
+  }
+  btnTema.addEventListener("click", function () {
+    var v = tema.value.trim();
+    if (!v) { tema.focus(); return; }
+    run(v);
+  });
+  tema.addEventListener("keydown", function (e) { if (e.key === "Enter") btnTema.click(); });
+  btnDaily.addEventListener("click", function () { run(null); });
+})();
+</script>
+</body>
+</html>

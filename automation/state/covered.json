@@ -36,6 +36,10 @@
     {
       "url": "gitlab.com/AuroraOSS/AuroraStore/-/work_items/1566",
       "coveredAt": "2026-09-01T20:12:18.237Z"
+    },
+    {
+      "url": "github.blog/changelog/2026-09-01-copilot-code-review-can-now-approve-pull-requests",
+      "coveredAt": "2026-09-01T20:17:55.337Z"
     }
   ]
 }
