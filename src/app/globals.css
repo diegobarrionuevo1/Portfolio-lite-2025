@@ -1040,8 +1040,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  max-width: var(--measure-prose);
-  font-size: var(--fs-body-lg);
+  /* Fills the article's own reading column; the page caps that at ~46rem.
+     The size scales gently with the viewport so a big display gets bigger
+     type, not a skinnier-looking ribbon of text. */
+  max-width: none;
+  font-size: clamp(var(--fs-body-lg), 1rem + 0.22vw, 1.22rem);
   line-height: var(--lh-body);
   letter-spacing: var(--ls-body);
   color: var(--text-secondary);

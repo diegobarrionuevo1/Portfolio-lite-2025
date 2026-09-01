@@ -115,12 +115,12 @@ export default async function PostPage({ params }: Props) {
             gap: "var(--space-7)",
             padding: "var(--section-y) var(--page-margin) var(--section-y-tight)",
             // One reading column for the whole piece, centred on the page.
-            // Without this the body was capped at --measure-prose while the
-            // feature image spanned the full 1520px content area, so the text
-            // hugged the left edge under a much wider image. Type stays
-            // left-aligned inside the column, as the rest of the site is.
+            // Sized in rem, not ch: the body text scales up on wide viewports
+            // and a ch-based cap would lag behind it, leaving the column
+            // needle-thin on large displays. Type stays left-aligned inside,
+            // as the rest of the site is.
             width: "100%",
-            maxWidth: "calc(var(--measure-prose) + 2 * var(--page-margin))",
+            maxWidth: "min(100%, calc(46rem + 2 * var(--page-margin)))",
             margin: "0 auto",
           }}
         >
@@ -184,7 +184,11 @@ export default async function PostPage({ params }: Props) {
             ) : null}
           </div>
 
-          {post.feature_image ? (
+          {/* The generated cover IS the title set in type: on the page it would
+              restate the headline right below itself. It still serves the index
+              cards and social shares via metadata; only a real, hand-picked
+              image earns a place in the body. */}
+          {post.feature_image && !post.feature_image.includes("/api/og") ? (
             <figure style={{ margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
