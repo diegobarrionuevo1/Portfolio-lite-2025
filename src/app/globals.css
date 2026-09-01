@@ -1186,6 +1186,10 @@
   color: var(--text-muted);
 }
 .filter-chip {
+  /* Rendered as <button> since filtering became client-side state. */
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -1217,8 +1221,12 @@
   opacity: 0.6;
 }
 
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(6px); }
+}
 /* ── Post card hover (blog index) ── */
 .post-card {
+  animation: cardIn 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
   transition: background var(--dur-base) var(--ease-out-quart),
     border-color var(--dur-base) var(--ease-out-quart);
 }

@@ -177,9 +177,12 @@ export default async function PostPage({ params }: Props) {
 
             {post.tags?.length ? (
               <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}>
-                {post.tags.map((tag) => (
-                  <Tag key={tag.id}>{tag.name}</Tag>
-                ))}
+                {/* #src-<hash> is the pipeline's dedup bookkeeping, not a vertical. */}
+                {post.tags
+                  .filter((tag) => !tag.name.startsWith("#"))
+                  .map((tag) => (
+                    <Tag key={tag.id}>{tag.name}</Tag>
+                  ))}
               </div>
             ) : null}
           </div>
