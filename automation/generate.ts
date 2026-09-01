@@ -69,7 +69,7 @@ const PostSchema = z.object({
     .string()
     .describe(
       'Cuerpo del post en HTML bien formado: solo elementos de bloque en el nivel superior ' +
-        '(<p>, <h2>, <h3>, <ul>, <ol>, <blockquote>, <pre>, <figure>). Sin <html>, <body>, <script> ni <style>. ' +
+        '(<p>, <h2>, <h3>, <ul>, <ol>, <blockquote>, <pre>, <table>, <figure>). Sin <html>, <body>, <script> ni <style>. ' +
         'Incluye al menos un <a href="..."> a una de las fuentes citadas.',
     ),
   sourcesCited: z
@@ -136,6 +136,16 @@ const SYSTEM_PROMPT = [
   '4. "Cuándo NO usarlo": tradeoffs honestos, límites, casos donde conviene esperar.',
   '   Esta sección es el diferencial. Nunca la omitas ni la conviertas en un elogio disfrazado.',
   '5. Cierre breve: qué haría Diego hoy con esta información.',
+  '',
+  '## Elementos visuales (obligatorio cuando aportan)',
+  '- Si el tema involucra una comparación, un antes/después, un flujo o una arquitectura,',
+  '  incluí UN elemento visual en el cuerpo. Dos como máximo.',
+  '- Comparaciones y trade-offs: una <table> con <thead> y <tbody>. Encabezados cortos.',
+  '- Flujos y arquitecturas: un diagrama ASCII dentro de <pre><code>...</code></pre>,',
+  '  con cajas y flechas simples (┌─┐ │ └─┘ ─►). Máximo 60 columnas de ancho.',
+  '- El visual sale SOLO del material provisto. Sin cifras inventadas: si no hay datos',
+  '  numéricos, la tabla compara cualidades, no números.',
+  '- Nada de imágenes externas (<img>) en el cuerpo: la portada ya la pone el sistema.',
   '',
   '## Formato HTML',
   '- Solo elementos de bloque en el nivel superior: <p>, <h2>, <h3>, <ul>, <ol>, <blockquote>,',

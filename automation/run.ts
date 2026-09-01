@@ -133,6 +133,11 @@ function printPost(post: GeneratedPost): void {
   line(`Bajada:  ${post.customExcerpt}`);
   line(`Tags:    ${post.tags.join(', ')}`);
   line(`HTML:    ${post.html.length} caracteres`);
+  // One glance at the log answers "did the visual rule hold today?".
+  const visuals = [post.html.includes('<table') && 'tabla', post.html.includes('<pre') && 'diagrama']
+    .filter(Boolean)
+    .join(' + ');
+  line(`Visual:  ${visuals || 'ninguno'}`);
   line('Fuentes citadas:');
   for (const source of post.sourcesCited) {
     line(`  - ${source.title} — ${source.url}`);

@@ -171,7 +171,13 @@ it holds absolute paths for one user. Create
 `~/Library/LaunchAgents/com.diegobarrionuevo.blog-daily.plist` with:
 
 - `ProgramArguments` pointing at this repository's `automation/daily.sh`
-- `StartCalendarInterval` set to `Hour 9`, `Minute 0` (launchd uses local time)
+- `StartCalendarInterval` as an **array** with two slots — `09:00` and `15:00`
+  local time. The morning fire can land in a Power Nap dark wake and freeze when
+  the machine falls back asleep mid-run; launchd then considers the day consumed.
+  The afternoon slot is the catch-up, and the runner's one-success-per-day guard
+  plus its in-run retries are what make the pair safe: idempotency in the
+  pipeline is per-story, so without the guard a second successful run would
+  simply pick the next story and double-post
 - `EnvironmentVariables` carrying **both**:
   - `PATH` including the Node ≥ 22.13 bin directory and the directory holding `claude`
   - `CLAUDE_CLI_BIN` set to the absolute path of the `claude` binary
