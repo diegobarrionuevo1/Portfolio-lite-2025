@@ -138,26 +138,20 @@ function scoreCluster(cluster: Cluster, now: number): number {
   return crossSource + fullContentBonus + recencyScore(newest, now) - (aggregatorOnly ? 40 : 0);
 }
 
-/**
- * Pick today's topic. Returns null when nothing is left after dedup — the
- * caller treats that as a no-op success, not an error.
- */
-export function selectTopic(
-  items: readonly FeedItem[],
-  covered: ReadonlySet<string>,
-  now: number = Date.now(),
-): Selection | null {
-  const fresh = items.filter((item) => !covered.has(canonicalizeUrl(item.link)));
-  if (fresh.length === 0) return null;
+/** Hard cap on stories per run, however strong the day's signal is. */
+export const MAX_POSTS_PER_RUN = 3;
 
-  const clusters = clusterItems(fresh);
-  const ranked = clusters
-    .map((cluster) => ({ cluster, score: scoreCluster(cluster, now) }))
-    .sort((a, b) => b.score - a.score);
+interface RankedCluster {
+  cluster: Cluster;
+  score: number;
+}
 
-  const top = ranked[0];
-  if (top === undefined) return null;
-
+function buildSelection(
+  top: RankedCluster,
+  ranked: readonly RankedCluster[],
+  candidatesConsidered: number,
+  clustersConsidered: number,
+): Selection {
   const ordered = [...top.cluster.items].sort(preferForBody);
   const chosen = ordered[0]!;
 
@@ -180,7 +174,7 @@ export function selectTopic(
   if (related.length < MAX_RELATED) {
     const chosenTokens = significantTokens(chosen.title);
     const adjacents = ranked
-      .slice(1)
+      .filter((entry) => entry !== top)
       .map((entry) => {
         const representative = [...entry.cluster.items].sort(preferForBody)[0]!;
         return {
@@ -217,7 +211,48 @@ export function selectTopic(
     crossSourceCount,
     score: Math.round(top.score * 100) / 100,
     reason: reasonParts.join('; '),
-    candidatesConsidered: fresh.length,
-    clustersConsidered: clusters.length,
+    candidatesConsidered,
+    clustersConsidered,
   };
+}
+
+/**
+ * Pick today's topics, strongest first. Empty when nothing is left after dedup —
+ * the caller treats that as a no-op success, not an error.
+ *
+ * The first story only needs to be the best of the day. Every ADDITIONAL story
+ * must be corroborated by at least two independent feeds: cross-source signal
+ * is the working definition of "genuinely notable", and without that bar a
+ * quiet day would fan out into several posts about nothing.
+ */
+export function selectTopics(
+  items: readonly FeedItem[],
+  covered: ReadonlySet<string>,
+  { maxPosts = MAX_POSTS_PER_RUN }: { maxPosts?: number } = {},
+  now: number = Date.now(),
+): Selection[] {
+  const fresh = items.filter((item) => !covered.has(canonicalizeUrl(item.link)));
+  if (fresh.length === 0) return [];
+
+  const clusters = clusterItems(fresh);
+  const ranked: RankedCluster[] = clusters
+    .map((cluster) => ({ cluster, score: scoreCluster(cluster, now) }))
+    .sort((a, b) => b.score - a.score);
+
+  const selections: Selection[] = [];
+  for (const entry of ranked) {
+    if (selections.length >= maxPosts) break;
+    if (selections.length > 0 && distinctSources(entry.cluster.items) < 2) break;
+    selections.push(buildSelection(entry, ranked, fresh.length, clusters.length));
+  }
+  return selections;
+}
+
+/** Compatibility wrapper: the single strongest story of the day. */
+export function selectTopic(
+  items: readonly FeedItem[],
+  covered: ReadonlySet<string>,
+  now: number = Date.now(),
+): Selection | null {
+  return selectTopics(items, covered, { maxPosts: 1 }, now)[0] ?? null;
 }

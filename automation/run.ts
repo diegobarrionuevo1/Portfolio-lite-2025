@@ -26,7 +26,7 @@ import {
   type GhostPost,
   type PostStatus,
 } from './publish';
-import { selectTopic, type Selection } from './select';
+import { MAX_POSTS_PER_RUN, selectTopics, type Selection } from './select';
 import { canonicalizeUrl, loadCovered, markCovered } from './state';
 import { verifyPost, type VerifyResult } from './verify';
 
@@ -157,15 +157,15 @@ function printGate(gate: VerifyResult): void {
 }
 
 function printSummary(params: {
+  label: string;
   status: PostStatus | 'ninguno';
   gate: VerifyResult;
   autoPublish: boolean;
   dryRun: boolean;
   ghostPost: GhostPost | null;
-  revalidate: string;
   markedUrls: readonly string[];
 }): void {
-  heading('Resumen');
+  heading(`Resumen — ${params.label}`);
   line(`Modo:            ${params.dryRun ? 'DRY RUN (sin escritura en Ghost)' : 'real'}`);
   line(`Gate:            ${params.gate.pass ? 'PASA' : 'FALLA'}`);
   line(`BLOG_AUTO_PUBLISH: ${process.env.BLOG_AUTO_PUBLISH ?? '(sin definir)'} -> ${params.autoPublish ? 'habilitado' : 'deshabilitado'}`);
@@ -192,7 +192,6 @@ function printSummary(params: {
   if (params.ghostPost !== null) {
     line(`Post en Ghost:   ${params.ghostPost.id} (${params.ghostPost.url ?? 'sin url'})`);
   }
-  line(`Revalidate:      ${params.revalidate}`);
   line(`URLs marcadas:   ${params.markedUrls.length === 0 ? '(ninguna)' : params.markedUrls.join(', ')}`);
 }
 
@@ -223,122 +222,136 @@ async function main(): Promise<number> {
   const covered = await loadCovered();
   line(`URLs ya cubiertas en memoria: ${covered.size}`);
 
-  const selection = selectTopic(ingest.items, covered);
-  if (selection === null) {
+  const selections = selectTopics(ingest.items, covered, { maxPosts: MAX_POSTS_PER_RUN });
+  if (selections.length === 0) {
     line();
     line('Todos los items recientes ya estaban cubiertos. Nada que hacer hoy.');
     return 0;
   }
-  printSelection(selection);
+  line(
+    selections.length === 1
+      ? 'Historias para hoy: 1.'
+      : `Historias para hoy: ${selections.length} — las extra tienen señal cruzada de 2+ feeds.`,
+  );
 
-  // The URLs this run is allowed to burn: the chosen article and the other feeds
-  // carrying the SAME story. `selection.related` may also hold merely adjacent
-  // stories from other clusters — marking those would silently stop us from ever
-  // writing about them.
-  const coverableUrls = [
-    selection.chosen.link,
-    ...selection.sameStory.map((item) => item.link),
-  ];
-
-  // ------------------------------------------------- 2b. idempotencia en Ghost
-  // The slug is model output, so it differs run to run and cannot identify a
-  // story. This key is derived from the source URL, so a re-run of a failed job
-  // (which checks out the repo BEFORE the covered.json commit, i.e. with an empty
-  // dedup memory) still recognises the story. Checked before generating so a
-  // duplicate run costs no API tokens.
-  const storyKey = sourceKey(canonicalizeUrl(selection.chosen.link));
   let config: GhostConfig | null = null;
-
   if (!cli.dryRun) {
     // Resolved up front: missing Ghost credentials should fail before we pay for
     // a generation we could never publish.
     config = resolveConfig();
-    const alreadyPublished = await findPostBySourceKey(storyKey, config);
-    if (alreadyPublished !== null) {
-      line();
-      line(
-        `Esta historia ya tiene un post en Ghost (id ${alreadyPublished.id}, slug "${alreadyPublished.slug}", estado ${alreadyPublished.status ?? 'n/d'}).`,
-      );
-      line('Corrida idempotente: no se genera ni se publica nada.');
-      // Repair the dedup memory, which is what got lost in the first place.
-      await markCovered(coverableUrls);
-      line(`Memoria de dedup actualizada con ${coverableUrls.length} URL(s).`);
-      return 0;
-    }
   }
 
-  // -------------------------------------------------------------- 3. generate
-  const generated = await generatePost(selection);
-  printPost(generated.post);
-  line(
-    `Tokens: ${generated.usage.inputTokens} entrada / ${generated.usage.outputTokens} salida (stop: ${generated.stopReason ?? 'n/d'})`,
-  );
+  let createdCount = 0;
 
-  // ---------------------------------------------------------------- 4. verify
-  const gate = await verifyPost(generated.post);
-  printGate(gate);
+  // Sequential on purpose. A failure mid-list exits non-zero so the runner
+  // retries; stories already published are covered by then and skip, so the
+  // retry picks up exactly where this run died.
+  for (let index = 0; index < selections.length; index += 1) {
+    const selection = selections[index]!;
+    const label = `nota ${index + 1} de ${selections.length}`;
+    heading(`═ Nota ${index + 1} de ${selections.length} ═`);
+    printSelection(selection);
 
-  const autoPublish = autoPublishEnabled();
-  const status: PostStatus = decideStatus(gate.pass, autoPublish);
+    // The URLs this story is allowed to burn: the chosen article and the other
+    // feeds carrying the SAME story. `selection.related` may also hold merely
+    // adjacent stories from other clusters — marking those would silently stop
+    // the pipeline from ever writing about them.
+    const coverableUrls = [
+      selection.chosen.link,
+      ...selection.sameStory.map((item) => item.link),
+    ];
 
-  // --------------------------------------------------------------- 5. publish
-  heading('5. Publicación');
-  let ghostPost: GhostPost | null = null;
-  let markedUrls: string[] = [];
-  let revalidate = 'omitido (dry run)';
+    // The slug is model output, so it differs run to run and cannot identify a
+    // story. This key is derived from the source URL, so a re-run of a failed
+    // job still recognises the story. Checked before generating so a duplicate
+    // run costs no tokens.
+    const storyKey = sourceKey(canonicalizeUrl(selection.chosen.link));
 
-  if (cli.dryRun || config === null) {
-    line(`DRY RUN: se habría creado el post como "${status}". No se tocó Ghost.`);
-    line('DRY RUN: no se marcaron URLs como cubiertas.');
-  } else {
-    // Second idempotency layer: exact slug. Ghost would happily create a -2.
-    const existing = await findPostBySlug(generated.post.slug, config);
-    if (existing !== null) {
-      line(`Ya existe un post con el slug "${generated.post.slug}" (id ${existing.id}, estado ${existing.status ?? 'n/d'}).`);
-      line('Se omite la creación para no duplicar.');
-      ghostPost = existing;
+    if (config !== null) {
+      const alreadyPublished = await findPostBySourceKey(storyKey, config);
+      if (alreadyPublished !== null) {
+        line(
+          `Esta historia ya tiene un post en Ghost (id ${alreadyPublished.id}, slug "${alreadyPublished.slug}", estado ${alreadyPublished.status ?? 'n/d'}).`,
+        );
+        // Repair the dedup memory, which is what got lost in the first place.
+        await markCovered(coverableUrls);
+        line(`Memoria de dedup actualizada con ${coverableUrls.length} URL(s).`);
+        continue;
+      }
+    }
+
+    const generated = await generatePost(selection);
+    printPost(generated.post);
+    line(
+      `Tokens: ${generated.usage.inputTokens} entrada / ${generated.usage.outputTokens} salida (stop: ${generated.stopReason ?? 'n/d'})`,
+    );
+
+    const gate = await verifyPost(generated.post);
+    printGate(gate);
+
+    const autoPublish = autoPublishEnabled();
+    const status: PostStatus = decideStatus(gate.pass, autoPublish);
+
+    let ghostPost: GhostPost | null = null;
+    let markedUrls: string[] = [];
+
+    if (cli.dryRun || config === null) {
+      line(`DRY RUN: se habría creado el post como "${status}". No se tocó Ghost.`);
     } else {
-      ghostPost = await createPost(
-        {
-          title: generated.post.title,
-          slug: generated.post.slug,
-          html: generated.post.html,
-          featureImage: coverImageUrl(generated.post.title),
-          // The internal #src-<hash> tag is what makes the next run idempotent.
-          // Ghost keeps it on the post but never renders it on the front-end.
-          tags: [...generated.post.tags, sourceTagName(storyKey)],
-          customExcerpt: generated.post.customExcerpt,
-          metaTitle: generated.post.title,
-          metaDescription: generated.post.customExcerpt,
-        },
-        { status, config },
-      );
-      line(`Post creado con estado "${status}" (id ${ghostPost.id}).`);
-      line(
-        `Portada: ${coverImageUrl(generated.post.title) ?? 'omitida (falta NEXT_PUBLIC_SITE_URL)'}`,
-      );
+      // Second idempotency layer: exact slug. Ghost would happily create a -2.
+      const existing = await findPostBySlug(generated.post.slug, config);
+      if (existing !== null) {
+        line(`Ya existe un post con el slug "${generated.post.slug}" (id ${existing.id}, estado ${existing.status ?? 'n/d'}).`);
+        line('Se omite la creación para no duplicar.');
+        ghostPost = existing;
+      } else {
+        ghostPost = await createPost(
+          {
+            title: generated.post.title,
+            slug: generated.post.slug,
+            html: generated.post.html,
+            featureImage: coverImageUrl(generated.post.title),
+            // The internal #src-<hash> tag is what makes the next run idempotent.
+            // Ghost keeps it on the post but never renders it on the front-end.
+            tags: [...generated.post.tags, sourceTagName(storyKey)],
+            customExcerpt: generated.post.customExcerpt,
+            metaTitle: generated.post.title,
+            metaDescription: generated.post.customExcerpt,
+          },
+          { status, config },
+        );
+        createdCount += 1;
+        line(`Post creado con estado "${status}" (id ${ghostPost.id}).`);
+        line(
+          `Portada: ${coverImageUrl(generated.post.title) ?? 'omitida (falta NEXT_PUBLIC_SITE_URL)'}`,
+        );
+      }
+
+      // Mark covered even when we skipped a duplicate: the story is handled.
+      markedUrls = coverableUrls;
+      await markCovered(markedUrls);
+      line(`Memoria de dedup actualizada con ${markedUrls.length} URL(s).`);
     }
 
-    // Mark covered even when we skipped a duplicate: the story is handled.
-    markedUrls = coverableUrls;
-    await markCovered(markedUrls);
-    line(`Memoria de dedup actualizada con ${markedUrls.length} URL(s).`);
-
-    revalidate = await triggerRevalidate();
-    line(`Revalidate: ${revalidate}`);
+    printSummary({
+      label,
+      status: cli.dryRun ? 'ninguno' : status,
+      gate,
+      autoPublish,
+      dryRun: cli.dryRun,
+      ghostPost,
+      markedUrls,
+    });
   }
 
-  printSummary({
-    status: cli.dryRun ? 'ninguno' : status,
-    gate,
-    autoPublish,
-    dryRun: cli.dryRun,
-    ghostPost,
-    revalidate,
-    markedUrls,
-  });
+  // One flush at the end covers every post created above.
+  if (!cli.dryRun && createdCount > 0) {
+    line();
+    line(`Revalidate: ${await triggerRevalidate()}`);
+  }
 
   line();
+  line(`Notas creadas: ${createdCount} de ${selections.length}.`);
   line(`Terminado en ${((Date.now() - startedAt) / 1000).toFixed(1)}s.`);
   return 0;
 }

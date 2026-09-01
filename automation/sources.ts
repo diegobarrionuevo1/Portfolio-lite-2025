@@ -9,7 +9,7 @@
  * gets real material to react to instead of a two-line teaser.
  */
 
-export type SourceCategory = 'ai' | 'webdev' | 'devtools' | 'aggregator' | 'es';
+export type SourceCategory = 'ai' | 'webdev' | 'devtools' | 'aggregator' | 'startups' | 'es';
 
 export type SourceLang = 'en' | 'es';
 
@@ -141,6 +141,103 @@ export const SOURCES: readonly Source[] = [
     lang: 'en',
   },
   {
+    // Substack newsletters ship the full body in the feed. Import AI is Jack
+    // Clark (Anthropic co-founder) and covers Chinese AI labs every week —
+    // the closest verifiable thing to following the industry's executives.
+    name: 'Import AI',
+    url: 'https://importai.substack.com/feed',
+    category: 'ai',
+    fullContent: true,
+    lang: 'en',
+  },
+  {
+    name: 'ChinAI',
+    url: 'https://chinai.substack.com/feed',
+    category: 'ai',
+    fullContent: true,
+    lang: 'en',
+  },
+  {
+    name: 'Interconnects',
+    url: 'https://www.interconnects.ai/feed',
+    category: 'ai',
+    fullContent: true,
+    lang: 'en',
+  },
+  {
+    name: 'Latent Space',
+    url: 'https://www.latent.space/feed',
+    category: 'ai',
+    fullContent: true,
+    lang: 'en',
+  },
+  {
+    name: 'One Useful Thing',
+    url: 'https://www.oneusefulthing.org/feed',
+    category: 'ai',
+    fullContent: true,
+    lang: 'en',
+  },
+  {
+    name: 'Hugging Face Blog',
+    url: 'https://huggingface.co/blog/feed.xml',
+    category: 'ai',
+    fullContent: false,
+    lang: 'en',
+  },
+  {
+    // Alibaba's Qwen team — first-party feed from a Chinese lab.
+    name: 'Qwen Blog',
+    url: 'https://qwenlm.github.io/blog/index.xml',
+    category: 'ai',
+    fullContent: false,
+    lang: 'en',
+  },
+  {
+    name: 'The Verge AI',
+    url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',
+    category: 'ai',
+    fullContent: false,
+    lang: 'en',
+  },
+  {
+    name: 'Ars Technica AI',
+    url: 'https://arstechnica.com/ai/feed/',
+    category: 'ai',
+    fullContent: false,
+    lang: 'en',
+  },
+  {
+    // Executive announcements made on X surface here within hours.
+    name: 'Techmeme',
+    url: 'https://www.techmeme.com/feed.xml',
+    category: 'aggregator',
+    fullContent: false,
+    lang: 'en',
+  },
+  {
+    name: 'TechCrunch Startups',
+    url: 'https://techcrunch.com/category/startups/feed/',
+    category: 'startups',
+    fullContent: false,
+    lang: 'en',
+  },
+  {
+    name: 'Y Combinator Blog',
+    url: 'https://www.ycombinator.com/blog/rss',
+    category: 'startups',
+    fullContent: false,
+    lang: 'en',
+  },
+  {
+    // Weekly articles are free and in the feed; daily updates are paywalled.
+    name: 'Stratechery',
+    url: 'https://stratechery.com/feed/',
+    category: 'startups',
+    fullContent: false,
+    lang: 'en',
+  },
+  {
     name: 'Xataka',
     url: 'https://www.xataka.com/feedburner.xml',
     category: 'es',
@@ -166,6 +263,10 @@ export const BROKEN_SOURCES: ReadonlyArray<{ name: string; reason: string }> = [
   { name: 'LangChain blog', reason: 'returns text/html, not XML' },
   { name: 'DesdeLinux', reason: 'connection times out' },
   { name: 'Anthropic news/blog', reason: 'no RSS feed exists — every path 404s' },
+  { name: 'Meta AI blog', reason: 'ai.meta.com/blog/rss/ serves HTML, no feed' },
+  { name: 'Microsoft AI blog', reason: 'blogs.microsoft.com/ai/feed/ serves HTML' },
+  { name: 'Mistral', reason: 'no feed found — mistral.ai/feed.xml serves HTML' },
+  { name: 'a16z', reason: 'a16z.com/feed/ serves HTML, likely UA-gated' },
 ];
 
 export function sourceByName(name: string): Source | undefined {
