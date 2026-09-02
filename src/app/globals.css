@@ -511,6 +511,16 @@
     display: inline-flex;
   }
 }
+.nav-lang {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--ls-caps);
+  padding: 7px 12px;
+  border: 1px solid var(--border-hairline);
+  border-radius: 999px;
+  color: var(--text-secondary);
+}
+.nav-lang:hover { color: var(--text-primary); border-color: var(--text-primary); }
 .nav-menu-btn {
   display: inline-flex;
   align-items: center;

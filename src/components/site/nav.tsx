@@ -1,17 +1,51 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Badge, Button } from "@/components/ds";
 import { nightState } from "./night";
 
-const SECTIONS = [
-  { label: "Trabajo", id: "work" },
-  { label: "Stack", id: "stack" },
-  { label: "Sobre mí", id: "about" },
-];
+import { blogHref, homeHref, type Lang } from "@/lib/i18n";
 
-const LINKS = [...SECTIONS, { label: "Blog", id: "blog" }];
+const COPY = {
+  es: {
+    sections: [
+      { label: "Trabajo", id: "work" },
+      { label: "Stack", id: "stack" },
+      { label: "Sobre mí", id: "about" },
+    ],
+    blog: "Blog",
+    badge: "Disponible para proyectos",
+    cta: "Contactame",
+    menu: "Menú",
+    close: "Cerrar",
+    switchLabel: "EN",
+    switchAria: "Read in English",
+  },
+  en: {
+    sections: [
+      { label: "Work", id: "work" },
+      { label: "Stack", id: "stack" },
+      { label: "About", id: "about" },
+    ],
+    blog: "Blog",
+    badge: "Available for projects",
+    cta: "Contact me",
+    menu: "Menu",
+    close: "Close",
+    switchLabel: "ES",
+    switchAria: "Leer en español",
+  },
+} as const;
+
+/** The same page in the other language, by URL shape alone. */
+function switchHref(pathname: string, lang: Lang): string {
+  if (lang === "en") {
+    const stripped = pathname.replace(/^\/en(?=\/|$)/, "");
+    return stripped === "" ? "/" : stripped;
+  }
+  return pathname === "/" ? "/en" : `/en${pathname}`;
+}
 
 const wordmark = (
   <>
@@ -40,7 +74,7 @@ const wordmarkStyle: React.CSSProperties = {
   letterSpacing: "-0.03em",
 };
 
-export function Nav() {
+export function Nav({ lang = "es" }: { lang?: Lang } = {}) {
   const barRef = useRef<HTMLSpanElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const badgeRef = useRef<HTMLSpanElement>(null);
@@ -52,8 +86,17 @@ export function Nav() {
   // Anywhere else they must become absolute links back to it, and the
   // scroll-spy has nothing to observe.
   const pathname = usePathname();
-  const isHome = pathname === "/";
-  const href = (id: string) => (id === "blog" ? "/blog" : isHome ? `#${id}` : `/#${id}`);
+  const copy = COPY[lang];
+  // Stable per language so the scroll-spy effect can list it as a dependency
+  // without re-subscribing on every render.
+  const LINKS = useMemo(
+    () => [...copy.sections, { label: copy.blog, id: "blog" }],
+    [copy],
+  );
+  const home = homeHref(lang);
+  const isHome = pathname === home;
+  const href = (id: string) =>
+    id === "blog" ? blogHref(lang) : isHome ? `#${id}` : `${home}#${id}`;
 
   // Below 860px the inline links are hidden and this sheet is the only way to
   // reach anything but the contact CTA. It lives outside the blend layer: the
@@ -134,7 +177,7 @@ export function Nav() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [LINKS]);
 
   const onEnter = (i: number) => {
     hovered.current.add(i);
@@ -195,7 +238,7 @@ export function Nav() {
         }}
       >
         <a
-          href={isHome ? "#top" : "/"}
+          href={isHome ? "#top" : home}
           style={{ ...wordmarkStyle, pointerEvents: "auto", color: "var(--bone-50)" }}
         >
           {wordmark}
@@ -233,7 +276,7 @@ export function Nav() {
               fontWeight: 500,
             }}
           >
-            Contactame ↗
+            {copy.cta} ↗
           </span>
         </span>
       </div>
@@ -266,10 +309,15 @@ export function Nav() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
           <span ref={badgeRef} style={{ display: "none" }}>
-            <Badge tone="accent" live>
-              Disponible para proyectos
-            </Badge>
+            <Badge tone="accent" live>{copy.badge}</Badge>
           </span>
+          <a
+            className="nav-lang"
+            href={switchHref(pathname, lang)}
+            aria-label={copy.switchAria}
+          >
+            {copy.switchLabel}
+          </a>
           <button
             type="button"
             className="nav-menu-btn"
@@ -277,12 +325,10 @@ export function Nav() {
             aria-controls="nav-sheet"
             onClick={() => setMenuOpen(true)}
           >
-            Menú
+            {copy.menu}
           </button>
           <span className="nav-cta">
-            <Button size="sm" variant="accent" arrow href="#contact">
-              Contactame
-            </Button>
+            <Button size="sm" variant="accent" arrow href="#contact">{copy.cta}</Button>
           </span>
         </div>
       </nav>
@@ -295,7 +341,7 @@ export function Nav() {
       >
         <div className="nav-sheet__top">
           <button type="button" className="nav-menu-btn" onClick={() => setMenuOpen(false)}>
-            Cerrar
+            {copy.close}
           </button>
         </div>
         <div className="nav-sheet__links">
@@ -306,18 +352,14 @@ export function Nav() {
           ))}
         </div>
         <div className="nav-sheet__foot">
-          <Badge tone="accent" live>
-            Disponible para proyectos
-          </Badge>
+          <Badge tone="accent" live>{copy.badge}</Badge>
           <Button
             size="lg"
             variant="accent"
             arrow
             href="#contact"
             onClick={() => setMenuOpen(false)}
-          >
-            Contactame
-          </Button>
+          >{copy.cta}</Button>
         </div>
       </div>
     </>

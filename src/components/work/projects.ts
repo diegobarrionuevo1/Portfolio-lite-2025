@@ -37,7 +37,7 @@ export type Project = {
   slides: Slide[];
 };
 
-export const PROJECTS: Project[] = [
+const PROJECTS_ES: Project[] = [
   {
     id: "P/01",
     name: "DonWeb Cloud — Plataforma de contenidos",
@@ -146,3 +146,128 @@ export const PROJECTS: Project[] = [
     ],
   },
 ];
+
+
+/**
+ * English mirror of PROJECTS_ES. Hand-written, not machine-run at build time:
+ * project copy is marketing surface and deserves a human-reviewed translation.
+ * Figures keep their value but switch to English number formatting.
+ */
+const PROJECTS_EN: Project[] = [
+  {
+    id: "P/01",
+    name: "DonWeb Cloud — Content platform",
+    badge: { label: "Production", tone: "positive", dot: true },
+    slides: [
+      {
+        kind: "media",
+        placeholder: "DonWeb Cloud screenshot",
+        caption: "Editorial platform · Ghost",
+      },
+      {
+        kind: "ficha",
+        title: "DonWeb Cloud — Content platform",
+        role: "Architecture, development and support",
+        body: "I built an editorial platform with a dashboard, custom templates and a Ghost theme, simplifying publishing. It reached 200,000+ organic views in its first 3 months and gave DonWeb's services real visibility. I also produce tutorials and technical videos for their official channels.",
+        tags: ["Ghost 6", "Handlebars", "MySQL", "Caddy", "Docker"],
+      },
+      {
+        kind: "metrics",
+        kicker: "Impact",
+        stats: [
+          { value: "200,000+", label: "organic views in the first 3 months" },
+        ],
+        closer: "Publishing made simple for the editorial team.",
+      },
+    ],
+  },
+  {
+    id: "P/02",
+    name: "DonWeb Cloud — Workshops & certification",
+    badge: { label: "Production", tone: "positive", dot: true },
+    slides: [
+      {
+        kind: "media",
+        placeholder: "Workshops platform screenshot",
+        caption: "Multi-service · since 2023",
+      },
+      {
+        kind: "ficha",
+        title: "DonWeb Cloud — Workshops & certification",
+        role: "Development and technical leadership",
+        body: "I built the first version in May 2023 and led its full renewal in 2026: multi-service architecture, CI/CD and 1,700+ tests. As of July 2026 it manages 218 courses, workshops and webinars, 138,109 registrations and 123,253 certificates. I migrated with zero downtime, preserving historic data and URLs, and automated communications and operations.",
+        tags: ["Node.js", "TypeScript", "React", "PostgreSQL", "Directus", "Docker", "CI/CD"],
+        link: { label: "Visit the site", href: "https://certificados.donweb.com", variant: "accent" },
+      },
+      {
+        kind: "metrics",
+        kicker: "As of July 2026",
+        stats: [
+          { value: "218", label: "courses, workshops and webinars" },
+          { value: "138,109", label: "registrations" },
+          { value: "123,253", label: "certificates issued" },
+        ],
+        closer: "1,700+ automated tests and a zero-downtime migration.",
+      },
+      {
+        kind: "media",
+        placeholder: "Public certificate screenshot",
+        caption: "Public certificate",
+      },
+    ],
+  },
+  {
+    id: "P/03",
+    name: "Somos Hashi — AI content",
+    badge: { label: "MVP", tone: "neutral" },
+    slides: [
+      {
+        kind: "media",
+        src: "/hero-light.png",
+        placeholder: "Somos Hashi screenshot",
+        caption: "AI content",
+      },
+      {
+        kind: "ficha",
+        title: "Somos Hashi — AI content",
+        role: "Full-stack development",
+        body: "I built the MVP of an AI content-creation platform, covering the frontend, the backend and the integration with OpenAI models.",
+        tags: ["Next.js", "TypeScript", "Node.js", "OpenAI", "Docker"],
+        link: { label: "Visit the site", href: "https://hashiapp.com", variant: "outline" },
+      },
+    ],
+  },
+  {
+    id: "P/04",
+    name: "Ada13 — Web platform",
+    slides: [
+      {
+        kind: "plate",
+        numeral: "04",
+        caption: "Web platform · ongoing maintenance",
+      },
+      {
+        kind: "ficha",
+        title: "Ada13 — Web platform",
+        role: "Full-stack development and maintenance",
+        body: "I refactored the frontend and backend, processed data and implemented transactional email. I also handle service maintenance, corrective support and issue tracking.",
+        tags: [
+          "Frontend refactor",
+          "Backend refactor",
+          "Data processing",
+          "Transactional email",
+          "Support",
+        ],
+      },
+    ],
+  },
+];
+
+import type { Lang } from "@/lib/i18n";
+
+export function getProjects(lang: Lang = "es"): readonly Project[] {
+  return lang === "en" ? PROJECTS_EN : PROJECTS_ES;
+}
+
+/** Kept for existing imports. */
+export const PROJECTS = PROJECTS_ES;

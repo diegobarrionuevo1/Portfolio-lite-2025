@@ -1,3 +1,4 @@
+import type { Lang } from "@/lib/i18n";
 import { SectionLabel, Tag } from "@/components/ds";
 
 const mono: React.CSSProperties = {
@@ -31,12 +32,43 @@ const em: React.CSSProperties = {
   color: "var(--text-accent)",
 };
 
-const SERVICES = [
-  { code: "C/01", title: <>Desarrollo de productos</>, body: "Aplicaciones web y SaaS, del análisis inicial hasta producción." },
-  { code: "C/02", title: <>Backend e integraciones</>, body: "APIs, bases de datos, auth, webhooks, pagos y servicios externos." },
-  { code: "C/03", title: <>Automatización e <em style={em}>IA</em></>, body: "Procesos, documentos, asistentes e integración de modelos." },
-  { code: "C/04", title: <>Deploy y operación</>, body: "Docker, servidores, monitoreo, debugging y mantenimiento." },
-];
+const SERVICES = {
+  es: [
+    { code: "C/01", title: <>Desarrollo de productos</>, body: "Aplicaciones web y SaaS, del análisis inicial hasta producción." },
+    { code: "C/02", title: <>Backend e integraciones</>, body: "APIs, bases de datos, auth, webhooks, pagos y servicios externos." },
+    { code: "C/03", title: <>Automatización e <em style={em}>IA</em></>, body: "Procesos, documentos, asistentes e integración de modelos." },
+    { code: "C/04", title: <>Deploy y operación</>, body: "Docker, servidores, monitoreo, debugging y mantenimiento." },
+  ],
+  en: [
+    { code: "C/01", title: <>Product development</>, body: "Web apps and SaaS, from first analysis to production." },
+    { code: "C/02", title: <>Backend & integrations</>, body: "APIs, databases, auth, webhooks, payments and third-party services." },
+    { code: "C/03", title: <>Automation & <em style={em}>AI</em></>, body: "Processes, documents, assistants and model integration." },
+    { code: "C/04", title: <>Deploy & operations</>, body: "Docker, servers, monitoring, debugging and maintenance." },
+  ],
+} as const;
+
+const COPY = {
+  es: {
+    aside: "Cómo trabajo",
+    heading: "Capacidades",
+    stack: "Stack",
+    noteA: "Núcleo en ",
+    noteEm: "TypeScript, Node.js, React, Next.js y PostgreSQL",
+    noteB: ". El resto son herramientas que usé en proyectos reales.",
+    groups: { "IA y agentes": "IA y agentes", Datos: "Datos", Integraciones: "Integraciones", Frontend: "Frontend", Backend: "Backend", Infra: "Infra" } as Record<string, string>,
+    agentTag: "Agentes",
+  },
+  en: {
+    aside: "How I work",
+    heading: "Capabilities",
+    stack: "Stack",
+    noteA: "Core in ",
+    noteEm: "TypeScript, Node.js, React, Next.js and PostgreSQL",
+    noteB: ". The rest are tools I've used in real projects.",
+    groups: { "IA y agentes": "AI & agents", Datos: "Data", Integraciones: "Integrations", Frontend: "Frontend", Backend: "Backend", Infra: "Infra" } as Record<string, string>,
+    agentTag: "Agents",
+  },
+} as const;
 
 const STACK: { group: string; tags: { label: string; accent?: boolean }[] }[] = [
   {
@@ -101,7 +133,9 @@ const STACK: { group: string; tags: { label: string; accent?: boolean }[] }[] = 
   },
 ];
 
-export function Capabilities() {
+export function Capabilities({ lang = "es" }: { lang?: Lang } = {}) {
+  const copy = COPY[lang];
+  const services = SERVICES[lang];
   return (
     <section
       id="stack"
@@ -117,12 +151,12 @@ export function Capabilities() {
         color: "var(--text-primary)",
       }}
     >
-      <SectionLabel index="03" aside="Cómo trabajo">
-        Capacidades
+      <SectionLabel index="03" aside={copy.aside}>
+        {copy.heading}
       </SectionLabel>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,380px),1fr))", gap: 1 }}>
-        {SERVICES.map((s, i) => (
+        {services.map((s, i) => (
           <div
             key={s.code}
             data-reveal
@@ -164,7 +198,7 @@ export function Capabilities() {
             lineHeight: "var(--lh-tight)",
           }}
         >
-          Stack
+          {copy.stack}
         </h3>
         <p
           style={{
@@ -175,8 +209,9 @@ export function Capabilities() {
             color: "var(--text-secondary)",
           }}
         >
-          Núcleo en <em style={em}>TypeScript, Node.js, React, Next.js y PostgreSQL</em>. El resto son herramientas que
-          usé en proyectos reales.
+          {copy.noteA}
+          <em style={em}>{copy.noteEm}</em>
+          {copy.noteB}
         </p>
       </div>
 
@@ -192,12 +227,12 @@ export function Capabilities() {
                 marginBottom: "var(--space-4)",
               }}
             >
-              {col.group}
+              {copy.groups[col.group] ?? col.group}
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}>
               {col.tags.map((t) => (
                 <Tag key={t.label} variant={t.accent ? "accent" : "outline"}>
-                  {t.label}
+                  {t.label === "Agentes" ? copy.agentTag : t.label}
                 </Tag>
               ))}
             </div>

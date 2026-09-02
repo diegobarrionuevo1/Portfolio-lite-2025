@@ -1,4 +1,36 @@
 import { SectionLabel } from "@/components/ds";
+import type { Lang } from "@/lib/i18n";
+
+const COPY = {
+  es: {
+    heading: "Resultados e impacto",
+    h1a: "Construí plataformas usadas por",
+    h1em: "miles de personas",
+    h1b: ", sistemas internos, integraciones con APIs y productos con IA",
+    years: "años desarrollando software, desde 2022",
+    reach: "250 mil",
+    reachDesc: "usuarios alcanzados por plataformas que construí",
+    endToEnd: "Punta a punta",
+    endToEndDesc: "del relevamiento al deploy y el mantenimiento",
+    remote: "Remoto",
+    remoteDesc: "con equipos y clientes de distintos países",
+    foot: "Las métricas de cada trabajo están en su ficha",
+  },
+  en: {
+    heading: "Results & impact",
+    h1a: "I've built platforms used by",
+    h1em: "thousands of people",
+    h1b: ", internal systems, API integrations and AI products",
+    years: "years building software, since 2022",
+    reach: "250K",
+    reachDesc: "users reached by platforms I built",
+    endToEnd: "End to end",
+    endToEndDesc: "from discovery to deploy and maintenance",
+    remote: "Remote",
+    remoteDesc: "with teams and clients across countries",
+    foot: "Each project's metrics live in its own card",
+  },
+} as const;
 
 const mono: React.CSSProperties = {
   fontFamily: "var(--font-mono)",
@@ -26,7 +58,8 @@ const cell: React.CSSProperties = {
 
 const desc: React.CSSProperties = { fontSize: "var(--fs-body-sm)", color: "var(--text-secondary)" };
 
-export function Impact() {
+export function Impact({ lang = "es" }: { lang?: Lang } = {}) {
+  const copy = COPY[lang];
   return (
     <section
       id="impact"
@@ -38,7 +71,7 @@ export function Impact() {
       }}
     >
       <SectionLabel index="01" aside="2022 — 2026">
-        Resultados e impacto
+        {copy.heading}
       </SectionLabel>
       <p
         data-reveal
@@ -53,7 +86,7 @@ export function Impact() {
           textWrap: "balance",
         }}
       >
-        Construí plataformas usadas por{" "}
+        {copy.h1a}{" "}
         <em
           style={{
             fontFamily: "var(--font-serif)",
@@ -63,9 +96,9 @@ export function Impact() {
             color: "var(--text-accent)",
           }}
         >
-          miles de personas
+          {copy.h1em}
         </em>
-        , sistemas internos, integraciones con APIs y productos con IA
+        {copy.h1b}
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,220px),1fr))", gap: 1 }}>
@@ -75,26 +108,26 @@ export function Impact() {
               +4
             </span>
           </div>
-          <div style={desc}>años desarrollando software, desde 2022</div>
+          <div style={desc}>{copy.years}</div>
         </div>
         <div data-reveal data-delay="70" style={cell}>
           <div style={cellStat} data-numeric>
-            <span style={{ color: "var(--text-accent)" }}>+</span>250 mil
+            <span style={{ color: "var(--text-accent)" }}>+</span>{copy.reach}
           </div>
-          <div style={desc}>usuarios alcanzados por plataformas que construí</div>
+          <div style={desc}>{copy.reachDesc}</div>
         </div>
         <div data-reveal data-delay="140" style={cell}>
-          <div style={cellStat}>Punta a punta</div>
-          <div style={desc}>del relevamiento al deploy y el mantenimiento</div>
+          <div style={cellStat}>{copy.endToEnd}</div>
+          <div style={desc}>{copy.endToEndDesc}</div>
         </div>
         <div data-reveal data-delay="210" style={cell}>
-          <div style={cellStat}>Remoto</div>
-          <div style={desc}>con equipos y clientes de distintos países</div>
+          <div style={cellStat}>{copy.remote}</div>
+          <div style={desc}>{copy.remoteDesc}</div>
         </div>
       </div>
 
       <p data-reveal style={{ ...mono, margin: 0, letterSpacing: "var(--ls-caps-tight)", color: "var(--text-muted)" }}>
-        Las métricas de cada trabajo están en su ficha
+        {copy.foot}
       </p>
     </section>
   );

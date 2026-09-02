@@ -40,6 +40,22 @@
     {
       "url": "github.blog/changelog/2026-09-01-copilot-code-review-can-now-approve-pull-requests",
       "coveredAt": "2026-09-01T20:17:55.337Z"
+    },
+    {
+      "url": "vercel.com/changelog/claude-fable-5-1-now-available-on-ai-gateway",
+      "coveredAt": "2026-09-01T20:41:57.015Z"
+    },
+    {
+      "url": "anthropic.com/claude-fable-and-mythos-5-1",
+      "coveredAt": "2026-09-01T20:41:57.015Z"
+    },
+    {
+      "url": "techcrunch.com/2026/09/01/sequoia-incubated-empirik-launches-with-21m-to-predict-outages-before-they-happen",
+      "coveredAt": "2026-09-01T20:42:58.805Z"
+    },
+    {
+      "url": "techcrunch.com/2026/09/01/air-raises-50m-to-help-companies-vet-the-skills-and-add-ons-ai-agents-use",
+      "coveredAt": "2026-09-01T20:44:32.933Z"
     }
   ]
 }

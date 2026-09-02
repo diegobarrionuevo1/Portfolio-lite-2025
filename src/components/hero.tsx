@@ -1,5 +1,7 @@
 "use client";
 
+import type { Lang } from "@/lib/i18n";
+
 import { useEffect, useRef, useState } from "react";
 import { Button, ScrollCue, Marquee } from "@/components/ds";
 
@@ -16,7 +18,25 @@ const clipWrap: React.CSSProperties = {
   verticalAlign: "bottom",
 };
 
-export const Hero = () => {
+const COPY = {
+  es: {
+    remote: "Remoto",
+    role: "Desarrollador de software full stack",
+    lede: "Construyo productos, automatizaciones e integraciones que resuelven procesos reales de negocio — del relevamiento al deploy.",
+    cta: "Ver trabajo",
+    cue: "Resultados e impacto",
+  },
+  en: {
+    remote: "Remote",
+    role: "Full-stack software developer",
+    lede: "I build products, automations and integrations that solve real business processes — from discovery to deploy.",
+    cta: "See work",
+    cue: "Results & impact",
+  },
+} as const;
+
+export const Hero = ({ lang = "es" }: { lang?: Lang } = {}) => {
+  const copy = COPY[lang];
   const ref = useRef<HTMLElement>(null);
   const [ready, setReady] = useState(false);
 
@@ -70,7 +90,7 @@ export const Hero = () => {
         </span>
         <span style={clipWrap}>
           <span data-hero style={{ transitionDelay: "140ms" }}>
-            Remoto
+            {copy.remote}
           </span>
         </span>
       </div>
@@ -149,7 +169,7 @@ export const Hero = () => {
               transitionDelay: "260ms",
             }}
           >
-            Desarrollador de software full stack
+            {copy.role}
           </div>
           <p
             data-hero-rise
@@ -164,8 +184,7 @@ export const Hero = () => {
               transitionDelay: "320ms",
             }}
           >
-            Construyo productos, automatizaciones e integraciones que resuelven
-            procesos reales de negocio — del relevamiento al deploy.
+            {copy.lede}
           </p>
         </div>
         <div
@@ -179,7 +198,7 @@ export const Hero = () => {
           }}
         >
           <Button variant="primary" arrow href="#work">
-            Ver trabajo
+            {copy.cta}
           </Button>
         </div>
       </div>
@@ -209,7 +228,7 @@ export const Hero = () => {
           }}
         />
         <span data-hero-rise style={{ display: "inline-block", transitionDelay: "460ms" }}>
-          <ScrollCue href="#work">Resultados e impacto</ScrollCue>
+          <ScrollCue href="#work">{copy.cue}</ScrollCue>
         </span>
         <div
           data-hero-rise

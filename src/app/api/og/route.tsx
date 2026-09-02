@@ -32,8 +32,10 @@ function titleSize(length: number): number {
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
 
+  const lang = searchParams.get("lang") === "en" ? "en" : "es";
   const raw = (searchParams.get("title") ?? "").trim();
-  const title = raw === "" ? "Notas de taller" : raw.slice(0, 120);
+  const fallback = lang === "en" ? "Workshop notes" : "Notas de taller";
+  const title = raw === "" ? fallback : raw.slice(0, 120);
 
   const [display, serif] = await Promise.all([
     // A static instance on purpose: Satori cannot parse a variable font's
@@ -66,7 +68,7 @@ export async function GET(request: Request) {
               opacity: 0.55,
             }}
           >
-            NOTAS DE TALLER
+            {lang === "en" ? "WORKSHOP NOTES" : "NOTAS DE TALLER"}
           </div>
         </div>
 

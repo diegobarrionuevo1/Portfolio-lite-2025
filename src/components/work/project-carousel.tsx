@@ -1,5 +1,22 @@
 "use client";
 
+import type { Lang } from "@/lib/i18n";
+
+const UI = {
+  es: {
+    slides: "Diapositivas del proyecto",
+    prev: "Diapositiva anterior",
+    next: "Diapositiva siguiente",
+    drag: "Arrastrá",
+  },
+  en: {
+    slides: "Project slides",
+    prev: "Previous slide",
+    next: "Next slide",
+    drag: "Drag",
+  },
+} as const;
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge, Button, Tag } from "@/components/ds";
 import type { Project, Slide } from "./projects";
@@ -30,7 +47,8 @@ const mono: React.CSSProperties = {
   textTransform: "uppercase",
 };
 
-export function ProjectCarousel({ project }: { project: Project }) {
+export function ProjectCarousel({ project, lang = "es" }: { project: Project; lang?: Lang }) {
+  const ui = UI[lang];
   const slider = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const indexRef = useRef(0);
@@ -256,7 +274,7 @@ export function ProjectCarousel({ project }: { project: Project }) {
         </div>
         <div
           role="group"
-          aria-label="Diapositivas del proyecto"
+          aria-label={ui.slides}
           style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}
         >
           {project.slides.map((_, i) => (
@@ -353,11 +371,11 @@ export function ProjectCarousel({ project }: { project: Project }) {
               opacity: hintGone ? 0 : 1,
             }}
           >
-            Arrastrá
+            {ui.drag}
           </span>
           <div style={{ display: "flex", gap: "var(--space-2)" }}>
             <ArrowButton
-              label="Diapositiva anterior"
+              label={ui.prev}
               disabled={index === 0}
               onClick={() => {
                 markInteracted();
@@ -367,7 +385,7 @@ export function ProjectCarousel({ project }: { project: Project }) {
               ←
             </ArrowButton>
             <ArrowButton
-              label="Diapositiva siguiente"
+              label={ui.next}
               disabled={index === N - 1}
               onClick={() => {
                 markInteracted();

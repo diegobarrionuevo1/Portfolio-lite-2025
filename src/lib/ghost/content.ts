@@ -99,17 +99,30 @@ export type PostsPage = {
 /** Newest first unless asked otherwise. */
 export type PostOrder = "newest" | "oldest";
 
+export type PostLang = "es" | "en";
+
+/**
+ * NQL fragment keeping each language's index to itself. English twins carry
+ * the internal #lang-en tag (slug `hash-lang-en`); Spanish posts are simply
+ * everything without it, so old posts need no migration to stay Spanish.
+ */
+function langFilter(lang: PostLang): string {
+  return lang === "en" ? "tag:hash-lang-en" : "tag:-hash-lang-en";
+}
+
 /** One page of published posts. */
 export async function getPosts({
   page = 1,
   limit = POSTS_PER_PAGE,
   tag,
   order = "newest",
+  lang = "es",
 }: {
   page?: number;
   limit?: number;
   tag?: string;
   order?: PostOrder;
+  lang?: PostLang;
 } = {}): Promise<PostsPage> {
   const data = await request<GhostBrowseResponse<"posts", GhostPost>>("/posts/", {
     limit: Math.min(limit, MAX_LIMIT),
@@ -117,7 +130,7 @@ export async function getPosts({
     include: "tags,authors",
     // No `fields` here: combining it with `excerpt` suppresses Ghost's
     // auto-generated excerpt for posts without a custom one.
-    filter: tag ? `tag:${tag}` : undefined,
+    filter: [langFilter(lang), tag ? `tag:${tag}` : null].filter(Boolean).join('+'),
     order: order === "oldest" ? "published_at asc" : "published_at desc",
   });
 

@@ -1,4 +1,5 @@
 import { Button, SectionLabel } from "@/components/ds";
+import type { Lang } from "@/lib/i18n";
 import { Clock } from "@/components/site/clock";
 
 const mono: React.CSSProperties = {
@@ -16,7 +17,32 @@ const em: React.CSSProperties = {
   letterSpacing: 0,
 };
 
-export function About() {
+
+const COPY = {
+  es: {
+    aside: "Ingeniero en Sistemas",
+    heading: "Sobre mí",
+    h2a: "Convierto procesos manuales en ",
+    h2em: "sistemas que un equipo usa todos los días",
+    p1: "Soy desarrollador full stack con formación en Ingeniería en Sistemas y experiencia construyendo aplicaciones para empresas, startups y productos propios.",
+    p2: "Me interesan los proyectos donde tengo que entender el problema, diseñar la solución, conectar servicios y llevar el producto hasta producción. Puedo trabajar solo o integrarme a un equipo y hacerme cargo de una parte completa del producto.",
+    degree: "Ingeniería en Sistemas de Información",
+    uni: "Universidad Tecnológica Nacional — Córdoba · 2018 — 2022",
+  },
+  en: {
+    aside: "Systems Engineer",
+    heading: "About me",
+    h2a: "I turn manual processes into ",
+    h2em: "systems a team uses every day",
+    p1: "I'm a full-stack developer with a Systems Engineering background and experience building applications for companies, startups and my own products.",
+    p2: "I'm drawn to projects where I have to understand the problem, design the solution, connect services and take the product all the way to production. I can work solo, or join a team and own a complete part of the product.",
+    degree: "Information Systems Engineering",
+    uni: "Universidad Tecnológica Nacional — Córdoba · 2018 — 2022",
+  },
+} as const;
+
+export function About({ lang = "es" }: { lang?: Lang } = {}) {
+  const copy = COPY[lang];
   return (
     <section
       id="about"
@@ -45,8 +71,8 @@ export function About() {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
-        <SectionLabel index="05" aside="Ingeniero en Sistemas">
-          Sobre mí
+        <SectionLabel index="05" aside={copy.aside}>
+          {copy.heading}
         </SectionLabel>
         <p
           data-reveal
@@ -61,7 +87,8 @@ export function About() {
             textWrap: "balance",
           }}
         >
-          Convierto procesos manuales en <em style={em}>sistemas que un equipo usa todos los días</em>
+          {copy.h2a}
+          <em style={em}>{copy.h2em}</em>
         </p>
         <p
           data-reveal
@@ -76,8 +103,7 @@ export function About() {
             textWrap: "pretty",
           }}
         >
-          Soy desarrollador full stack con formación en Ingeniería en Sistemas y experiencia construyendo aplicaciones
-          para empresas, startups y productos propios.
+          {copy.p1}
         </p>
         <p
           data-reveal
@@ -91,9 +117,7 @@ export function About() {
             textWrap: "pretty",
           }}
         >
-          Me interesan los proyectos donde tengo que entender el problema, diseñar la solución, conectar servicios y
-          llevar el producto hasta producción. Puedo trabajar solo o integrarme a un equipo y hacerme cargo de una parte
-          completa del producto.
+          {copy.p2}
         </p>
         <div
           data-reveal
@@ -141,10 +165,10 @@ export function About() {
           />
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: "var(--fs-body-sm)", color: "var(--text-primary)" }}>
-              Ingeniería en Sistemas de Información
+              {copy.degree}
             </div>
             <div style={{ ...mono, marginTop: "var(--space-1)" }}>
-              Universidad Tecnológica Nacional — Córdoba · 2018 — 2022
+              {copy.uni}
             </div>
           </div>
         </div>

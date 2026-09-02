@@ -29,6 +29,7 @@ import {
 } from './publish';
 import { MAX_POSTS_PER_RUN, selectTopics, type Selection } from './select';
 import { canonicalizeUrl, loadCovered, markCovered } from './state';
+import { ensureEnglishTwin } from './translate';
 import { verifyPost, type VerifyResult } from './verify';
 
 const REVALIDATE_TIMEOUT_MS = 10_000;
@@ -88,10 +89,12 @@ export function decideStatus(gatePassed: boolean, autoPublish: boolean): PostSta
 export function coverImageUrl(
   title: string,
   siteUrl = process.env.NEXT_PUBLIC_SITE_URL,
+  lang: 'es' | 'en' = 'es',
 ): string | undefined {
   const base = (siteUrl ?? '').trim().replace(/\/+$/, '');
   if (base === '') return undefined;
-  return `${base}/api/og?title=${encodeURIComponent(title)}`;
+  const suffix = lang === 'en' ? '&lang=en' : '';
+  return `${base}/api/og?title=${encodeURIComponent(title)}${suffix}`;
 }
 
 async function triggerRevalidate(): Promise<string> {
@@ -361,6 +364,34 @@ async function main(): Promise<number> {
         line(
           `Portada: ${coverImageUrl(generated.post.title) ?? 'omitida (falta NEXT_PUBLIC_SITE_URL)'}`,
         );
+
+        // English twin: same story, deterministic `-en` slug, #lang-en tag.
+        // A failure here must not undo the Spanish post — it logs, and the
+        // backfill script (translate-existing) repairs the pair later.
+        try {
+          const twin = await ensureEnglishTwin(
+            {
+              title: generated.post.title,
+              slug: generated.post.slug,
+              html: generated.post.html,
+              customExcerpt: generated.post.customExcerpt,
+              tags: generated.post.tags,
+              internalTags: [sourceTagName(storyKey)],
+            },
+            {
+              status,
+              config,
+              featureImageFor: (titleEn) => coverImageUrl(titleEn, undefined, 'en'),
+            },
+          );
+          if (twin.created !== null) {
+            line(`Versión EN creada con estado "${status}" (id ${twin.created.id}, slug ${twin.created.slug ?? ''}).`);
+          }
+        } catch (error) {
+          line(
+            `Versión EN falló (la nota ES quedó bien): ${error instanceof Error ? error.message : String(error)}`,
+          );
+        }
       }
 
       // Mark covered even when we skipped a duplicate: the story is handled.

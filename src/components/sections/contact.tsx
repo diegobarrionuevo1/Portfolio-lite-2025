@@ -1,4 +1,5 @@
 import { Button, SectionLabel } from "@/components/ds";
+import { blogHref, type Lang } from "@/lib/i18n";
 import { Clock } from "@/components/site/clock";
 
 const mono: React.CSSProperties = {
@@ -9,14 +10,37 @@ const mono: React.CSSProperties = {
   color: "var(--text-muted)",
 };
 
-const CONTACTS = [
-  { label: "Email", value: "diegobarrionuevo11@gmail.com", href: "mailto:diegobarrionuevo11@gmail.com" },
-  { label: "LinkedIn", value: "/in/diegobarrionuevo11", href: "https://www.linkedin.com/in/diegobarrionuevo11/" },
-  { label: "GitHub", value: "@diegobarrionuevo1", href: "https://github.com/diegobarrionuevo1" },
-  { label: "Blog", value: "Notas y análisis", href: "/blog" },
-];
+const COPY = {
+  es: {
+    aside: "Respondo en menos de 24 h",
+    heading: "Contacto",
+    h2: "¿Estás construyendo algo",
+    lede: "Estoy disponible para oportunidades remotas, proyectos de software y colaboraciones con equipos de producto. Contame qué estás construyendo.",
+    cta: "Escribime",
+    blogValue: "Notas y análisis",
+  },
+  en: {
+    aside: "I reply within 24 h",
+    heading: "Contact",
+    h2: "Are you building something",
+    lede: "I'm available for remote roles, software projects and collaborations with product teams. Tell me what you're building.",
+    cta: "Write me",
+    blogValue: "Notes & analysis",
+  },
+} as const;
 
-export function Contact() {
+function contacts(lang: Lang) {
+  return [
+    { label: "Email", value: "diegobarrionuevo11@gmail.com", href: "mailto:diegobarrionuevo11@gmail.com" },
+    { label: "LinkedIn", value: "/in/diegobarrionuevo11", href: "https://www.linkedin.com/in/diegobarrionuevo11/" },
+    { label: "GitHub", value: "@diegobarrionuevo1", href: "https://github.com/diegobarrionuevo1" },
+    { label: "Blog", value: COPY[lang].blogValue, href: blogHref(lang) },
+  ];
+}
+
+export function Contact({ lang = "es" }: { lang?: Lang } = {}) {
+  const copy = COPY[lang];
+  const CONTACTS = contacts(lang);
   return (
     <footer
       id="contact"
@@ -28,8 +52,8 @@ export function Contact() {
         borderTop: "1px solid var(--border-hairline)",
       }}
     >
-      <SectionLabel index="06" aside="Respondo en menos de 24 h">
-        Contacto
+      <SectionLabel index="06" aside={copy.aside}>
+        {copy.heading}
       </SectionLabel>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
@@ -46,7 +70,7 @@ export function Contact() {
             textWrap: "balance",
           }}
         >
-          ¿Estás construyendo algo
+          {copy.h2}
           <em
             style={{
               fontFamily: "var(--font-serif)",
@@ -71,12 +95,11 @@ export function Contact() {
             color: "var(--text-secondary)",
           }}
         >
-          Estoy disponible para oportunidades remotas, proyectos de software y colaboraciones con equipos de producto.
-          Contame qué estás construyendo.
+          {copy.lede}
         </p>
         <div data-reveal data-delay="130" style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-3)" }}>
           <Button variant="accent" size="lg" arrow href="mailto:diegobarrionuevo11@gmail.com">
-            Escribime
+            {copy.cta}
           </Button>
         </div>
       </div>

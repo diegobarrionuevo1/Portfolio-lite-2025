@@ -4,6 +4,34 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Tag } from "@/components/ds";
 import { formatDate, mono, postHref } from "@/components/blog/shared";
+import { blogHref, type Lang } from "@/lib/i18n";
+
+const UI = {
+  es: {
+    topic: "Tema",
+    all: "Todos",
+    order: "Orden",
+    latest: "Recientes",
+    oldest: "Antiguos",
+    one: "nota",
+    many: "notas",
+    min: "min",
+    emptyTag: "No hay notas con ese tema todavía.",
+    empty: "Todavía no hay notas publicadas.",
+  },
+  en: {
+    topic: "Topic",
+    all: "All",
+    order: "Order",
+    latest: "Latest",
+    oldest: "Oldest",
+    one: "note",
+    many: "notes",
+    min: "min",
+    emptyTag: "No notes on this topic yet.",
+    empty: "No notes published yet.",
+  },
+} as const;
 
 /**
  * Client-side filtering for the blog index.
@@ -44,15 +72,16 @@ function readUrlState(): { tag: string | null; order: Order } {
   };
 }
 
-function writeUrlState(tag: string | null, order: Order): void {
+function writeUrlState(base: string, tag: string | null, order: Order): void {
   const params = new URLSearchParams();
   if (tag) params.set("tag", tag);
   if (order === "oldest") params.set("orden", "antiguos");
   const query = params.toString();
-  window.history.replaceState(null, "", query ? `/blog?${query}` : "/blog");
+  window.history.replaceState(null, "", query ? `${base}?${query}` : base);
 }
 
-export function PostExplorer({ posts }: { posts: ExplorerPost[] }) {
+export function PostExplorer({ posts, lang = "es" }: { posts: ExplorerPost[]; lang?: Lang }) {
+  const ui = UI[lang];
   // Starts unfiltered to match the server-rendered HTML; the URL's filter is
   // applied after hydration. Initialising from location during render would
   // desync the first client render from the server markup.
@@ -68,7 +97,7 @@ export function PostExplorer({ posts }: { posts: ExplorerPost[] }) {
   const apply = (tag: string | null, nextOrder: Order): void => {
     setActiveTag(tag);
     setOrder(nextOrder);
-    writeUrlState(tag, nextOrder);
+    writeUrlState(blogHref(lang), tag, nextOrder);
   };
 
   // Counts come from the posts on screen, so a chip never advertises a
@@ -100,14 +129,14 @@ export function PostExplorer({ posts }: { posts: ExplorerPost[] }) {
       {tags.length > 0 ? (
         <div className="blog-filters">
           <div className="blog-filters__group">
-            <span className="blog-filters__label">Tema</span>
+            <span className="blog-filters__label">{ui.topic}</span>
             <button
               type="button"
               className="filter-chip"
               data-active={activeTag ? undefined : "true"}
               onClick={() => apply(null, order)}
             >
-              Todos
+              {ui.all}
             </button>
             {tags.map(({ tag, count }) => (
               <button
@@ -124,14 +153,14 @@ export function PostExplorer({ posts }: { posts: ExplorerPost[] }) {
           </div>
 
           <div className="blog-filters__group">
-            <span className="blog-filters__label">Orden</span>
+            <span className="blog-filters__label">{ui.order}</span>
             <button
               type="button"
               className="filter-chip"
               data-active={order === "newest" ? "true" : undefined}
               onClick={() => apply(activeTag, "newest")}
             >
-              Recientes
+              {ui.latest}
             </button>
             <button
               type="button"
@@ -139,20 +168,20 @@ export function PostExplorer({ posts }: { posts: ExplorerPost[] }) {
               data-active={order === "oldest" ? "true" : undefined}
               onClick={() => apply(activeTag, "oldest")}
             >
-              Antiguos
+              {ui.oldest}
             </button>
           </div>
         </div>
       ) : null}
 
       <p style={{ ...mono, margin: "var(--space-4) 0 0", color: "var(--text-muted)" }}>
-        {visible.length} {visible.length === 1 ? "nota" : "notas"}
+        {visible.length} {visible.length === 1 ? ui.one : ui.many}
         {activeTag ? ` · ${tags.find((t) => t.tag.slug === activeTag)?.tag.name ?? activeTag}` : ""}
       </p>
 
       {visible.length === 0 ? (
         <p style={{ ...mono, color: "var(--text-muted)" }}>
-          {activeTag ? "No hay notas con ese tema todavía." : "Todavía no hay notas publicadas."}
+          {activeTag ? ui.emptyTag : ui.empty}
         </p>
       ) : (
         <div
@@ -185,9 +214,9 @@ export function PostExplorer({ posts }: { posts: ExplorerPost[] }) {
                   color: "var(--text-muted)",
                 }}
               >
-                <time dateTime={post.publishedAt ?? undefined}>{formatDate(post.publishedAt)}</time>
+                <time dateTime={post.publishedAt ?? undefined}>{formatDate(post.publishedAt, lang)}</time>
                 <span aria-hidden="true">·</span>
-                <span>{post.readingTime} min</span>
+                <span>{post.readingTime} {ui.min}</span>
               </div>
 
               <h2
@@ -201,7 +230,7 @@ export function PostExplorer({ posts }: { posts: ExplorerPost[] }) {
                   textWrap: "balance",
                 }}
               >
-                <Link href={postHref(post.slug)} style={{ color: "var(--text-primary)" }}>
+                <Link href={postHref(post.slug, lang)} style={{ color: "var(--text-primary)" }}>
                   {post.title}
                 </Link>
               </h2>

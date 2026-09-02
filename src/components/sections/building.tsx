@@ -1,4 +1,5 @@
 import { Badge, SectionLabel, Tag } from "@/components/ds";
+import type { Lang } from "@/lib/i18n";
 
 const mono: React.CSSProperties = {
   fontFamily: "var(--font-mono)",
@@ -7,32 +8,75 @@ const mono: React.CSSProperties = {
   textTransform: "uppercase",
 };
 
-const PRODUCTS = [
-  {
-    title: "Hermes",
-    kind: "SaaS para comercios",
-    body: "Plataforma para que un comercio administre catálogo, pedidos, caja y atención. El cliente arma el pedido en una tienda web y lo envía por WhatsApp.",
-    bullets: [
-      "Catálogo y carrito",
-      "Gestión de pedidos y panel del comercio",
-      "Horarios, estado del negocio y atención automatizada",
-    ],
-    tags: ["Next.js", "PostgreSQL", "Cloud Run", "WhatsApp"],
-  },
-  {
-    title: "Finanzas personales con IA",
-    kind: "Aplicación mobile-first",
-    body: "App para registrar y analizar movimientos financieros desde texto, audio o fotos de comprobantes.",
-    bullets: [
-      "Lectura de comprobantes y clasificación asistida",
-      "Cuentas, tarjetas, cuotas y deudas",
-      "Saldo disponible, dinero reservado y reportes",
-    ],
-    tags: ["React Native", "TypeScript", "APIs de IA", "OCR"],
-  },
-];
+const PRODUCTS = {
+  es: [
+    {
+      title: "Hermes",
+      kind: "SaaS para comercios",
+      body: "Plataforma para que un comercio administre catálogo, pedidos, caja y atención. El cliente arma el pedido en una tienda web y lo envía por WhatsApp.",
+      bullets: [
+        "Catálogo y carrito",
+        "Gestión de pedidos y panel del comercio",
+        "Horarios, estado del negocio y atención automatizada",
+      ],
+      tags: ["Next.js", "PostgreSQL", "Cloud Run", "WhatsApp"],
+    },
+    {
+      title: "Finanzas personales con IA",
+      kind: "Aplicación mobile-first",
+      body: "App para registrar y analizar movimientos financieros desde texto, audio o fotos de comprobantes.",
+      bullets: [
+        "Lectura de comprobantes y clasificación asistida",
+        "Cuentas, tarjetas, cuotas y deudas",
+        "Saldo disponible, dinero reservado y reportes",
+      ],
+      tags: ["React Native", "TypeScript", "APIs de IA", "OCR"],
+    },
+  ],
+  en: [
+    {
+      title: "Hermes",
+      kind: "SaaS for local businesses",
+      body: "A platform for a business to manage its catalog, orders, cash and customer service. Customers build their order in a web store and send it over WhatsApp.",
+      bullets: [
+        "Catalog and cart",
+        "Order management and business dashboard",
+        "Hours, business status and automated replies",
+      ],
+      tags: ["Next.js", "PostgreSQL", "Cloud Run", "WhatsApp"],
+    },
+    {
+      title: "Personal finance with AI",
+      kind: "Mobile-first application",
+      body: "An app to record and analyze financial movements from text, audio or receipt photos.",
+      bullets: [
+        "Receipt reading and assisted classification",
+        "Accounts, cards, installments and debts",
+        "Available balance, reserved money and reports",
+      ],
+      tags: ["React Native", "TypeScript", "AI APIs", "OCR"],
+    },
+  ],
+} as const;
 
-export function Building() {
+const COPY = {
+  es: {
+    aside: "02 en curso",
+    heading: "Productos propios",
+    lede: "Proyectos que estoy construyendo por mi cuenta. Todavía en desarrollo: no tienen usuarios ni facturación.",
+    badge: "En desarrollo",
+  },
+  en: {
+    aside: "02 in progress",
+    heading: "Own products",
+    lede: "Projects I'm building on my own. Still in development: no users or revenue yet.",
+    badge: "In development",
+  },
+} as const;
+
+export function Building({ lang = "es" }: { lang?: Lang } = {}) {
+  const copy = COPY[lang];
+  const products = PRODUCTS[lang];
   return (
     <section
       id="building"
@@ -43,8 +87,8 @@ export function Building() {
         padding: "var(--section-y) var(--page-margin)",
       }}
     >
-      <SectionLabel index="04" aside="02 en curso">
-        Productos propios
+      <SectionLabel index="04" aside={copy.aside}>
+        {copy.heading}
       </SectionLabel>
       <p
         data-reveal
@@ -57,11 +101,11 @@ export function Building() {
           color: "var(--text-secondary)",
         }}
       >
-        Proyectos que estoy construyendo por mi cuenta. Todavía en desarrollo: no tienen usuarios ni facturación.
+        {copy.lede}
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,340px),1fr))", gap: "var(--space-6)" }}>
-        {PRODUCTS.map((p, i) => (
+        {products.map((p, i) => (
           <article
             key={p.title}
             data-reveal
@@ -89,7 +133,7 @@ export function Building() {
               >
                 {p.title}
               </h3>
-              <Badge tone="caution">En desarrollo</Badge>
+              <Badge tone="caution">{copy.badge}</Badge>
             </div>
             <div style={{ ...mono, color: "var(--text-accent)" }}>{p.kind}</div>
             <p style={{ margin: 0, fontSize: "var(--fs-body-sm)", lineHeight: "var(--lh-body)", color: "var(--text-secondary)" }}>
