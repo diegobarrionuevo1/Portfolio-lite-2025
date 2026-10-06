@@ -162,4 +162,8 @@ and follow `next_transition`. First boundary: `58d6abf`.
 - Route: delegated writer. Live ids `cert-tilt`, `legacy-url`, `four-services`; 7 chapters, 9-item gallery, metrics as the carousel states them (user's figures, note added).
 - Checks observed: lint clean; tsc clean (re-run by parent); build SSG 23/23; runtime probe desktop/mobile/reduced (counters, timer, keyboard chips, tilt, no overflow); six visual fixes recorded by the writer. Parent spot check: viewed certificate, legacy-url, four-services desktop and mobile captures.
 
-### T7 ada13 — IN PROGRESS (delegated writer)
+### T7 ada13 — DONE (commit `aca7405`)
+- Route: delegated writer. Live ids `day-256`, `inscribe-states`, `incident-ledger`; 6 chapters, 6-item gallery, metrics with the archive note; `useStagePlayback` extracted to `scenes/mg/use-stage-playback.ts`.
+- Checks observed: lint clean; tsc clean (re-run by parent); build SSG 23/23 (work routes 108 kB); runtime probe desktop/mobile/reduced; six visual fixes. Parent spot check: viewed day-256, inscribe-states and the portrait footage chapter.
+
+### T8 hermes — IN PROGRESS (delegated writer)

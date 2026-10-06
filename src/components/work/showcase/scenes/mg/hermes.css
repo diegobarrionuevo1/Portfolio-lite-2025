@@ -1,0 +1,1514 @@
+/* ============================================================
+   Hermes, own product: the live components of the /work/hermes showcase
+   (scenes/mg/hermes.tsx).
+
+   Three stages share the `.mg-her` root:
+     theme-morph     one storefront phone, the same three rows, while the
+                     four theme rule-sets apply in sequence (Studio → Brutal
+                     → Street → Market) and the active rules type themselves
+                     beside it as CSS custom properties
+     order-capsule   a pill with the running total travels four stops,
+                     Catálogo → Selección → Pedido → WhatsApp + panel, and at
+                     the last one the same text lands twice: a chat bubble
+                     and an order-centre row, with no delivery tick
+     menu-import     a rule scans a schematic menu page and candidate rows
+                     fill with name, evidence fragment and price; one price
+                     without digits in its fragment is struck and flagged
+
+   Stage contract (showcase.css): structural pieces enter once through
+   `.mg-run` (longhands, paused off screen); narratives are declared only
+   under `.mg-stage[data-playing]` so they restart on entry; the final frame
+   lives under `.mg-stage[data-reduced]`. Keyframes move transform, opacity
+   and clip-path only. The theme morph is the one documented exception: its
+   subject IS the surface, the ink, the corner radius and the type of a
+   334px phone, so those properties transition (800ms, the house ease-in-out)
+   when the component flips `data-theme`; the swap runs at most once every
+   three seconds over about thirty small boxes, and reduced motion turns the
+   transitions off. Sizes use container units (cqw) so each stage scales as
+   one picture from a phone column to the full 1520px frame. The three
+   narratives share one `--mg-cycle` (12s); the JS ticks that write text use
+   the same figure (CYCLE_MS in the component) and the phase marks noted
+   above each timeline.
+
+   Colour quotes, the only hex values in this tree, all from the Hermes repo
+   and shown only inside the stages (the page accent stays the atmosphere's
+   ember, read through the tokens like everything else):
+     Cristal Preciso, the product UI: paper #F3F4F8, ink #141A26 and indigo
+     #626CFF, the dashboard's accent, here only on the order-centre chip, a
+     waiting-time figure and the import's conflict flag.
+     Storefront themes, used only by theme-morph: Studio ink #111521 on
+     #FFFFFF; Brutal #FF3B1F on #F2F0E9; Street #FF3B1F on #140709; Market
+     #D9481C on #FFF4DC with ink #2A1F14.
+   The product's glass is evoked with hairlines and translucency, never a
+   shadow; there is no gradient here.
+   ============================================================ */
+.mg-her {
+  --her-paper: #f3f4f8;
+  --her-ink: #141a26;
+  --her-indigo: #626cff;
+  --mg-cycle: 12s;
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}
+.mg-her-morph,
+.mg-her-orders,
+.mg-her-import {
+  --pad: clamp(20px, 3.6cqw, 56px);
+  position: absolute;
+  inset: 0;
+  padding: var(--pad);
+}
+
+/* Inside a frame the stage is absolutely positioned with inset 0, but it
+   also carries its aspect-ratio inline, and an absolutely positioned box
+   takes its height from that ratio before it honours `bottom: 0`. These
+   stages must follow the frame instead, so the inline ratio is switched
+   off here and the frame gets a floor where the 2:1 ratio would be too
+   short for the content: a phone column and the tablet range. */
+.showcase-frame > .mg-stage[data-mg="theme-morph"],
+.showcase-frame > .mg-stage[data-mg="order-capsule"],
+.showcase-frame > .mg-stage[data-mg="menu-import"] {
+  aspect-ratio: auto !important;
+}
+@media (max-width: 699px) {
+  .showcase-frame:has(> .mg-stage[data-mg="theme-morph"]) {
+    min-height: 820px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="order-capsule"]) {
+    min-height: 600px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="menu-import"]) {
+    min-height: 720px;
+  }
+}
+@media (min-width: 700px) and (max-width: 1099px) {
+  .showcase-frame:has(> .mg-stage[data-mg="theme-morph"]) {
+    min-height: 440px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="order-capsule"]) {
+    min-height: 500px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="menu-import"]) {
+    min-height: 460px;
+  }
+}
+
+/* Mono caps label, the stage's annotation voice. */
+.mg-her-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  font-weight: 400;
+  letter-spacing: var(--ls-caps);
+  line-height: var(--lh-mono);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Hairline + surface, the house card, in the night. */
+.mg-her-box {
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-card);
+}
+
+/* A light island: the product's own surface and ink inside the night. */
+.mg-her-island {
+  background: var(--her-paper);
+  color: var(--her-ink);
+}
+
+/* Entrance shared by the structural pieces: fade + 12px rise, once. */
+.mg-her-rise {
+  animation-name: mg-her-rise;
+  animation-duration: var(--dur-reveal);
+  animation-timing-function: var(--ease-out-expo);
+  animation-fill-mode: both;
+}
+@keyframes mg-her-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   theme-morph
+   Cycle (percent of --mg-cycle): each theme holds a quarter (3s). At the
+   start of its quarter the component flips `data-theme`, the phone
+   transitions to the new rule-set over 800ms and the tokens beside it
+   retype (JS) over the first 750ms; the rest of the quarter holds. The
+   dots under the tokens follow the attribute. Nothing fades at the end:
+   the fourth theme hands over to the first.
+   ============================================================ */
+.mg-her-morph {
+  /* The four theme palettes, quoted from the Hermes repo; see the header. */
+  --q-studio-ink: #111521;
+  --q-studio-surface: #ffffff;
+  --q-brutal-cta: #ff3b1f;
+  --q-brutal-surface: #f2f0e9;
+  --q-street-surface: #140709;
+  --q-market-cta: #d9481c;
+  --q-market-surface: #fff4dc;
+  --q-market-ink: #2a1f14;
+  --morph: 800ms;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(12px, 2cqw, 28px) clamp(20px, 4cqw, 64px);
+}
+.mg-her-morph__head {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+}
+.mg-her-morph__stage {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+.mg-her-morph__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(8px, 1.2cqw, 16px);
+  min-width: 0;
+}
+.mg-her-morph__name {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.6cqw, 72px);
+  font-weight: 500;
+  letter-spacing: var(--ls-display-3);
+  line-height: var(--lh-tight);
+}
+.mg-her-morph__demo {
+  color: var(--text-secondary);
+}
+.mg-her-morph__tokens {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3px, 0.5cqw, 8px);
+  padding: clamp(10px, 1.4cqw, 20px) clamp(12px, 1.6cqw, 22px);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-card);
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.05cqw, 15px);
+  line-height: 1.5;
+}
+.mg-her-morph__token {
+  display: block;
+  min-height: 1.5em;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mg-her-morph__dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+.mg-her-morph__dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  transition: color var(--dur-base) var(--ease-out-quart);
+}
+.mg-her-morph__dot i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  transition: opacity var(--dur-base) var(--ease-out-quart);
+}
+.mg-her-morph[data-theme="studio"] .mg-her-morph__dot[data-id="studio"],
+.mg-her-morph[data-theme="brutal"] .mg-her-morph__dot[data-id="brutal"],
+.mg-her-morph[data-theme="street"] .mg-her-morph__dot[data-id="street"],
+.mg-her-morph[data-theme="market"] .mg-her-morph__dot[data-id="market"] {
+  color: var(--text-primary);
+}
+.mg-her-morph[data-theme="studio"] .mg-her-morph__dot[data-id="studio"] i,
+.mg-her-morph[data-theme="brutal"] .mg-her-morph__dot[data-id="brutal"] i,
+.mg-her-morph[data-theme="street"] .mg-her-morph__dot[data-id="street"] i,
+.mg-her-morph[data-theme="market"] .mg-her-morph__dot[data-id="market"] i {
+  background: var(--text-accent);
+  opacity: 1;
+}
+
+/* The four rule-sets. Each theme changes type family, weight and case, the
+   radius (10 → 0 → 4 → 16) and the surface/CTA pair, never only a hue. The
+   heavy weights quote the product's Barlow Condensed 800; the serif stands
+   in for its DM Serif Display. Hues the brief leaves implicit (Brutal's
+   ink, Street's ink) reuse a quoted neighbour instead of adding a value. */
+.mg-her-morph[data-theme="studio"] {
+  --t-surface: var(--q-studio-surface);
+  --t-ink: var(--q-studio-ink);
+  --t-cta: var(--q-studio-ink);
+  --t-cta-fg: var(--q-studio-surface);
+  --t-radius: 10px;
+  --t-chip-radius: var(--r-pill);
+  --t-font: var(--font-serif);
+  --t-weight: 400;
+  --t-case: none;
+  --t-tracking: 0;
+  --t-thumb: color-mix(in srgb, var(--q-studio-ink) 8%, var(--q-studio-surface));
+}
+.mg-her-morph[data-theme="brutal"] {
+  --t-surface: var(--q-brutal-surface);
+  --t-ink: var(--q-studio-ink);
+  --t-cta: var(--q-brutal-cta);
+  --t-cta-fg: var(--q-brutal-surface);
+  --t-radius: 0px;
+  --t-chip-radius: 0px;
+  --t-font: var(--font-display);
+  --t-weight: 800;
+  --t-case: uppercase;
+  --t-tracking: 0.01em;
+  --t-thumb: color-mix(in srgb, var(--q-studio-ink) 12%, var(--q-brutal-surface));
+}
+.mg-her-morph[data-theme="street"] {
+  --t-surface: var(--q-street-surface);
+  --t-ink: var(--q-studio-surface);
+  --t-cta: var(--q-brutal-cta);
+  --t-cta-fg: var(--q-studio-surface);
+  --t-radius: 4px;
+  --t-chip-radius: 4px;
+  --t-font: var(--font-display);
+  --t-weight: 800;
+  --t-case: uppercase;
+  --t-tracking: 0.01em;
+  --t-thumb: color-mix(in srgb, var(--q-brutal-cta) 14%, var(--q-street-surface));
+}
+.mg-her-morph[data-theme="market"] {
+  --t-surface: var(--q-market-surface);
+  --t-ink: var(--q-market-ink);
+  --t-cta: var(--q-market-cta);
+  --t-cta-fg: var(--q-market-surface);
+  --t-radius: 16px;
+  --t-chip-radius: var(--r-pill);
+  --t-font: var(--font-sans);
+  --t-weight: 600;
+  --t-case: none;
+  --t-tracking: -0.01em;
+  --t-thumb: color-mix(in srgb, var(--q-market-cta) 38%, var(--q-market-surface));
+}
+
+/* The phone: the canonical 360 × 620, a container of its own so its type
+   scales with its width (1cqw inside = 1% of the phone). */
+.mg-her-phone {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, clamp(200px, 22cqw, 334px));
+  aspect-ratio: 360 / 620;
+  padding: clamp(10px, 1.1cqw, 18px);
+  border: 1px solid var(--border-mid);
+  border-radius: clamp(14px, 1.6cqw, 26px);
+  background: var(--t-surface);
+  color: var(--t-ink);
+  overflow: hidden;
+}
+/* The morph itself: the rule-set lands as one transition on the whole
+   subtree (about thirty boxes). Discrete properties (family, case) flip at
+   the midpoint where the browser allows it, immediately elsewhere. */
+.mg-her-phone,
+.mg-her-phone * {
+  transition-property: background-color, color, border-color, border-radius, font-weight, letter-spacing,
+    font-family, text-transform;
+  transition-duration: var(--morph);
+  transition-timing-function: var(--ease-in-out);
+  transition-behavior: allow-discrete;
+}
+.mg-her-phone__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2cqw;
+}
+.mg-her-phone__name,
+.mg-her-phone__title,
+.mg-her-phone__chip,
+.mg-her-phone__bar {
+  font-family: var(--t-font);
+  font-weight: var(--t-weight);
+  letter-spacing: var(--t-tracking);
+  text-transform: var(--t-case);
+}
+.mg-her-phone__name {
+  font-size: 5.6cqw;
+  line-height: 1.1;
+}
+.mg-her-phone__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.4em 0.8em;
+  border: 1px solid color-mix(in srgb, var(--t-ink) 16%, transparent);
+  border-radius: var(--t-chip-radius);
+  font-size: 2.8cqw;
+  line-height: 1;
+  white-space: nowrap;
+}
+.mg-her-phone__open i {
+  width: 1.6cqw;
+  height: 1.6cqw;
+  border-radius: 50%;
+  background: var(--t-cta);
+}
+.mg-her-phone__sub {
+  margin-top: 0.4em;
+  font-size: 2.9cqw;
+  line-height: 1.2;
+  opacity: 0.62;
+}
+/* The cover tile the canonical phone opens with (Combinado Umi): the
+   largest surface in the phone, so the radius morph reads at a glance. */
+.mg-her-phone__cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.35em;
+  height: 26cqw;
+  margin-top: 3.4cqw;
+  padding: 3.4cqw;
+  border-radius: var(--t-radius);
+  background: var(--t-thumb);
+}
+.mg-her-phone__cover-name {
+  font-family: var(--t-font);
+  font-weight: var(--t-weight);
+  letter-spacing: var(--t-tracking);
+  text-transform: var(--t-case);
+  font-size: 4.6cqw;
+  line-height: 1.1;
+}
+.mg-her-phone__cover-sub {
+  font-size: 2.8cqw;
+  line-height: 1.2;
+  opacity: 0.62;
+}
+.mg-her-phone__chips {
+  display: flex;
+  gap: 1.6cqw;
+  margin-top: 3.4cqw;
+}
+.mg-her-phone__chip {
+  padding: 0.5em 0.95em;
+  border: 1px solid color-mix(in srgb, var(--t-ink) 18%, transparent);
+  border-radius: var(--t-chip-radius);
+  font-size: 2.9cqw;
+  line-height: 1;
+  white-space: nowrap;
+}
+.mg-her-phone__chip[data-on] {
+  border-color: var(--t-cta);
+  background: var(--t-cta);
+  color: var(--t-cta-fg);
+}
+.mg-her-phone__rows {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 2.4cqw;
+  overflow: hidden;
+}
+.mg-her-phone__row {
+  display: grid;
+  grid-template-columns: 14cqw minmax(0, 1fr) auto;
+  grid-template-areas:
+    "thumb title title"
+    "thumb desc desc"
+    "thumb price add";
+  gap: 0.8cqw 3cqw;
+  padding: 3cqw 0;
+  border-top: 1px solid color-mix(in srgb, var(--t-ink) 10%, transparent);
+}
+.mg-her-phone__thumb {
+  grid-area: thumb;
+  align-self: start;
+  width: 14cqw;
+  aspect-ratio: 1;
+  border-radius: var(--t-radius);
+  background: var(--t-thumb);
+}
+.mg-her-phone__title {
+  grid-area: title;
+  font-size: 3.9cqw;
+  line-height: 1.15;
+}
+.mg-her-phone__desc {
+  grid-area: desc;
+  font-size: 2.8cqw;
+  line-height: 1.3;
+  opacity: 0.62;
+}
+.mg-her-phone__price {
+  grid-area: price;
+  align-self: end;
+  font-size: 3.3cqw;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.mg-her-phone__add {
+  grid-area: add;
+  align-self: end;
+  display: grid;
+  place-items: center;
+  width: 5.6cqw;
+  height: 5.6cqw;
+  border-radius: calc(var(--t-radius) * 0.6);
+  background: var(--t-cta);
+  color: var(--t-cta-fg);
+  font-size: 3.8cqw;
+  line-height: 1;
+}
+.mg-her-phone__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2cqw;
+  margin-top: auto;
+  padding: 3.6cqw 4.2cqw;
+  border-radius: var(--t-radius);
+  background: var(--t-cta);
+  color: var(--t-cta-fg);
+  font-size: 3.6cqw;
+  line-height: 1;
+  white-space: nowrap;
+}
+.mg-her-phone__bar-count {
+  padding: 0.25em 0.6em;
+  border: 1px solid currentColor;
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono);
+  font-size: 2.8cqw;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+@container (max-width: 640px) {
+  .mg-her-morph {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+  }
+  .mg-her-phone {
+    width: min(100%, 250px);
+  }
+  .mg-her-morph__name {
+    font-size: clamp(28px, 9cqw, 40px);
+  }
+  .mg-her-morph__tokens {
+    font-size: clamp(11px, 3.2cqw, 13px);
+  }
+}
+
+/* Reduced motion: the last rule-set, settled, with no transition. */
+.mg-stage[data-reduced] .mg-her-phone,
+.mg-stage[data-reduced] .mg-her-phone *,
+.mg-stage[data-reduced] .mg-her-morph__dot,
+.mg-stage[data-reduced] .mg-her-morph__dot i {
+  transition: none;
+}
+
+/* ============================================================
+   order-capsule
+   Cycle (percent of --mg-cycle): 3–5 the capsule appears on the first
+   stop, 5–16 it travels to Selección (ease-in-out) and 16–26 the total
+   counts 0 → 15.000 (JS) while it holds, 28–40 to Pedido, where 40–43 the
+   second line lands, 46–58 to WhatsApp + panel; each stop lights as the
+   capsule arrives. 60–64 the chat bubble rises, 64–68 the order-centre
+   row, 70–73 the `nuevo` chip fills, 76–80 the note about the missing
+   tick, 94–100 everything narrative fades for the next pass.
+   ============================================================ */
+.mg-her-orders {
+  --cap-h: clamp(34px, 4.2cqw, 56px);
+  --lane-gap: clamp(14px, 2cqw, 28px);
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  align-content: start;
+  gap: clamp(12px, 2cqw, 28px);
+}
+.mg-her-orders__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+}
+
+/* The track is a container of its own so the capsule and the sweep can
+   measure the stops in its width: stop k is centred at (2k + 1) · 12.5cqw. */
+.mg-her-orders__track {
+  container-type: inline-size;
+  position: relative;
+  display: grid;
+  grid-template-rows: var(--cap-h) auto;
+  row-gap: var(--lane-gap);
+}
+.mg-her-orders__rule,
+.mg-her-orders__sweep {
+  position: absolute;
+  top: calc(var(--cap-h) / 2);
+  left: 12.5cqw;
+  width: 75cqw;
+  height: 1px;
+}
+.mg-her-orders__rule {
+  background: var(--border-mid);
+}
+.mg-her-orders__sweep {
+  background: var(--text-accent);
+  transform: scale3d(0, 1, 1);
+  transform-origin: left center;
+}
+.mg-her-orders__capsule {
+  position: absolute;
+  top: 0;
+  left: 12.5cqw;
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  height: var(--cap-h);
+  padding: 0 clamp(12px, 1.6cqw, 22px);
+  border-radius: var(--r-pill);
+  background: var(--her-paper);
+  color: var(--her-ink);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate3d(-50%, 6px, 0);
+}
+.mg-her-orders__total {
+  font-family: var(--font-mono);
+  font-size: clamp(12px, 1.3cqw, 18px);
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.mg-her-orders__cap-sub {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 0.9cqw, 11px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--her-ink) 62%, transparent);
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+}
+
+/* Row 1 of the track is the capsule's lane (its riders are absolutely
+   positioned), so the stops are pinned to row 2 instead of auto-placing
+   into the lane. */
+.mg-her-orders__stops {
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.mg-her-orders__stop {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+.mg-her-orders__tick {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 1px;
+  height: calc(var(--lane-gap) + var(--cap-h) / 2);
+  background: var(--border-mid);
+}
+.mg-her-orders__stop-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  width: calc(100% - clamp(8px, 1.2cqw, 16px));
+  padding: clamp(8px, 1.2cqw, 16px) clamp(10px, 1.4cqw, 18px);
+  min-width: 0;
+}
+.mg-her-orders__stop-box::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--text-accent);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+.mg-her-orders__n {
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 0.95cqw, 11px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  color: var(--text-accent);
+}
+.mg-her-orders__stop-label {
+  font-family: var(--font-display);
+  font-size: clamp(12px, 1.35cqw, 19px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: var(--lh-snug);
+  overflow-wrap: anywhere;
+}
+.mg-her-orders__stop-sub {
+  font-size: clamp(9px, 0.9cqw, 12px);
+  line-height: 1.3;
+  color: var(--text-muted);
+}
+
+/* The two outputs: the bubble and the row say the same thing. */
+.mg-her-orders__out {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(12px, 2cqw, 28px);
+  min-height: 0;
+}
+.mg-her-orders__chat,
+.mg-her-orders__centre {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.2cqw, 14px);
+  padding: clamp(10px, 1.4cqw, 18px) clamp(12px, 1.6cqw, 22px);
+  min-width: 0;
+}
+.mg-her-orders__chat-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.mg-her-orders__chat-name {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.4cqw, 20px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: var(--lh-snug);
+}
+.mg-her-orders__bubble {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  padding: clamp(10px, 1.2cqw, 16px) clamp(12px, 1.4cqw, 18px) clamp(18px, 2cqw, 26px);
+  border-radius: var(--r-lg) var(--r-lg) var(--r-lg) var(--r-xs);
+  font-size: clamp(10px, 1cqw, 14px);
+  line-height: 1.4;
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+}
+.mg-her-orders__line {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mg-her-orders__line strong {
+  font-weight: 600;
+}
+.mg-her-orders__line--customer {
+  margin-top: 0.5em;
+  opacity: 0.6;
+}
+.mg-her-orders__time {
+  position: absolute;
+  right: clamp(10px, 1.2cqw, 16px);
+  bottom: clamp(6px, 0.8cqw, 10px);
+  font-family: var(--font-mono);
+  font-size: clamp(8px, 0.85cqw, 11px);
+  line-height: 1;
+  opacity: 0.5;
+}
+.mg-her-orders__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "no title wait"
+    "no meta total"
+    "chips chips chips";
+  gap: 0.3em 0.9em;
+  align-items: baseline;
+  padding: clamp(10px, 1.2cqw, 16px) clamp(12px, 1.4cqw, 18px);
+  border-radius: var(--r-md);
+  font-size: clamp(10px, 1cqw, 14px);
+  line-height: 1.3;
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+}
+.mg-her-orders__row-no {
+  grid-area: no;
+  font-family: var(--font-mono);
+  opacity: 0.55;
+}
+.mg-her-orders__row-title {
+  grid-area: title;
+  font-weight: 600;
+}
+.mg-her-orders__row-wait {
+  grid-area: wait;
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--her-indigo);
+  white-space: nowrap;
+}
+.mg-her-orders__row-meta {
+  grid-area: meta;
+  font-size: 0.9em;
+  opacity: 0.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mg-her-orders__row-total {
+  grid-area: total;
+  justify-self: end;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.mg-her-orders__chips {
+  grid-area: chips;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin-top: 0.4em;
+}
+.mg-her-orders__chip,
+.mg-her-orders__chip-on {
+  padding: 0.4em 0.7em;
+  border: 1px solid color-mix(in srgb, var(--her-ink) 18%, transparent);
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--her-ink) 72%, transparent);
+}
+.mg-her-orders__chip {
+  position: relative;
+}
+/* The lit chip is a second layer with the same text, so only opacity moves. */
+.mg-her-orders__chip-on {
+  position: absolute;
+  inset: 0;
+  border-color: var(--her-indigo);
+  background: var(--her-indigo);
+  color: var(--her-paper);
+  opacity: 0;
+}
+.mg-her-orders__note {
+  color: var(--text-secondary);
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+}
+
+@container (max-width: 640px) {
+  .mg-her-orders__out {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mg-her-orders__cap-sub {
+    display: none;
+  }
+  .mg-her-orders__stop-box {
+    padding: clamp(6px, 2cqw, 10px) clamp(6px, 2cqw, 10px);
+  }
+  .mg-her-orders__stop-label {
+    font-size: clamp(10px, 3cqw, 12px);
+  }
+  .mg-her-orders__stop-sub {
+    display: none;
+  }
+  .mg-her-orders__bubble,
+  .mg-her-orders__row {
+    font-size: clamp(11px, 3.2cqw, 13px);
+  }
+}
+
+/* The narrative, restarted on every entry. */
+.mg-stage[data-playing] .mg-her-orders__capsule {
+  animation: mg-her-orders-capsule var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__sweep {
+  animation: mg-her-orders-sweep var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__cap-sub {
+  animation: mg-her-orders-cap-sub var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__stop:nth-child(1) .mg-her-orders__stop-box::after {
+  animation: mg-her-orders-stop-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__stop:nth-child(2) .mg-her-orders__stop-box::after {
+  animation: mg-her-orders-stop-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__stop:nth-child(3) .mg-her-orders__stop-box::after {
+  animation: mg-her-orders-stop-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__stop:nth-child(4) .mg-her-orders__stop-box::after {
+  animation: mg-her-orders-stop-4 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__bubble {
+  animation: mg-her-orders-bubble var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__row {
+  animation: mg-her-orders-row var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__chip-on {
+  animation: mg-her-orders-chip var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-orders__note {
+  animation: mg-her-orders-note var(--mg-cycle) linear infinite both;
+}
+
+@keyframes mg-her-orders-capsule {
+  0%,
+  3% {
+    opacity: 0;
+    transform: translate3d(-50%, 6px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  5% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  16%,
+  28% {
+    opacity: 1;
+    transform: translate3d(calc(-50% + 25cqw), 0, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  40%,
+  46% {
+    opacity: 1;
+    transform: translate3d(calc(-50% + 50cqw), 0, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  58%,
+  92% {
+    opacity: 1;
+    transform: translate3d(calc(-50% + 75cqw), 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(-50% + 75cqw), 0, 0);
+  }
+}
+@keyframes mg-her-orders-sweep {
+  0%,
+  5% {
+    opacity: 1;
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-in-out);
+  }
+  16%,
+  28% {
+    opacity: 1;
+    transform: scale3d(0.3333, 1, 1);
+    animation-timing-function: var(--ease-in-out);
+  }
+  40%,
+  46% {
+    opacity: 1;
+    transform: scale3d(0.6667, 1, 1);
+    animation-timing-function: var(--ease-in-out);
+  }
+  58%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-her-orders-cap-sub {
+  0%,
+  40% {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  43%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes mg-her-orders-stop-1 {
+  0%,
+  4% {
+    opacity: 0;
+  }
+  6%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-her-orders-stop-2 {
+  0%,
+  15% {
+    opacity: 0;
+  }
+  17%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-her-orders-stop-3 {
+  0%,
+  39% {
+    opacity: 0;
+  }
+  41%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-her-orders-stop-4 {
+  0%,
+  57% {
+    opacity: 0;
+  }
+  59%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-her-orders-bubble {
+  0%,
+  60% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  64%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-her-orders-row {
+  0%,
+  64% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  68%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-her-orders-chip {
+  0%,
+  70% {
+    opacity: 0;
+  }
+  73%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes mg-her-orders-note {
+  0%,
+  76% {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  80%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* Reduced motion: the order delivered twice, the capsule on the last stop. */
+.mg-stage[data-reduced] .mg-her-orders__capsule {
+  opacity: 1;
+  transform: translate3d(calc(-50% + 75cqw), 0, 0);
+}
+.mg-stage[data-reduced] .mg-her-orders__sweep {
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-her-orders__cap-sub,
+.mg-stage[data-reduced] .mg-her-orders__stop-box::after,
+.mg-stage[data-reduced] .mg-her-orders__bubble,
+.mg-stage[data-reduced] .mg-her-orders__row,
+.mg-stage[data-reduced] .mg-her-orders__chip-on,
+.mg-stage[data-reduced] .mg-her-orders__note {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   menu-import
+   Cycle (percent of --mg-cycle): 2 the rows and counters arrive, 4–40 the
+   accent rule scans the page top to bottom (linear) while the counters
+   climb with it (JS: 8 · 163 · 202 · 0.024) and the six candidate rows type
+   in at 8, 13, 18, 23, 28 and 33 (five points each); 41–43 the conflict
+   price is struck, 46–48 it gives way to the empty value, 47–50 the flag
+   lands; 94–100 the narrative fades for the next pass. Schematic: the
+   page lines are placeholders, the candidates a rotisería's.
+   ============================================================ */
+.mg-her-import {
+  --row-h: clamp(30px, 3.9cqw, 54px);
+  --line-step: clamp(16px, 2.2cqw, 32px);
+  --lines: 12;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(12px, 2cqw, 28px);
+}
+.mg-her-import__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+}
+.mg-her-import__body {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: clamp(16px, 3cqw, 48px);
+  align-items: start;
+  align-content: start;
+  min-height: 0;
+}
+
+/* The photographed page, as lines of grey; the scan rule travels its height. */
+.mg-her-import__page {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.2cqw, 16px);
+  padding: clamp(10px, 1.4cqw, 18px) clamp(12px, 1.6cqw, 22px);
+}
+.mg-her-import__lines {
+  position: relative;
+  height: calc(var(--lines) * var(--line-step));
+  overflow: hidden;
+}
+.mg-her-import__line {
+  position: relative;
+  display: block;
+  height: var(--line-step);
+}
+.mg-her-import__line::before {
+  content: "";
+  position: absolute;
+  top: 40%;
+  left: 0;
+  width: calc(var(--w) * 100%);
+  height: 20%;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--text-primary) 14%, transparent);
+}
+.mg-her-import__scan {
+  position: absolute;
+  top: 0;
+  left: -4%;
+  width: 108%;
+  height: 2px;
+  background: var(--text-accent);
+  opacity: 0;
+}
+
+/* The candidates table. */
+.mg-her-import__table {
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1.05cqw, 13px);
+  line-height: 1.25;
+}
+.mg-her-import__row {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) minmax(0, 2.8fr);
+  align-items: center;
+  gap: clamp(8px, 1.4cqw, 20px);
+  min-height: var(--row-h);
+  padding: 0.35em 0;
+  border-bottom: 1px solid var(--border-hairline);
+}
+.mg-her-import__row--head {
+  min-height: 0;
+  padding-bottom: 0.7em;
+  font-size: clamp(8px, 0.95cqw, 11px);
+  letter-spacing: var(--ls-caps-tight);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.mg-her-import__row--head > :last-child {
+  text-align: right;
+}
+.mg-her-import__row--item {
+  clip-path: inset(0 100% 0 0);
+}
+.mg-her-import__rows {
+  opacity: 0;
+}
+.mg-her-import__name {
+  font-family: var(--font-sans);
+  font-size: clamp(10px, 1.1cqw, 14px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mg-her-import__fragment {
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mg-her-import__price {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: end;
+  align-items: center;
+  gap: 0.6em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.mg-her-import__amount {
+  position: relative;
+  grid-row: 1;
+  grid-column: 1;
+}
+.mg-her-import__strike {
+  position: absolute;
+  top: 50%;
+  left: -4%;
+  width: 108%;
+  height: 1px;
+  background: var(--text-accent);
+  transform: scale3d(0, 1, 1);
+  transform-origin: left center;
+}
+.mg-her-import__row[data-conflict] .mg-her-import__amount,
+.mg-her-import__empty {
+  grid-row: 1;
+  grid-column: 2;
+}
+.mg-her-import__empty {
+  justify-self: end;
+  color: var(--text-muted);
+  opacity: 0;
+}
+.mg-her-import__flag {
+  grid-row: 1;
+  grid-column: 1;
+  padding: 0.35em 0.6em;
+  border-radius: var(--r-pill);
+  background: var(--her-indigo);
+  color: var(--her-paper);
+  font-size: clamp(8px, 0.85cqw, 11px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: scale3d(0.9, 0.9, 1);
+}
+
+/* The spike's counters, climbing with the scan. */
+.mg-her-import__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) clamp(16px, 3cqw, 48px);
+  opacity: 0;
+}
+.mg-her-import__counter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+.mg-her-import__figure {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3cqw, 44px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: var(--lh-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+@container (max-width: 640px) {
+  .mg-her-import {
+    --lines: 6;
+  }
+  .mg-her-import__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mg-her-import__line:nth-child(n + 7) {
+    display: none;
+  }
+  .mg-her-import__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name price"
+      "fragment fragment";
+    gap: 0.2em 0.8em;
+    min-height: 0;
+    padding: 0.7em 0;
+  }
+  .mg-her-import__row--head {
+    display: flex;
+    justify-content: space-between;
+  }
+  .mg-her-import__row--head > :nth-child(2) {
+    display: none;
+  }
+  .mg-her-import__name {
+    grid-area: name;
+    font-size: clamp(11px, 3.4cqw, 13px);
+    white-space: normal;
+  }
+  .mg-her-import__fragment {
+    grid-area: fragment;
+  }
+  .mg-her-import__price {
+    grid-area: price;
+  }
+  .mg-her-import__table {
+    font-size: clamp(10px, 3cqw, 12px);
+  }
+  .mg-her-import__figure {
+    font-size: clamp(22px, 7cqw, 32px);
+  }
+}
+
+/* The narrative, restarted on every entry. Each row gets its own keyframes
+   rather than a delay, so the reset at 0% lands while the rows are still
+   invisible and nothing snaps mid-pass. */
+.mg-stage[data-playing] .mg-her-import__rows,
+.mg-stage[data-playing] .mg-her-import__foot {
+  animation: mg-her-import-body var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__scan {
+  animation: mg-her-import-scan var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__row--item:nth-child(1) {
+  animation: mg-her-import-row-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__row--item:nth-child(2) {
+  animation: mg-her-import-row-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__row--item:nth-child(3) {
+  animation: mg-her-import-row-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__row--item:nth-child(4) {
+  animation: mg-her-import-row-4 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__row--item:nth-child(5) {
+  animation: mg-her-import-row-5 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__row--item:nth-child(6) {
+  animation: mg-her-import-row-6 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__strike {
+  animation: mg-her-import-strike var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__row[data-conflict] .mg-her-import__amount {
+  animation: mg-her-import-amount var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__empty {
+  animation: mg-her-import-empty var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-her-import__flag {
+  animation: mg-her-import-flag var(--mg-cycle) linear infinite both;
+}
+
+@keyframes mg-her-import-body {
+  0% {
+    opacity: 0;
+  }
+  2%,
+  94% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-her-import-scan {
+  0%,
+  3% {
+    opacity: 0;
+    transform: none;
+  }
+  4% {
+    opacity: 1;
+    transform: none;
+  }
+  40% {
+    opacity: 1;
+    transform: translate3d(0, calc(var(--lines) * var(--line-step) - 2px), 0);
+  }
+  43%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, calc(var(--lines) * var(--line-step) - 2px), 0);
+  }
+}
+@keyframes mg-her-import-row-1 {
+  0%,
+  8% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(16, end);
+  }
+  11%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-her-import-row-2 {
+  0%,
+  13% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(16, end);
+  }
+  16%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-her-import-row-3 {
+  0%,
+  18% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(16, end);
+  }
+  21%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-her-import-row-4 {
+  0%,
+  23% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(16, end);
+  }
+  26%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-her-import-row-5 {
+  0%,
+  28% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(16, end);
+  }
+  31%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-her-import-row-6 {
+  0%,
+  33% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(16, end);
+  }
+  36%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-her-import-strike {
+  0%,
+  41% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  43%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-her-import-amount {
+  0%,
+  46% {
+    opacity: 1;
+  }
+  48%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-her-import-empty {
+  0%,
+  46% {
+    opacity: 0;
+  }
+  48%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes mg-her-import-flag {
+  0%,
+  47% {
+    opacity: 0;
+    transform: scale3d(0.9, 0.9, 1);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  50%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Reduced motion: the draft reviewed, the conflict flagged. */
+.mg-stage[data-reduced] .mg-her-import__rows,
+.mg-stage[data-reduced] .mg-her-import__foot,
+.mg-stage[data-reduced] .mg-her-import__empty,
+.mg-stage[data-reduced] .mg-her-import__flag {
+  opacity: 1;
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-her-import__row--item {
+  clip-path: none;
+}
+.mg-stage[data-reduced] .mg-her-import__row[data-conflict] .mg-her-import__amount,
+.mg-stage[data-reduced] .mg-her-import__scan {
+  opacity: 0;
+}

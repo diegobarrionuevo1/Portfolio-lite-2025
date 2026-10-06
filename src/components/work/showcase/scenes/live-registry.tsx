@@ -5,6 +5,7 @@ import type { Lang } from "@/lib/i18n";
 import type { ShowcaseLive } from "../types";
 import { Day256, IncidentLedger, InscribeStates } from "./mg/ada13";
 import { CertTilt, FourServices, LegacyUrl } from "./mg/donweb-talleres";
+import { MenuImport, OrderCapsule, ThemeMorph } from "./mg/hermes";
 import { MotionStage } from "./stage";
 import { mono } from "./typography";
 
@@ -27,6 +28,9 @@ export const LIVE_COMPONENTS: Record<string, LiveComponent> = {
   "day-256": Day256,
   "inscribe-states": InscribeStates,
   "incident-ledger": IncidentLedger,
+  "theme-morph": ThemeMorph,
+  "order-capsule": OrderCapsule,
+  "menu-import": MenuImport,
 };
 
 export function LiveMedia({ media, lang }: { media: ShowcaseLive; lang: Lang }) {
