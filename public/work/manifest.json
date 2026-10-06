@@ -1,0 +1,1529 @@
+{
+ "donweb-contenidos": {
+  "home": {
+   "source": "cloud-home-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "home.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 109138
+    },
+    "home-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 50214
+    }
+   }
+  },
+  "home-mobile": {
+   "source": "cloud-home-mobile.png",
+   "width": 1170,
+   "height": 2532,
+   "files": {
+    "home-mobile.webp": {
+     "width": 1170,
+     "height": 2532,
+     "bytes": 93446
+    }
+   }
+  },
+  "episode": {
+   "source": "cloud-serie-episodio-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "episode.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 109068
+    },
+    "episode-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 46334
+    }
+   }
+  },
+  "pildoras": {
+   "source": "cloud-pildoras-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "pildoras.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 82216
+    },
+    "pildoras-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 37172
+    }
+   }
+  },
+  "academia": {
+   "source": "cloud-academia-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "academia.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 94130
+    },
+    "academia-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 40876
+    }
+   }
+  },
+  "hub": {
+   "source": "cloud-hub-tutoriales-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "hub.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 81082
+    },
+    "hub-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 36096
+    }
+   }
+  },
+  "roadmap": {
+   "source": "cloud-roadmap-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "roadmap.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 103586
+    },
+    "roadmap-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 47266
+    }
+   }
+  },
+  "tutorial": {
+   "source": "cloud-tutorial-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "tutorial.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 116814
+    },
+    "tutorial-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 55478
+    }
+   }
+  },
+  "tag-tutorial": {
+   "source": "cloud-tag-tutorial-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "tag-tutorial.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 84056
+    },
+    "tag-tutorial-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 36322
+    }
+   }
+  },
+  "short-mobile": {
+   "source": "cloud-short-mobile.png",
+   "width": 1170,
+   "height": 2532,
+   "files": {
+    "short-mobile.webp": {
+     "width": 1170,
+     "height": 2532,
+     "bytes": 81274
+    }
+   }
+  },
+  "pildoras-mobile": {
+   "source": "cloud-pildoras-mobile.png",
+   "width": 1170,
+   "height": 2532,
+   "files": {
+    "pildoras-mobile.webp": {
+     "width": 1170,
+     "height": 2532,
+     "bytes": 73438
+    }
+   }
+  },
+  "slide-01": {
+   "source": "slide-01.png",
+   "width": 1200,
+   "height": 500,
+   "files": {
+    "slide-01.webp": {
+     "width": 1200,
+     "height": 500,
+     "bytes": 36378
+    }
+   }
+  },
+  "slide-02": {
+   "source": "slide-02.png",
+   "width": 1200,
+   "height": 500,
+   "files": {
+    "slide-02.webp": {
+     "width": 1200,
+     "height": 500,
+     "bytes": 45602
+    }
+   }
+  },
+  "slide-03": {
+   "source": "slide-03.png",
+   "width": 1200,
+   "height": 500,
+   "files": {
+    "slide-03.webp": {
+     "width": 1200,
+     "height": 500,
+     "bytes": 48712
+    }
+   }
+  },
+  "slide-04": {
+   "source": "slide-04.png",
+   "width": 1200,
+   "height": 500,
+   "files": {
+    "slide-04.webp": {
+     "width": 1200,
+     "height": 500,
+     "bytes": 27448
+    }
+   }
+  },
+  "hexa-bg": {
+   "source": "slider-hexa-sinlogo.png",
+   "width": 1200,
+   "height": 500,
+   "files": {
+    "hexa-bg.webp": {
+     "width": 1200,
+     "height": 500,
+     "bytes": 8074
+    }
+   }
+  },
+  "cloud-servers": {
+   "source": "cloud-servers.png",
+   "width": 1068,
+   "height": 828,
+   "files": {
+    "cloud-servers.webp": {
+     "width": 1068,
+     "height": 828,
+     "bytes": 91284
+    }
+   }
+  },
+  "trama-left": {
+   "source": "trama-izq.png",
+   "width": 509,
+   "height": 729,
+   "files": {
+    "trama-left.webp": {
+     "width": 509,
+     "height": 729,
+     "bytes": 14176
+    }
+   }
+  },
+  "trama-right": {
+   "source": "trama-de.png",
+   "width": 446,
+   "height": 686,
+   "files": {
+    "trama-right.webp": {
+     "width": 446,
+     "height": 686,
+     "bytes": 14010
+    }
+   }
+  },
+  "logo": {
+   "source": "DWC_Recurso-2-1.png",
+   "width": 911,
+   "height": 313,
+   "files": {
+    "logo.webp": {
+     "width": 911,
+     "height": 313,
+     "bytes": 13330
+    }
+   }
+  },
+  "card-pildoras": {
+   "source": "Cards_P--ldoras_01.jpg",
+   "width": 1920,
+   "height": 1080,
+   "files": {
+    "card-pildoras.webp": {
+     "width": 1920,
+     "height": 1080,
+     "bytes": 27208
+    }
+   }
+  },
+  "card-academia": {
+   "source": "Cards_Academia_01.jpg",
+   "width": 1920,
+   "height": 1080,
+   "files": {
+    "card-academia.webp": {
+     "width": 1920,
+     "height": 1080,
+     "bytes": 32292
+    }
+   }
+  },
+  "banner-roadmap": {
+   "source": "Banner_roadmap.jpg",
+   "width": 1920,
+   "height": 1080,
+   "files": {
+    "banner-roadmap.webp": {
+     "width": 1920,
+     "height": 1080,
+     "bytes": 32256
+    }
+   }
+  },
+  "yt-pGyVmSuKH-w": {
+   "source": "pGyVmSuKH-w.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-pGyVmSuKH-w.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 26900
+    }
+   }
+  },
+  "yt-nF1wtYnSyHI": {
+   "source": "nF1wtYnSyHI.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-nF1wtYnSyHI.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 26444
+    }
+   }
+  },
+  "yt-L4ZPhCTkX88": {
+   "source": "L4ZPhCTkX88.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-L4ZPhCTkX88.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 34174
+    }
+   }
+  },
+  "yt-10eJRuQ2S_E": {
+   "source": "10eJRuQ2S_E.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-10eJRuQ2S_E.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 56838
+    }
+   }
+  },
+  "yt-HqRjx7TtJ4E": {
+   "source": "HqRjx7TtJ4E.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-HqRjx7TtJ4E.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 28694
+    }
+   }
+  },
+  "yt-Bv1n_Kr-Hdo": {
+   "source": "Bv1n_Kr-Hdo.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-Bv1n_Kr-Hdo.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 32946
+    }
+   }
+  },
+  "yt-Q-R9daHOfdU": {
+   "source": "Q-R9daHOfdU.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-Q-R9daHOfdU.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 35108
+    }
+   }
+  },
+  "yt-UlND4ZFBcH4": {
+   "source": "UlND4ZFBcH4.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-UlND4ZFBcH4.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 20912
+    }
+   }
+  },
+  "yt-2cWLYCY0ytc": {
+   "source": "2cWLYCY0ytc.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-2cWLYCY0ytc.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 15680
+    }
+   }
+  },
+  "yt-3vrZJ7UI-vw": {
+   "source": "3vrZJ7UI-vw.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-3vrZJ7UI-vw.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 15812
+    }
+   }
+  },
+  "yt-57v5e3ITRBE": {
+   "source": "57v5e3ITRBE.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-57v5e3ITRBE.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 19442
+    }
+   }
+  },
+  "yt-7q7H8RzHm-E": {
+   "source": "7q7H8RzHm-E.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-7q7H8RzHm-E.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 17338
+    }
+   }
+  },
+  "yt-IDV68MZsNpw": {
+   "source": "IDV68MZsNpw.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-IDV68MZsNpw.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 15620
+    }
+   }
+  },
+  "yt-o3_GDKxlJQc": {
+   "source": "o3_GDKxlJQc.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-o3_GDKxlJQc.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 17356
+    }
+   }
+  },
+  "yt-CrvIbxow-Q0": {
+   "source": "CrvIbxow-Q0.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-CrvIbxow-Q0.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 29780
+    }
+   }
+  },
+  "yt-E-m3S_fHiDA": {
+   "source": "E-m3S_fHiDA.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-E-m3S_fHiDA.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 22524
+    }
+   }
+  },
+  "yt-tA6nlUrd1Hk": {
+   "source": "tA6nlUrd1Hk.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-tA6nlUrd1Hk.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 33206
+    }
+   }
+  },
+  "yt-_n4_MC4Hl5w": {
+   "source": "_n4_MC4Hl5w.jpg",
+   "width": 1280,
+   "height": 720,
+   "files": {
+    "yt-_n4_MC4Hl5w.webp": {
+     "width": 960,
+     "height": 540,
+     "bytes": 33912
+    }
+   }
+  },
+  "clip-home": {
+   "source": "cloud-home.raw.webm",
+   "width": 1920,
+   "height": 1080,
+   "duration": 16.266667,
+   "files": {
+    "clip-home.mp4": 3126793,
+    "clip-home.webm": 2548288,
+    "clip-home-poster.webp": 70158
+   }
+  },
+  "clip-episode": {
+   "source": "cloud-episode.raw.webm",
+   "width": 1920,
+   "height": 1080,
+   "duration": 25.666667,
+   "files": {
+    "clip-episode.mp4": 3532059,
+    "clip-episode.webm": 2914447,
+    "clip-episode-poster.webp": 82748
+   }
+  }
+ },
+ "donweb-talleres": {
+  "certificate": {
+   "source": "cert-diego-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "certificate.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 96928
+    },
+    "certificate-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 43378
+    }
+   }
+  },
+  "certificate-mobile": {
+   "source": "cert-diego-mobile.png",
+   "width": 1170,
+   "height": 2532,
+   "files": {
+    "certificate-mobile.webp": {
+     "width": 1170,
+     "height": 2532,
+     "bytes": 120616
+    }
+   }
+  },
+  "certificate-s1": {
+   "source": "cert-diego-s1-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "certificate-s1.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 149594
+    },
+    "certificate-s1-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 58046
+    }
+   }
+  },
+  "registro-cloud": {
+   "source": "cert-registro-cloud-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "registro-cloud.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 95246
+    },
+    "registro-cloud-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 40848
+    }
+   }
+  },
+  "registro-cloud-mobile": {
+   "source": "cert-registro-cloud-mobile.png",
+   "width": 1170,
+   "height": 2532,
+   "files": {
+    "registro-cloud-mobile.webp": {
+     "width": 1170,
+     "height": 2532,
+     "bytes": 104772
+    }
+   }
+  },
+  "registro-oficial": {
+   "source": "cert-registro-oficial-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "registro-oficial.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 97776
+    },
+    "registro-oficial-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 41816
+    }
+   }
+  },
+  "acreditacion": {
+   "source": "cert-acreditacion-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "acreditacion.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 95876
+    },
+    "acreditacion-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 40840
+    }
+   }
+  },
+  "panel-login": {
+   "source": "cert-panel-login-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "panel-login.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 58582
+    },
+    "panel-login-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 23486
+    }
+   }
+  },
+  "hub": {
+   "source": "talleres-home-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "hub.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 62578
+    },
+    "hub-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 26618
+    }
+   }
+  },
+  "registro-real": {
+   "source": "talleres-registro-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "registro-real.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 145298
+    },
+    "registro-real-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 61062
+    }
+   }
+  },
+  "cert-c1": {
+   "source": "cert-c1.png",
+   "width": 760,
+   "height": 537,
+   "files": {
+    "cert-c1.webp": {
+     "width": 760,
+     "height": 537,
+     "bytes": 32910
+    }
+   }
+  },
+  "cert-c2": {
+   "source": "cert-c2.png",
+   "width": 760,
+   "height": 537,
+   "files": {
+    "cert-c2.webp": {
+     "width": 760,
+     "height": 537,
+     "bytes": 31584
+    }
+   }
+  },
+  "cert-c3": {
+   "source": "cert-c3.png",
+   "width": 760,
+   "height": 537,
+   "files": {
+    "cert-c3.webp": {
+     "width": 760,
+     "height": 537,
+     "bytes": 30644
+    }
+   }
+  },
+  "cert-c4": {
+   "source": "cert-c4.png",
+   "width": 760,
+   "height": 537,
+   "files": {
+    "cert-c4.webp": {
+     "width": 760,
+     "height": 537,
+     "bytes": 32018
+    }
+   }
+  },
+  "cert-c5": {
+   "source": "cert-c5.png",
+   "width": 760,
+   "height": 537,
+   "files": {
+    "cert-c5.webp": {
+     "width": 760,
+     "height": 537,
+     "bytes": 31140
+    }
+   }
+  },
+  "cert-c6": {
+   "source": "cert-c6.png",
+   "width": 760,
+   "height": 537,
+   "files": {
+    "cert-c6.webp": {
+     "width": 760,
+     "height": 537,
+     "bytes": 30976
+    }
+   }
+  },
+  "cert-c7": {
+   "source": "cert-c7.png",
+   "width": 760,
+   "height": 537,
+   "files": {
+    "cert-c7.webp": {
+     "width": 760,
+     "height": 537,
+     "bytes": 32542
+    }
+   }
+  },
+  "cert-c8": {
+   "source": "cert-c8.png",
+   "width": 760,
+   "height": 537,
+   "files": {
+    "cert-c8.webp": {
+     "width": 760,
+     "height": 537,
+     "bytes": 30292
+    }
+   }
+  },
+  "cert-c9": {
+   "source": "cert-c9.png",
+   "width": 760,
+   "height": 537,
+   "files": {
+    "cert-c9.webp": {
+     "width": 760,
+     "height": 537,
+     "bytes": 31494
+    }
+   }
+  },
+  "legacy-2023": {
+   "source": "legacy-cert-2023.jpg",
+   "width": 1121,
+   "height": 793,
+   "files": {
+    "legacy-2023.webp": {
+     "width": 1121,
+     "height": 793,
+     "bytes": 45412
+    }
+   }
+  },
+  "cert-236-legacy": {
+   "source": "cert-236-legacy.jpg",
+   "width": 1024,
+   "height": 768,
+   "files": {
+    "cert-236-legacy.webp": {
+     "width": 1024,
+     "height": 768,
+     "bytes": 42028
+    }
+   }
+  },
+  "cert-236-rrss": {
+   "source": "cert-236-rrss.jpg",
+   "width": 1200,
+   "height": 627,
+   "files": {
+    "cert-236-rrss.webp": {
+     "width": 1200,
+     "height": 627,
+     "bytes": 33632
+    }
+   }
+  },
+  "trama-left": {
+   "source": "trama-izq.png",
+   "width": 509,
+   "height": 729,
+   "files": {
+    "trama-left.webp": {
+     "width": 509,
+     "height": 729,
+     "bytes": 14176
+    }
+   }
+  },
+  "trama-right": {
+   "source": "trama-der.png",
+   "width": 446,
+   "height": 686,
+   "files": {
+    "trama-right.webp": {
+     "width": 446,
+     "height": 686,
+     "bytes": 14010
+    }
+   }
+  },
+  "logo-dark": {
+   "source": "talleres-logo-oscuro.png",
+   "width": 320,
+   "height": 70,
+   "files": {
+    "logo-dark.webp": {
+     "width": 320,
+     "height": 70,
+     "bytes": 4070
+    }
+   }
+  },
+  "logo-light": {
+   "source": "talleres-logo-blanco.png",
+   "width": 320,
+   "height": 70,
+   "files": {
+    "logo-light.webp": {
+     "width": 320,
+     "height": 70,
+     "bytes": 3426
+    }
+   }
+  },
+  "icon": {
+   "source": "icon.png",
+   "width": 512,
+   "height": 512,
+   "files": {
+    "icon.webp": {
+     "width": 512,
+     "height": 512,
+     "bytes": 18686
+    }
+   }
+  },
+  "demo-2023": {
+   "source": "demo-2023.mp4",
+   "width": 1920,
+   "height": 966,
+   "duration": 24.3,
+   "files": {
+    "demo-2023.mp4": 4387515,
+    "demo-2023.webm": 3553095,
+    "demo-2023-poster.webp": 66160
+   }
+  },
+  "clip-certificate": {
+   "source": "cert-tilt.raw.webm",
+   "width": 1920,
+   "height": 1080,
+   "duration": 33.833333,
+   "files": {
+    "clip-certificate.mp4": 4540427,
+    "clip-certificate.webm": 3685557,
+    "clip-certificate-poster.webp": 61174
+   }
+  },
+  "clip-registro": {
+   "source": "cert-registro.raw.webm",
+   "width": 1920,
+   "height": 1080,
+   "duration": 10.866667,
+   "files": {
+    "clip-registro.mp4": 1217791,
+    "clip-registro.webm": 857852,
+    "clip-registro-poster.webp": 64134
+   }
+  }
+ },
+ "ada13": {
+  "home-2023": {
+   "source": "ada13-2023-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "home-2023.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 68098
+    },
+    "home-2023-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 30596
+    }
+   }
+  },
+  "home-2023-mobile": {
+   "source": "ada13-2023-mobile.png",
+   "width": 1170,
+   "height": 2532,
+   "files": {
+    "home-2023-mobile.webp": {
+     "width": 1170,
+     "height": 2532,
+     "bytes": 51406
+    }
+   }
+  },
+  "home-2024": {
+   "source": "ada13-2024-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "home-2024.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 41876
+    },
+    "home-2024-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 18500
+    }
+   }
+  },
+  "home-2024-mobile": {
+   "source": "ada13-2024-mobile.png",
+   "width": 1170,
+   "height": 2532,
+   "files": {
+    "home-2024-mobile.webp": {
+     "width": 1170,
+     "height": 2532,
+     "bytes": 37908
+    }
+   }
+  },
+  "section-1": {
+   "source": "ada13-2023-s1-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "section-1.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 140356
+    },
+    "section-1-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 57602
+    }
+   }
+  },
+  "section-2": {
+   "source": "ada13-2023-s2-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "section-2.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 75196
+    },
+    "section-2-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 30640
+    }
+   }
+  },
+  "section-3": {
+   "source": "ada13-2023-s3-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "section-3.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 73590
+    },
+    "section-3-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 30404
+    }
+   }
+  },
+  "section-4": {
+   "source": "ada13-2023-s4-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "section-4.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 79180
+    },
+    "section-4-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 33410
+    }
+   }
+  },
+  "logo": {
+   "source": "logo.png",
+   "width": 600,
+   "height": 200,
+   "files": {
+    "logo.webp": {
+     "width": 600,
+     "height": 200,
+     "bytes": 6672
+    }
+   }
+  },
+  "intro-bg": {
+   "source": "intro-bg.jpg",
+   "width": 1024,
+   "height": 683,
+   "files": {
+    "intro-bg.webp": {
+     "width": 1024,
+     "height": 683,
+     "bytes": 56442
+    }
+   }
+  },
+  "clip-home": {
+   "source": "ada13-2023.raw.webm",
+   "width": 1920,
+   "height": 1080,
+   "duration": 27.4,
+   "files": {
+    "clip-home.mp4": 4176490,
+    "clip-home.webm": 3478662,
+    "clip-home-poster.webp": 47694
+   }
+  },
+  "event-2024": {
+   "source": "video-mobile.mp4",
+   "width": 720,
+   "height": 1280,
+   "duration": 16,
+   "files": {
+    "event-2024.mp4": 2746298,
+    "event-2024.webm": 2045586,
+    "event-2024-poster.webp": 104506
+   }
+  }
+ },
+ "hermes": {
+  "landing": {
+   "source": "hermes-landing-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "landing.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 104624
+    },
+    "landing-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 45858
+    }
+   }
+  },
+  "landing-mobile": {
+   "source": "hermes-landing-mobile.png",
+   "width": 1170,
+   "height": 2532,
+   "files": {
+    "landing-mobile.webp": {
+     "width": 1170,
+     "height": 2532,
+     "bytes": 105760
+    }
+   }
+  },
+  "landing-s1": {
+   "source": "hermes-landing-s1-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "landing-s1.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 104162
+    },
+    "landing-s1-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 46070
+    }
+   }
+  },
+  "landing-s2": {
+   "source": "hermes-landing-s2-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "landing-s2.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 92598
+    },
+    "landing-s2-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 42522
+    }
+   }
+  },
+  "landing-s3": {
+   "source": "hermes-landing-s3-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "landing-s3.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 71826
+    },
+    "landing-s3-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 28994
+    }
+   }
+  },
+  "landing-s4": {
+   "source": "hermes-landing-s4-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "landing-s4.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 126236
+    },
+    "landing-s4-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 53800
+    }
+   }
+  },
+  "landing-s5": {
+   "source": "hermes-landing-s5-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "landing-s5.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 68956
+    },
+    "landing-s5-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 29022
+    }
+   }
+  },
+  "canvas-storefront-v01-inicio": {
+   "source": "hermes-canvas-storefront-v01-inicio-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-storefront-v01-inicio.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 180362
+    },
+    "canvas-storefront-v01-inicio-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 79642
+    }
+   }
+  },
+  "canvas-storefront-v04-producto": {
+   "source": "hermes-canvas-storefront-v04-producto-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-storefront-v04-producto.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 166904
+    },
+    "canvas-storefront-v04-producto-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 67736
+    }
+   }
+  },
+  "canvas-storefront-v05-carrito": {
+   "source": "hermes-canvas-storefront-v05-carrito-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-storefront-v05-carrito.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 128686
+    },
+    "canvas-storefront-v05-carrito-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 57524
+    }
+   }
+  },
+  "canvas-storefront-v07-pedido-creado": {
+   "source": "hermes-canvas-storefront-v07-pedido-creado-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-storefront-v07-pedido-creado.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 114892
+    },
+    "canvas-storefront-v07-pedido-creado-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 50582
+    }
+   }
+  },
+  "canvas-dashboard-a01-a02-acceso": {
+   "source": "hermes-canvas-dashboard-a01-a02-acceso-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-dashboard-a01-a02-acceso.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 143444
+    },
+    "canvas-dashboard-a01-a02-acceso-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 57760
+    }
+   }
+  },
+  "canvas-dashboard-c01-inicio": {
+   "source": "hermes-canvas-dashboard-c01-inicio-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-dashboard-c01-inicio.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 152396
+    },
+    "canvas-dashboard-c01-inicio-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 63610
+    }
+   }
+  },
+  "canvas-dashboard-c02-c03-pedidos": {
+   "source": "hermes-canvas-dashboard-c02-c03-pedidos-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-dashboard-c02-c03-pedidos.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 129076
+    },
+    "canvas-dashboard-c02-c03-pedidos-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 53516
+    }
+   }
+  },
+  "canvas-dashboard-b01-b03-carga-de-carta": {
+   "source": "hermes-canvas-dashboard-b01-b03-carga-de-carta-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-dashboard-b01-b03-carga-de-carta.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 137094
+    },
+    "canvas-dashboard-b01-b03-carga-de-carta-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 57180
+    }
+   }
+  },
+  "canvas-dashboard-c04-c06-carta": {
+   "source": "hermes-canvas-dashboard-c04-c06-carta-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-dashboard-c04-c06-carta.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 148576
+    },
+    "canvas-dashboard-c04-c06-carta-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 60654
+    }
+   }
+  },
+  "canvas-temas": {
+   "source": "hermes-canvas-temas-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-temas.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 178096
+    },
+    "canvas-temas-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 75444
+    }
+   }
+  },
+  "canvas-themephone": {
+   "source": "hermes-canvas-themephone-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "canvas-themephone.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 41242
+    },
+    "canvas-themephone-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 16334
+    }
+   }
+  },
+  "clip-landing": {
+   "source": "hermes-landing.raw.webm",
+   "width": 1920,
+   "height": 1080,
+   "duration": 23.8,
+   "files": {
+    "clip-landing.mp4": 2826059,
+    "clip-landing.webm": 2331039,
+    "clip-landing-poster.webp": 58694
+   }
+  }
+ },
+ "finanzas-ia": {
+  "icon": {
+   "source": "icon.png",
+   "width": 1024,
+   "height": 1024,
+   "files": {
+    "icon.webp": {
+     "width": 1024,
+     "height": 1024,
+     "bytes": 32060
+    }
+   }
+  }
+ },
+ "experience": {
+  "hashi-composer": {
+   "source": "composer-2025-light.png",
+   "width": 1914,
+   "height": 946,
+   "files": {
+    "hashi-composer.webp": {
+     "width": 1914,
+     "height": 946,
+     "bytes": 19780
+    },
+    "hashi-composer-1200.webp": {
+     "width": 1200,
+     "height": 593,
+     "bytes": 9744
+    }
+   }
+  },
+  "hashi-composer-dark": {
+   "source": "composer-2025-dark.png",
+   "width": 1915,
+   "height": 945,
+   "files": {
+    "hashi-composer-dark.webp": {
+     "width": 1914,
+     "height": 945,
+     "bytes": 18588
+    },
+    "hashi-composer-dark-1200.webp": {
+     "width": 1200,
+     "height": 592,
+     "bytes": 9488
+    }
+   }
+  },
+  "hashi-dashboard-2024": {
+   "source": "dashboard-2024-light.png",
+   "width": 2880,
+   "height": 1600,
+   "files": {
+    "hashi-dashboard-2024.webp": {
+     "width": 2400,
+     "height": 1333,
+     "bytes": 19308
+    },
+    "hashi-dashboard-2024-1200.webp": {
+     "width": 1200,
+     "height": 667,
+     "bytes": 8258
+    }
+   }
+  },
+  "hashi-site": {
+   "source": "hashi-home-desktop.png",
+   "width": 2880,
+   "height": 1800,
+   "files": {
+    "hashi-site.webp": {
+     "width": 2400,
+     "height": 1500,
+     "bytes": 168536
+    },
+    "hashi-site-1200.webp": {
+     "width": 1200,
+     "height": 750,
+     "bytes": 68280
+    }
+   }
+  }
+ }
+}

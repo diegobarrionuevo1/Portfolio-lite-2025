@@ -137,4 +137,16 @@ and follow `next_transition`. First boundary: `58d6abf`.
 
 ## Progress log
 
-(appended per task: route taken, trigger evidence, commit, checks observed)
+### T1 Foundation — DONE (commit `40eb5e8`)
+- Route: delegated writer (writer trigger: 24 files; mapping trigger: integration map from the discovery workflow).
+- Checks observed by the writer and spot-checked by the parent: `npm run lint` clean; `npx tsc --noEmit` exit 0 (re-run by parent); `npm run build` SSG 23/23 with `/work/[slug]` and `/en/work/[slug]` x5. Pre-existing warning: Ghost content key not configured at build.
+- Home: Hashi moved to the new `#experience` section (index 03); Ada13 is P/03; sections 04–07 renumbered; carousel names link to `/work/<slug>` and the ficha slide has "Ver la presentación".
+- RDD: assess → medium, `review_due: slice_budget_reached`. STATUS → START returned `invalid_request` (untracked inventory changed while the asset pipeline was still writing `public/work/`). Retry after the T2 asset commit with a stable tree.
+
+### T2 Asset pipeline — IN PROGRESS
+- Captures (Playwright 1.57, Chromium headless, 1440x900@2x and 390x844@3x): 39 live views across cloud.donweb.com, certificados.donweb.com (+ Diego's own certificate, demo landings, panel login), talleres.donweb.com, hashiapp.com, archived ada13.tech (2023 and 2024 via Wayback), the Hermes landing from localhost:3100 and 20 Claude Design canvases; plus inner sections by scroll offset.
+- Local copies: DonWeb theme hero slides, hex tramas, cloud-servers illustration, logos; 9 generated demo certificates, legacy 2023 certificate (test render), Talleres logos/tramas; Hashi composer screenshots (1914 and 2880 wide) and torii logo; Hermes icon; Finanzas app icon.
+- Remote own assets: 3 DonWeb Cloud og banners, 18 YouTube maxres thumbnails of Diego's DonWeb Cloud videos, current DWC logo, Talleres 2023 demo video (Vercel Blob, 17 MB), Diego's legacy course-236 certificate renders, Ada13 logo/hero image and the 2024 vertical event video (Wayback).
+- Clips recorded (1920x1080): cloud home slider + scroll, cinema-mode episode page, certificate 3D tilt + gallery, registro landing, Hermes landing night→day scroll, archived Ada13 scroll. Transcoded with ffmpeg to H.264 MP4 (crf 23) + VP9 WebM (crf 34) + WebP poster.
+- Output: `public/work/<slug>/` as WebP (2400w + 1200w variants, q82; alpha assets q90) and `public/work/manifest.json` with dimensions. 144 images, heaviest 176 KB.
+- Pending: Finanzas simulator screenshots (Expo iOS build running), final video transcode run, commit.
