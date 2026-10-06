@@ -1,29 +1,27 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Nav } from "@/components/site/nav";
 import { Night } from "@/components/site/night";
 import { RevealObserver } from "@/components/reveal";
-import { Badge, Button, Tag } from "@/components/ds";
 import { Contact } from "@/components/sections/contact";
-import { mono, siteUrl } from "@/components/blog/shared";
-import { homeHref, ogLocale, workHref, type Lang } from "@/lib/i18n";
+import { siteUrl } from "@/components/blog/shared";
+import { ogLocale, workHref, type Lang } from "@/lib/i18n";
 import { isShowcaseSlug, resolveShowcase } from "./registry";
-import type { Atmosphere, Chapter, Showcase, ShowcaseStatus } from "./types";
+import { ShowcaseChapter } from "./scenes/chapter";
+import { ShowcaseGallery } from "./scenes/gallery";
+import { ShowcaseHero } from "./scenes/hero";
+import { ShowcaseMetrics } from "./scenes/metrics";
+import { NextProject } from "./scenes/next-project";
+import { ScrollDriver } from "./scenes/scroll-driver";
+import type { Atmosphere } from "./types";
 import "./showcase.css";
 
 export { showcaseStaticParams } from "./registry";
 
 const UI = {
-  es: { back: "← Trabajo seleccionado", notFoundTitle: "Proyecto no encontrado" },
-  en: { back: "← Selected work", notFoundTitle: "Project not found" },
+  es: { notFoundTitle: "Proyecto no encontrado" },
+  en: { notFoundTitle: "Project not found" },
 } as const;
-
-const STATUS_BADGE: Record<ShowcaseStatus, { tone: "positive" | "neutral" | "caution"; dot: boolean }> = {
-  production: { tone: "positive", dot: true },
-  archived: { tone: "neutral", dot: false },
-  "in-development": { tone: "caution", dot: false },
-};
 
 /**
  * Remaps the design-system semantic tokens to the project's own palette, the
@@ -95,10 +93,14 @@ export function buildShowcaseMetadata(slug: string, lang: Lang): Metadata {
   };
 }
 
+/**
+ * The presentation, scene by scene: hero, chapters in order, the numbers
+ * band and the gallery when the project has them, the next-project card,
+ * and the site's Contact footer outside the atmosphere.
+ */
 export function ShowcaseView({ slug, lang }: { slug: string; lang: Lang }) {
   if (!isShowcaseSlug(slug)) notFound();
   const showcase = resolveShowcase(slug, lang);
-  const next = resolveShowcase(showcase.next, lang);
   const dark = showcase.atmosphere.scheme === "dark";
 
   const site = siteUrl();
@@ -133,7 +135,11 @@ export function ShowcaseView({ slug, lang }: { slug: string; lang: Lang }) {
         {/* Atmosphere scope. `data-band` + `data-theme="dark"` only for a dark
             project: the sticky nav reads the first [data-band] to flip its own
             theme, so it renders dark over the scenes and light again over the
-            Contact footer, which sits outside this wrapper on purpose. */}
+            Contact footer, which sits outside this wrapper on purpose.
+            The nav is sticky and in flow, so the wrapper is pulled up under it:
+            the band then starts at the top of the page (no strip of page
+            canvas above a dark project) and the nav sees itself over the band
+            from the first frame. The hero pads for the nav height. */}
         <div
           className="showcase band-bleed"
           data-band={dark ? "true" : undefined}
@@ -141,239 +147,30 @@ export function ShowcaseView({ slug, lang }: { slug: string; lang: Lang }) {
           style={{
             ...atmosphereStyle(showcase.atmosphere),
             ["--band-bg" as string]: "var(--surface-canvas)",
+            marginTop: "calc(var(--nav-h) * -1)",
             background: "var(--surface-canvas)",
             color: "var(--text-primary)",
           }}
         >
-          <ShowcaseHero showcase={showcase} lang={lang} />
+          <ScrollDriver />
 
-          {/* T3 adds the media frame per chapter layout; until then every
-              chapter renders as its text block. */}
-          {showcase.chapters.map((chapter) => (
-            <ShowcaseChapter key={chapter.id} chapter={chapter} />
+          <ShowcaseHero showcase={showcase} />
+
+          {showcase.chapters.map((chapter, index) => (
+            <ShowcaseChapter key={chapter.id} chapter={chapter} index={index} lang={lang} />
           ))}
 
-          <NextProject label={showcase.nextLabel} next={next} lang={lang} />
+          {showcase.metrics ? <ShowcaseMetrics metrics={showcase.metrics} lang={lang} /> : null}
+
+          {showcase.gallery ? (
+            <ShowcaseGallery kicker={showcase.gallery.kicker} items={showcase.gallery.items} lang={lang} />
+          ) : null}
+
+          <NextProject showcase={showcase} lang={lang} />
         </div>
 
         <Contact lang={lang} />
       </main>
     </>
-  );
-}
-
-function ShowcaseHero({ showcase, lang }: { showcase: Showcase; lang: Lang }) {
-  const ui = UI[lang];
-  const badge = STATUS_BADGE[showcase.status];
-  const sceneLabel = showcase.hero.mediaAlt ?? showcase.name;
-
-  return (
-    <header
-      className="showcase-hero"
-      style={{ padding: "var(--section-y) var(--page-margin) var(--section-y-tight)" }}
-    >
-      <div
-        data-reveal
-        style={{
-          ...mono,
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
-          gap: "var(--space-3) var(--space-4)",
-        }}
-      >
-        <Link href={`${homeHref(lang)}#work`} className="showcase-back">
-          {ui.back}
-        </Link>
-        <span aria-hidden="true" style={{ color: "var(--text-muted)" }}>·</span>
-        <span style={{ color: "var(--text-muted)" }}>{showcase.kicker}</span>
-        <Badge tone={badge.tone} dot={badge.dot}>
-          {showcase.statusLabel}
-        </Badge>
-      </div>
-
-      <h1
-        data-reveal
-        data-delay="70"
-        style={{
-          margin: 0,
-          maxWidth: "22ch",
-          fontFamily: "var(--font-display)",
-          fontSize: "var(--fs-display-2)",
-          fontWeight: 500,
-          letterSpacing: "var(--ls-display-2)",
-          lineHeight: "var(--lh-display)",
-          textWrap: "balance",
-        }}
-      >
-        {showcase.hero.headline}
-      </h1>
-
-      <p
-        data-reveal
-        data-delay="140"
-        style={{
-          margin: 0,
-          maxWidth: "var(--measure-lede)",
-          fontSize: "var(--fs-body-lg)",
-          lineHeight: "var(--lh-body)",
-          letterSpacing: "var(--ls-lede)",
-          color: "var(--text-secondary)",
-        }}
-      >
-        {showcase.hero.sub}
-      </p>
-
-      <div data-reveal data-delay="210" className="showcase-hero__meta">
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-          <div style={{ ...mono, display: "flex", flexWrap: "wrap", gap: "var(--space-2) var(--space-3)" }}>
-            <span style={{ color: "var(--text-accent)" }}>{showcase.role}</span>
-            <span aria-hidden="true" style={{ color: "var(--text-muted)" }}>·</span>
-            <span style={{ color: "var(--text-muted)" }}>{showcase.period}</span>
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-2)" }}>
-            {showcase.stack.map((item) => (
-              <Tag key={item}>{item}</Tag>
-            ))}
-          </div>
-        </div>
-        {showcase.links.length ? (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-3)" }}>
-            {showcase.links.map((link) => (
-              <Button
-                key={link.href}
-                variant={link.variant}
-                arrow
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {link.label}
-              </Button>
-            ))}
-          </div>
-        ) : null}
-      </div>
-
-      {/* Hero scene. Real media (T2) replaces the labelled slot. */}
-      <figure data-reveal className="showcase-scene" aria-label={sceneLabel}>
-        <div className="showcase-scene__frame">
-          <span style={{ ...mono, color: "var(--text-muted)" }}>{sceneLabel}</span>
-        </div>
-      </figure>
-    </header>
-  );
-}
-
-function ShowcaseChapter({ chapter }: { chapter: Chapter }) {
-  return (
-    <section
-      data-reveal
-      className="showcase-chapter"
-      style={{
-        padding: "var(--section-y-tight) var(--page-margin)",
-        borderTop: "1px solid var(--border-hairline)",
-      }}
-    >
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-        <span style={{ ...mono, color: "var(--text-accent)" }}>{chapter.kicker}</span>
-        <h2
-          style={{
-            margin: 0,
-            maxWidth: "18ch",
-            fontFamily: "var(--font-display)",
-            fontSize: "var(--fs-title-1)",
-            fontWeight: 500,
-            letterSpacing: "var(--ls-title)",
-            lineHeight: "var(--lh-snug)",
-            textWrap: "balance",
-          }}
-        >
-          {chapter.title}
-        </h2>
-      </div>
-
-      <div className="showcase-chapter__prose">
-        {chapter.body.map((paragraph) => (
-          <p
-            key={paragraph}
-            style={{
-              margin: 0,
-              maxWidth: "var(--measure-prose)",
-              fontSize: "var(--fs-body)",
-              lineHeight: "var(--lh-body)",
-              color: "var(--text-secondary)",
-              textWrap: "pretty",
-            }}
-          >
-            {paragraph}
-          </p>
-        ))}
-
-        {chapter.facts?.length ? (
-          <dl className="showcase-facts">
-            {chapter.facts.map((fact) => (
-              <div key={fact.label} style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-                <dt
-                  data-numeric
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "var(--fs-title-2)",
-                    fontWeight: 500,
-                    letterSpacing: "var(--ls-title)",
-                    lineHeight: "var(--lh-snug)",
-                  }}
-                >
-                  {fact.value}
-                </dt>
-                <dd style={{ margin: 0, fontSize: "var(--fs-body-sm)", color: "var(--text-secondary)" }}>
-                  {fact.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        ) : null}
-      </div>
-    </section>
-  );
-}
-
-function NextProject({ label, next, lang }: { label: string; next: Showcase; lang: Lang }) {
-  return (
-    <div
-      data-reveal
-      style={{
-        padding: "var(--section-y-tight) var(--page-margin) var(--section-y)",
-        borderTop: "1px solid var(--border-hairline)",
-      }}
-    >
-      <Link href={workHref(next.slug, lang)} className="showcase-next">
-        <span style={{ ...mono, color: "var(--text-muted)" }}>{label}</span>
-        <span
-          className="showcase-next__name"
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "var(--fs-display-3)",
-            fontWeight: 500,
-            letterSpacing: "var(--ls-display-3)",
-            lineHeight: "var(--lh-tight)",
-            textWrap: "balance",
-          }}
-        >
-          {next.name}{" "}
-          <span className="showcase-next__arrow" aria-hidden="true">→</span>
-        </span>
-        <span
-          style={{
-            maxWidth: "var(--measure-lede)",
-            fontSize: "var(--fs-body)",
-            lineHeight: "var(--lh-body)",
-            color: "var(--text-secondary)",
-          }}
-        >
-          {next.tagline}
-        </span>
-      </Link>
-    </div>
   );
 }

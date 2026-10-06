@@ -1,8 +1,16 @@
 /* ============================================================
    Showcase pages (/work/<slug>): only what inline styles cannot express,
-   which is media queries and hover states. Every colour is a token resolved
-   by the page's atmosphere scope; nothing here hardcodes one. Plain CSS,
-   outside Tailwind's @layer, so none of it is tree-shaken.
+   which is media queries, hover states, scroll-driven transforms and the
+   staged entrances. Every colour is a token resolved by the page's
+   atmosphere scope; nothing here hardcodes one. Plain CSS, outside
+   Tailwind's @layer, so none of it is tree-shaken.
+
+   Motion inventory (tokens only):
+     reveals     900ms expo, 24px rise, 70ms stagger  (globals.css data-reveal)
+     entrances   900ms expo, fade + 24px rise / scale .97 → 1
+     media       640ms expo hover scale (--hover-media-scale)
+     parallax    scroll-linked, no easing, via --p (scenes/scroll-driver.tsx)
+   `prefers-reduced-motion: reduce` turns all of it off at the end of the file.
    ============================================================ */
 
 .showcase {
@@ -38,12 +46,144 @@
   color: var(--text-primary);
 }
 
-/* ── Hero: a text block over the scene. The meta row (role and period on the
-   left, links on the right) splits only when there is room for both. ── */
+/* ============================================================
+   Media frame: hairline, raised surface, --r-media, aspect from the media
+   (set inline) so the box exists before the bytes arrive. The inner media
+   fills it; the grain overlay is the carousel's treatment.
+   ============================================================ */
+.showcase-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-media);
+  background: var(--surface-raised);
+  isolation: isolate;
+}
+.showcase-frame__media {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.showcase-frame__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image: var(--grain-image);
+  background-size: var(--grain-size);
+  mix-blend-mode: var(--grain-blend);
+  opacity: 0.32;
+}
+
+/* Parallax: the media is drawn taller than the frame by --parallax-range and
+   slides against the scroll, so the frame never shows a gap. --p comes from
+   the ScrollDriver (0 entering from below, 1 leaving above); the 0.5
+   fallback is the resting position for server HTML and far-away frames. */
+.showcase-frame--parallax .showcase-frame__media {
+  top: calc(var(--parallax-range, 0px) * -0.5);
+  height: calc(100% + var(--parallax-range, 0px));
+  transform: translate3d(0, calc((0.5 - var(--p, 0.5)) * var(--parallax-range, 0px)), 0);
+  will-change: transform;
+}
+
+/* Pending slot for an unregistered motion graphic. Hatched like the
+   carousel placeholders so it reads as "pending", never as a fake screenshot. */
+.showcase-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--text-muted);
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    var(--action-quiet-fill) 10px,
+    var(--action-quiet-fill) 20px
+  );
+}
+
+/* ============================================================
+   Motion-graphic stage (scenes/stage.tsx). Contract for `live` components:
+
+   <div class="mg-stage" data-mg="<id>" [data-playing="1"] [data-reduced="1"]>
+     ...absolutely positioned children, transform/opacity animations only...
+   </div>
+
+   - data-playing is present while about half the stage is visible and is
+     removed when it leaves; data-reduced is present under reduced motion.
+   - `.mg-run`: an element whose animation PAUSES off screen and RESUMES
+     where it was. Declare its animation with longhands (animation-name,
+     -duration, -timing-function, -delay, -fill-mode), never the shorthand,
+     so the play-state below is not reset.
+   - `.mg-restart`: an element whose animation RESTARTS every time the stage
+     enters. Declare its animation under the playing selector, e.g.
+       .mg-stage[data-playing] .pipeline__beam { animation: mg-pipeline-beam 2.4s var(--ease-in-out) infinite; }
+   - Under data-reduced nothing animates: style the resting/final state under
+     `.mg-stage[data-reduced] .<part>`.
+   - Keyframes are named mg-<component>-<part>; delays stagger by --stagger;
+     durations and curves come from the motion tokens.
+   - Inside a .showcase-frame the stage fills the frame and the frame owns
+     the chrome; on its own it draws the same hairline and surface.
+   ============================================================ */
+.mg-stage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-media);
+  background: var(--surface-raised);
+  isolation: isolate;
+}
+.showcase-frame > .mg-stage {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.mg-stage .mg-run {
+  animation-play-state: paused;
+}
+.mg-stage[data-playing] .mg-run {
+  animation-play-state: running;
+}
+.mg-stage:not([data-playing]) .mg-restart,
+.mg-stage[data-reduced] .mg-run,
+.mg-stage[data-reduced] .mg-restart {
+  animation: none;
+}
+
+/* ============================================================
+   Hero: the text block fills the first viewport when there is media; the
+   stage (cue + frame) sits at the bottom and the frame peeks in. The media
+   frame is capped by the carousel's rule (88svh tall at its own aspect).
+   ============================================================ */
 .showcase-hero {
   display: flex;
   flex-direction: column;
+  gap: var(--space-8);
+}
+@media (min-width: 860px) {
+  .showcase-hero[data-media] {
+    min-height: 100svh;
+  }
+}
+.showcase-hero__text {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-7);
+}
+.showcase-hero__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
 }
 .showcase-hero__meta {
   display: grid;
@@ -55,89 +195,340 @@
     align-items: end;
   }
 }
-
-/* ── Scene slot: a labelled frame that later tasks fill with real media.
-   Hatched like the carousel placeholders so it reads as "pending", never as
-   a fake screenshot. ── */
-.showcase-scene {
-  margin: 0;
-}
-.showcase-scene__frame {
-  position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 9;
-  padding: var(--space-5);
-  overflow: hidden;
-  text-align: center;
-  border: 1px solid var(--border-hairline);
-  border-radius: var(--r-media);
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 10px,
-      var(--action-quiet-fill) 10px,
-      var(--action-quiet-fill) 20px
-    ),
-    var(--surface-raised);
-}
-@media (max-width: 599px) {
-  .showcase-scene__frame {
-    aspect-ratio: 4 / 3;
-  }
-}
-
-/* ── Chapter: kicker and title on the left, prose on the right from 860px;
-   one column below. ── */
-.showcase-chapter {
-  display: grid;
+.showcase-hero__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-6);
-  align-items: start;
+  margin-top: auto;
 }
-@media (min-width: 860px) {
-  .showcase-chapter {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: var(--space-9);
-  }
+.showcase-hero__stage .showcase-frame {
+  max-width: calc(88svh * var(--aspect, 1.6));
+  margin-inline: auto;
+}
+
+/* ============================================================
+   Chapters
+   ============================================================ */
+.showcase-chapter {
+  padding: var(--section-y-tight) var(--page-margin);
+  border-top: 1px solid var(--border-hairline);
+}
+.showcase-chapter__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+.showcase-chapter__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 .showcase-chapter__prose {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
 }
+/* Head on the left, prose on the right (full and text-only layouts). */
+@media (min-width: 860px) {
+  .showcase-chapter__text--columns {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-9);
+    align-items: start;
+  }
+}
+
+/* Split layouts: text 5/12 sticks under the nav, media 7/12 scrolls past. */
+.showcase-chapter--split {
+  display: grid;
+  gap: var(--space-7);
+  align-items: start;
+}
+@media (min-width: 860px) {
+  .showcase-chapter--split {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-9);
+  }
+  .showcase-chapter--media-left {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+  .showcase-chapter--media-left .showcase-chapter__sticky {
+    order: 2;
+  }
+  .showcase-chapter__sticky {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--space-6));
+  }
+}
+.showcase-chapter__media {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+.showcase-chapter__figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  min-width: 0;
+}
+
+/* Full layouts: the media (or a 2-up pair) runs under the text block. */
+.showcase-chapter__strip {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-8);
+}
+@media (min-width: 700px) {
+  .showcase-chapter__strip[data-items="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .showcase-facts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
   gap: var(--space-5);
   margin: 0;
   padding-top: var(--space-5);
   border-top: 1px solid var(--border-hairline);
 }
+.showcase-fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
 
-/* ── Next project: the whole block is the link; the name takes the accent
-   and the arrow nudges on hover. ── */
+/* ============================================================
+   Metrics band
+   ============================================================ */
+.showcase-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding: var(--section-y-tight) var(--page-margin);
+  border-top: 1px solid var(--border-hairline);
+}
+.showcase-metrics__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: var(--space-7) var(--space-6);
+}
+.showcase-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ============================================================
+   Gallery: a full-bleed film strip with native scroll and snap points. The
+   items keep their natural aspect and share one height, so a phone capture
+   stands next to a desktop one. That height is the smaller of the carousel
+   rule (about half the viewport, capped so a 16:10 item stays under 880px)
+   and the height at which a 16:10 item fits the content column, so on a
+   phone the desktop captures fit in full and the phone captures line up as
+   a trio. The edge fades are a mask (functional: they say "there is more"),
+   not decoration; the mask colour is alpha only. The section has no side
+   padding of its own, so the strip only bleeds past --page-max.
+   ============================================================ */
+.showcase-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--section-y-tight) 0;
+  border-top: 1px solid var(--border-hairline);
+}
+.showcase-gallery__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding-inline: var(--page-margin);
+}
+.showcase-strip {
+  --strip-h: min(clamp(200px, 52svh, 550px), calc((100vw - 2 * var(--page-margin)) / 1.6));
+  --strip-pad: calc(var(--page-margin) + var(--bleed));
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+  margin-inline: calc(var(--bleed) * -1);
+  padding: var(--space-2) var(--strip-pad);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--strip-pad);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    rgb(0 0 0) var(--page-margin),
+    rgb(0 0 0) calc(100% - var(--page-margin)),
+    transparent
+  );
+  outline-offset: -2px;
+}
+.showcase-strip::-webkit-scrollbar {
+  display: none;
+}
+.showcase-strip:focus-visible {
+  outline: 2px solid var(--focus-ring);
+}
+.showcase-strip__item {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: calc(var(--strip-h) * var(--aspect, 1.6));
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+/* ============================================================
+   Next project: one card, the whole block is the link. Thumbnail scales by
+   the house media factor and the arrow slides; hover gated to real pointers.
+   ============================================================ */
 .showcase-next,
 .showcase-next:hover {
   color: inherit;
 }
 .showcase-next {
+  display: grid;
+  gap: var(--space-5);
+  align-items: center;
+  padding: var(--space-6);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-card);
+  background: var(--surface-card);
+  transition: border-color var(--dur-base) var(--ease-out-quart);
+}
+@media (min-width: 700px) {
+  .showcase-next {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-7);
+  }
+}
+.showcase-next__thumb {
+  position: relative;
+  display: block;
+  width: min(100%, 240px);
+  aspect-ratio: 1.6;
+  overflow: hidden;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-raised);
+}
+.showcase-next__thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out-expo);
+}
+.showcase-next__body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
+  min-width: 0;
 }
 .showcase-next__name {
   transition: color var(--dur-base) var(--ease-out-quart);
 }
 .showcase-next__arrow {
   display: inline-block;
+  font-family: var(--font-display);
+  font-size: var(--fs-title-1);
+  line-height: 1;
   transition: transform var(--dur-base) var(--ease-out-quart);
 }
-.showcase-next:hover .showcase-next__name,
+.showcase-next:focus-visible {
+  border-color: var(--border-mid);
+}
 .showcase-next:focus-visible .showcase-next__name {
   color: var(--text-accent);
 }
-.showcase-next:hover .showcase-next__arrow,
 .showcase-next:focus-visible .showcase-next__arrow {
-  transform: translateX(6px);
+  transform: translateX(8px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .showcase-next:hover {
+    border-color: var(--border-mid);
+  }
+  .showcase-next:hover .showcase-next__name {
+    color: var(--text-accent);
+  }
+  .showcase-next:hover .showcase-next__thumb img {
+    transform: scale(var(--hover-media-scale));
+  }
+  .showcase-next:hover .showcase-next__arrow {
+    transform: translateX(8px);
+  }
+}
+
+/* ============================================================
+   Entrances. Only when motion is welcome: the resting state is the visible
+   one, so server HTML and reduced motion render everything settled.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  /* Hero stage: the cue and the frame wait for the fonts (HeroStage). */
+  .showcase-hero__stage .showcase-frame {
+    opacity: 0;
+    transform: scale(0.97);
+    transition:
+      opacity var(--dur-reveal) var(--ease-out-expo),
+      transform var(--dur-reveal) var(--ease-out-expo);
+  }
+  .showcase-hero__stage[data-ready] .showcase-frame {
+    opacity: 1;
+    transform: none;
+  }
+  .showcase-hero__stage .showcase-cue {
+    opacity: 0;
+    transition: opacity var(--dur-reveal) var(--ease-out-expo) var(--dur-base);
+  }
+  .showcase-hero__stage[data-ready] .showcase-cue {
+    opacity: 1;
+  }
+
+  /* Chapter frames: staged by the ScrollDriver at ~20% visibility. */
+  .showcase-frame--enter {
+    opacity: 0;
+    transform: translateY(var(--reveal-y)) scale(0.985);
+    transition:
+      opacity var(--dur-reveal) var(--ease-out-expo),
+      transform var(--dur-reveal) var(--ease-out-expo);
+  }
+  .showcase-frame--enter[data-scene-in] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   Reduced motion: no parallax, no scroll-driven transforms, no staged
+   motion, no autoplay (video.tsx and stage.tsx check the same query), and
+   the scroll cue's drifting arrow goes away with it.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .showcase-frame--parallax .showcase-frame__media {
+    top: 0;
+    height: 100%;
+    transform: none;
+    will-change: auto;
+  }
+  .showcase-cue {
+    display: none;
+  }
+  .showcase-next__thumb img,
+  .showcase-next__arrow {
+    transition: none;
+  }
+  .mg-stage .mg-run,
+  .mg-stage .mg-restart {
+    animation: none !important;
+  }
 }

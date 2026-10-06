@@ -11,7 +11,13 @@ import { donwebContenidos } from "./content/donweb-contenidos";
 import { donwebTalleres } from "./content/donweb-talleres";
 import { finanzasIa } from "./content/finanzas-ia";
 import { hermes } from "./content/hermes";
-import type { Chapter, Showcase, ShowcaseDefinition, ShowcaseSlug } from "./types";
+import type {
+  Chapter,
+  GalleryItem,
+  Showcase,
+  ShowcaseDefinition,
+  ShowcaseSlug,
+} from "./types";
 
 const DEFINITIONS: Record<ShowcaseSlug, ShowcaseDefinition> = {
   "donweb-contenidos": donwebContenidos,
@@ -44,9 +50,9 @@ export function showcaseStaticParams(): { slug: ShowcaseSlug }[] {
 }
 
 /**
- * Shared data plus one language's copy, merged for rendering. Chapters pair
- * by id in both directions, and a mismatch throws so the static build fails
- * instead of shipping a page with a silent hole.
+ * Shared data plus one language's copy, merged for rendering. Chapters and
+ * gallery items pair by id in both directions, and a mismatch throws so the
+ * static build fails instead of shipping a page with a silent hole.
  */
 export function resolveShowcase(slug: ShowcaseSlug, lang: Lang): Showcase {
   const { shared, copy } = DEFINITIONS[slug];
@@ -66,11 +72,31 @@ export function resolveShowcase(slug: ShowcaseSlug, lang: Lang): Showcase {
     }
   }
 
+  const { gallery: sharedGallery, ...sharedRest } = shared;
+  const { gallery: galleryCopy, ...textRest } = text;
+
+  let gallery: Showcase["gallery"];
+  if (sharedGallery?.length) {
+    if (!galleryCopy) {
+      throw new Error(`[showcase] "${slug}" (${lang}) has gallery media but no gallery copy`);
+    }
+    const items: GalleryItem[] = sharedGallery.map((media, index) => {
+      const id = media.id ?? String(index);
+      const itemCopy = galleryCopy.items[id];
+      if (!itemCopy) {
+        throw new Error(`[showcase] "${slug}" (${lang}) has no copy for gallery item "${id}"`);
+      }
+      return { media, ...itemCopy };
+    });
+    gallery = { kicker: galleryCopy.kicker, items };
+  }
+
   return {
-    ...shared,
-    ...text,
+    ...sharedRest,
+    ...textRest,
     lang,
     hero: { ...shared.hero, ...text.hero },
     chapters,
+    gallery,
   };
 }
