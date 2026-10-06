@@ -1,0 +1,1862 @@
+/* ============================================================
+   Finanzas personales con IA, own product: the live components of the
+   /work/finanzas-ia showcase (scenes/mg/finanzas-ia.tsx), plus the few
+   layout rules this page's portrait captures need.
+
+   Three stages share the `.mg-fin` root:
+     message-to-movement  the capture bar types the app's own placeholder
+                          sentence; each word is boxed and lands in its
+                          field of a JSON card; the empty `currency` field
+                          flashes amber and a Pending badge stamps on; a
+                          Confirm rule sweeps and the card's debt counts to
+                          18.000 while the bank balance stays still
+     available-balance    a vertical subtraction, real − reserved − savings
+                          − invested = AVAILABLE on an ink card; then the
+                          reserved figure climbs past the balance, the
+                          result crosses zero, turns red and the
+                          Over-committed pill drops in (ADR-022: no clamp)
+     three-channels       TEXT / AUDIO / PHOTO inside a dashed phone
+                          boundary send packets to a Cloudflare Worker;
+                          amber-edged cards land in a Pending column with a
+                          ticking age; the daily quota decrements per capture
+
+   Stage contract (showcase.css): structural pieces enter once through
+   `.mg-run` (longhands, paused off screen); narratives are declared only
+   under `.mg-stage[data-playing]` so they restart on entry; the final frame
+   lives under `.mg-stage[data-reduced]`. Keyframes move transform, opacity
+   and clip-path only. The one transition is the red copy of the available
+   figure (opacity, 180ms) that the component toggles when the value crosses
+   zero. Sizes use container units (cqw) so each stage scales as one picture
+   from a phone column to the full 1520px frame. The three narratives share
+   one `--mg-cycle` (12s); the JS ticks that write text use the same figure
+   (CYCLE_MS in the component) and the phase marks noted above each timeline.
+
+   This is a LIGHT page: the atmosphere already maps the product's ink
+   (#111827), muted surface (#F1F5F9), hairline (#E5E7EB) and muted text
+   (#6B7280) onto the tokens, so everything here reads tokens. The only
+   colour quotes in this file are the product's three semantic colours,
+   shown only inside the stages and only with their product meaning:
+     amber   #FBBF24  anything pending or missing
+     red     #EF4444  expenses and over-commitment
+     emerald #10B981  income and savings (reserved for a future stage; the
+                      three stages here show no income, so it is unused)
+   No shadow anywhere: the product's raised AI button is evoked with a
+   hairline ring. No gradient.
+   ============================================================ */
+.mg-fin {
+  --fin-amber: #fbbf24;
+  --fin-red: #ef4444;
+  --mg-cycle: 12s;
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}
+.mg-fin-msg,
+.mg-fin-bal,
+.mg-fin-chan {
+  --pad: clamp(18px, 3.4cqw, 52px);
+  position: absolute;
+  inset: 0;
+  padding: var(--pad);
+}
+
+/* Inside a frame the stage is absolutely positioned with inset 0, but it
+   also carries its aspect-ratio inline, and an absolutely positioned box
+   takes its height from that ratio before it honours `bottom: 0`. These
+   stages must follow the frame instead, so the inline ratio is switched
+   off here and the frame gets a floor where the 2:1 ratio would be too
+   short for the content: a phone column and the tablet range. */
+.showcase-frame > .mg-stage[data-mg="message-to-movement"],
+.showcase-frame > .mg-stage[data-mg="available-balance"],
+.showcase-frame > .mg-stage[data-mg="three-channels"] {
+  aspect-ratio: auto !important;
+}
+/* Floors measured on the final frame (the tallest one) at 390 and 900px
+   wide, plus a little slack. */
+@media (max-width: 699px) {
+  .showcase-frame:has(> .mg-stage[data-mg="message-to-movement"]) {
+    min-height: 720px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="available-balance"]) {
+    min-height: 470px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="three-channels"]) {
+    min-height: 690px;
+  }
+}
+@media (min-width: 700px) and (max-width: 1099px) {
+  .showcase-frame:has(> .mg-stage[data-mg="message-to-movement"]) {
+    min-height: 460px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="available-balance"]) {
+    min-height: 340px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="three-channels"]) {
+    min-height: 490px;
+  }
+}
+
+/* ============================================================
+   Portrait captures. A 1206 × 2622 phone capture must never run the full
+   content column: the hero frame and the 2-up figures are capped to the
+   width a 78svh-tall phone has, and centred. The hero grain is eased on
+   the white screenshot (multiply over white reads as dirt at the house
+   opacity). The app icon gets a plate in the gallery: contained on the
+   sunken surface with the iOS corner radius, as an icon rather than a
+   capture.
+   ============================================================ */
+.showcase-hero__stage .showcase-frame:has(> img[src$="/work/finanzas-ia/home-light.webp"]) {
+  max-width: min(100%, calc(78svh * 1206 / 2622));
+}
+.showcase-hero__stage .showcase-frame:has(> img[src$="/work/finanzas-ia/home-light.webp"]) .showcase-frame__grain {
+  opacity: 0.16;
+}
+.showcase-chapter__figure:has(> .showcase-frame > img[src^="/work/finanzas-ia/home-"]) {
+  width: min(100%, calc(78svh * 1206 / 2622));
+  margin-inline: auto;
+}
+.showcase-strip__item > .showcase-frame:has(> img[src$="/work/finanzas-ia/icon.webp"]) {
+  background: var(--surface-sunken);
+}
+.showcase-strip__item > .showcase-frame > img[src$="/work/finanzas-ia/icon.webp"] {
+  padding: 18%;
+  object-fit: contain;
+  /* 22.37% of the icon's own size, the iOS radius, as a share of the frame. */
+  clip-path: inset(18% round 14.3%);
+}
+
+/* ============================================================
+   Shared pieces
+   ============================================================ */
+
+/* Mono caps label, the stage's annotation voice. */
+.mg-fin-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  font-weight: 400;
+  letter-spacing: var(--ls-caps);
+  line-height: var(--lh-mono);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Hairline + surface, the product's card. */
+.mg-fin-box {
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-card);
+}
+
+/* Entrance shared by the structural pieces: fade + 12px rise, once. */
+.mg-fin-rise {
+  animation-name: mg-fin-rise;
+  animation-duration: var(--dur-reveal);
+  animation-timing-function: var(--ease-out-expo);
+  animation-fill-mode: both;
+}
+@keyframes mg-fin-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   message-to-movement
+   Cycle (percent of --mg-cycle): 3–27 the sentence types (JS) in the
+   capture bar; at 28 the typed layer hands over to the tokenised line.
+   33 / 39 / 45 / 51 each token is boxed and its value lands in the JSON
+   card (type, amount, description, payment_method), 56 the card
+   suggestion, 61 should_affect_balance; 66–69 the empty currency field
+   flashes amber and the Pending badge stamps on. 72–78 the Confirm rule
+   sweeps (linear, deliberate). 78–86 the card's debt counts to 18.000 (JS)
+   under a red rule, 86 the bank account says "unchanged", 88 the note
+   explains why. 94–100 everything narrative fades for the next pass.
+   ============================================================ */
+.mg-fin-msg {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  gap: clamp(12px, 2cqw, 26px);
+}
+.mg-fin-msg__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+}
+
+/* The capture bar, as the home screen draws it: label, hairline input,
+   the ink AI button. */
+.mg-fin-msg__bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+}
+.mg-fin-msg__bar-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(8px, 1.2cqw, 14px);
+}
+.mg-fin-msg__input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: clamp(38px, 4.6cqw, 56px);
+  padding: 0 clamp(12px, 1.5cqw, 20px);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-card);
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.25cqw, 16px);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.mg-fin-msg__line {
+  position: absolute;
+  top: 50%;
+  left: clamp(12px, 1.5cqw, 20px);
+  transform: translate3d(0, -50%, 0);
+  opacity: 0;
+}
+.mg-fin-msg__token {
+  position: relative;
+  white-space: nowrap;
+}
+.mg-fin-msg__token::after {
+  content: "";
+  position: absolute;
+  inset: -0.2em -0.3em;
+  border: 1px solid var(--text-primary);
+  border-radius: var(--r-xs);
+  opacity: 0;
+  transform: scale(1.08);
+  pointer-events: none;
+}
+.mg-fin-msg__ai {
+  display: grid;
+  place-items: center;
+  width: clamp(38px, 4.6cqw, 56px);
+  height: clamp(38px, 4.6cqw, 56px);
+  border-radius: 50%;
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  font-size: clamp(14px, 1.7cqw, 22px);
+  line-height: 1;
+  /* The raised button, as a hairline ring rather than a shadow. */
+  outline: 1px solid var(--border-hairline);
+  outline-offset: 3px;
+}
+
+.mg-fin-msg__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(12px, 2cqw, 26px);
+  align-items: start;
+}
+
+/* The JSON card. */
+.mg-fin-msg__card {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.2cqw, 14px);
+  padding: clamp(12px, 1.6cqw, 22px) clamp(14px, 1.8cqw, 24px);
+  min-width: 0;
+}
+.mg-fin-msg__card-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+.mg-fin-msg__rows {
+  display: flex;
+  flex-direction: column;
+}
+.mg-fin-msg__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.2em 1em;
+  padding: clamp(4px, 0.55cqw, 7px) 0 clamp(4px, 0.55cqw, 7px) 0.8em;
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.2cqw, 15px);
+  line-height: var(--lh-mono);
+}
+/* The pending bar: amber, the product's colour for anything missing. */
+.mg-fin-msg__row::before {
+  content: "";
+  position: absolute;
+  top: 0.35em;
+  bottom: 0.35em;
+  left: 0;
+  width: 2px;
+  background: var(--fin-amber);
+  opacity: 0;
+}
+.mg-fin-msg__key {
+  color: var(--text-muted);
+}
+.mg-fin-msg__value {
+  color: var(--text-primary);
+  font-weight: 500;
+  opacity: 0;
+  transform: translate3d(-10px, 0, 0);
+  overflow-wrap: anywhere;
+}
+.mg-fin-msg__row[data-key="currency"] .mg-fin-msg__value {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.mg-fin-msg__badge {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 0.2em;
+  padding: 0.3em 0.6em;
+  border-radius: var(--r-xs);
+  background: var(--fin-amber);
+  color: var(--text-primary);
+  font-size: clamp(9px, 0.95cqw, 11px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: scale(0.96);
+  transform-origin: left center;
+}
+
+/* Confirm: the base row and an ink layer with the same label, revealed by
+   the sweep. */
+.mg-fin-msg__confirm {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-top: auto;
+  height: clamp(34px, 4cqw, 48px);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: clamp(12px, 1.3cqw, 16px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+}
+.mg-fin-msg__confirm-fill {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  clip-path: inset(0 100% 0 0);
+}
+
+/* The ledger: the card's debt and the bank's balance. */
+.mg-fin-msg__ledger {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.2cqw, 14px);
+  min-width: 0;
+}
+.mg-fin-msg__acct {
+  position: relative;
+  display: grid;
+  gap: 0.3em;
+  padding: clamp(10px, 1.4cqw, 18px) clamp(12px, 1.6cqw, 22px);
+}
+.mg-fin-msg__acct-name {
+  font-size: clamp(12px, 1.4cqw, 18px);
+  font-weight: 500;
+  line-height: 1.2;
+}
+.mg-fin-msg__amount {
+  margin-top: 0.3em;
+  font-family: var(--font-mono);
+  font-size: clamp(16px, 2.2cqw, 30px);
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+/* Red: the product's expense colour, a rule under the debt. */
+.mg-fin-msg__bar-fill {
+  display: block;
+  height: 3px;
+  margin-top: 0.4em;
+  border-radius: 2px;
+  background: var(--fin-red);
+  transform: scale3d(0, 1, 1);
+  transform-origin: left center;
+}
+.mg-fin-msg__tag {
+  position: absolute;
+  top: clamp(10px, 1.4cqw, 18px);
+  right: clamp(12px, 1.6cqw, 22px);
+  padding: 0.3em 0.6em;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-xs);
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 0.95cqw, 11px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0;
+}
+.mg-fin-msg__note {
+  text-transform: none;
+  letter-spacing: var(--ls-label);
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+}
+
+/* Narrow: the sentence wraps. Both layers span the same width (the typed
+   one in flow, the tokenised one pinned to the same insets), so they break
+   at the same character and the hand-over at 28% stays invisible. */
+@container (max-width: 639px) {
+  .mg-fin-msg__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mg-fin-msg__input {
+    padding-block: 0.6em;
+    white-space: normal;
+  }
+  .mg-fin-msg__line {
+    right: clamp(12px, 1.5cqw, 20px);
+  }
+}
+
+/* The narrative, restarted on every entry. */
+.mg-stage[data-playing] .mg-fin-msg__typed {
+  animation: mg-fin-msg-typed var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__line {
+  animation: mg-fin-msg-line var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__token[data-slot="type"]::after {
+  animation: mg-fin-msg-box-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__token[data-slot="amount"]::after {
+  animation: mg-fin-msg-box-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__token[data-slot="description"]::after {
+  animation: mg-fin-msg-box-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__token[data-slot="card"]::after {
+  animation: mg-fin-msg-box-4 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__row[data-key="type"] .mg-fin-msg__value {
+  animation: mg-fin-msg-value-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__row[data-key="amount"] .mg-fin-msg__value {
+  animation: mg-fin-msg-value-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__row[data-key="description"] .mg-fin-msg__value {
+  animation: mg-fin-msg-value-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__row[data-key="payment_method"] .mg-fin-msg__value {
+  animation: mg-fin-msg-value-4 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__row[data-key="credit_card_suggestion"] .mg-fin-msg__value {
+  animation: mg-fin-msg-value-5 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__row[data-key="should_affect_balance"] .mg-fin-msg__value {
+  animation: mg-fin-msg-value-6 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__row[data-key="currency"] .mg-fin-msg__value {
+  animation: mg-fin-msg-value-7 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__row[data-key="currency"]::before {
+  animation: mg-fin-msg-pending var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__badge {
+  animation: mg-fin-msg-badge var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__confirm-fill {
+  animation: mg-fin-msg-confirm var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__bar-fill {
+  animation: mg-fin-msg-debt var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__tag {
+  animation: mg-fin-msg-tag var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-msg__note {
+  animation: mg-fin-msg-note var(--mg-cycle) linear infinite both;
+}
+
+@keyframes mg-fin-msg-typed {
+  0%,
+  28% {
+    opacity: 1;
+  }
+  28.5%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-fin-msg-line {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  28.5%,
+  94% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* One box per token, at its own moment, instead of a staggered delay. */
+@keyframes mg-fin-msg-box-1 {
+  0%,
+  33% {
+    opacity: 0;
+    transform: scale(1.08);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  35%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-msg-box-2 {
+  0%,
+  39% {
+    opacity: 0;
+    transform: scale(1.08);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  41%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-msg-box-3 {
+  0%,
+  45% {
+    opacity: 0;
+    transform: scale(1.08);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  47%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-msg-box-4 {
+  0%,
+  51% {
+    opacity: 0;
+    transform: scale(1.08);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  53%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+/* One landing per field, each from the left, at its token's moment. */
+@keyframes mg-fin-msg-value-1 {
+  0%,
+  33% {
+    opacity: 0;
+    transform: translate3d(-10px, 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  36%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-msg-value-2 {
+  0%,
+  39% {
+    opacity: 0;
+    transform: translate3d(-10px, 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  42%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-msg-value-3 {
+  0%,
+  45% {
+    opacity: 0;
+    transform: translate3d(-10px, 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  48%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-msg-value-4 {
+  0%,
+  51% {
+    opacity: 0;
+    transform: translate3d(-10px, 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  54%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-msg-value-5 {
+  0%,
+  56% {
+    opacity: 0;
+    transform: translate3d(-10px, 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  59%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-msg-value-6 {
+  0%,
+  61% {
+    opacity: 0;
+    transform: translate3d(-10px, 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  64%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-msg-value-7 {
+  0%,
+  66% {
+    opacity: 0;
+    transform: translate3d(-10px, 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  68%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+/* The amber bar flashes twice, then holds: missing, not invented. */
+@keyframes mg-fin-msg-pending {
+  0%,
+  66% {
+    opacity: 0;
+  }
+  67% {
+    opacity: 1;
+  }
+  68% {
+    opacity: 0.2;
+  }
+  69%,
+  94% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-fin-msg-badge {
+  0%,
+  68% {
+    opacity: 0;
+    transform: scale(0.96);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  70%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+/* The sweep is linear and slow, the deliberate half of a confirmation. */
+@keyframes mg-fin-msg-confirm {
+  0%,
+  72% {
+    clip-path: inset(0 100% 0 0);
+  }
+  78%,
+  94% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+@keyframes mg-fin-msg-debt {
+  0%,
+  78% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  86%,
+  94% {
+    transform: none;
+  }
+  100% {
+    transform: scale3d(0, 1, 1);
+  }
+}
+@keyframes mg-fin-msg-tag {
+  0%,
+  86% {
+    opacity: 0;
+  }
+  88%,
+  94% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-fin-msg-note {
+  0%,
+  88% {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  91%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* Reduced motion: the movement parsed, flagged, confirmed and posted. */
+.mg-stage[data-reduced] .mg-fin-msg__typed {
+  opacity: 0;
+}
+.mg-stage[data-reduced] .mg-fin-msg__line,
+.mg-stage[data-reduced] .mg-fin-msg__token::after,
+.mg-stage[data-reduced] .mg-fin-msg__value,
+.mg-stage[data-reduced] .mg-fin-msg__row[data-key="currency"]::before,
+.mg-stage[data-reduced] .mg-fin-msg__badge,
+.mg-stage[data-reduced] .mg-fin-msg__tag,
+.mg-stage[data-reduced] .mg-fin-msg__note {
+  opacity: 1;
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-fin-msg__confirm-fill {
+  clip-path: inset(0 0 0 0);
+}
+.mg-stage[data-reduced] .mg-fin-msg__bar-fill {
+  transform: none;
+}
+
+/* ============================================================
+   available-balance
+   Cycle (percent of --mg-cycle): 4 / 8 / 12 / 16 the four rows rise and
+   each draws its rule right after (6–10, 10–14, 14–18, 18–22). 18–22 the
+   ink card rises and 20–30 the available figure counts to 600.000 (JS)
+   while the gauge fills. 33 a cursor marks the reserved row and 34–60 it
+   climbs 300.000 → 950.000 (JS, linear) as the available figure descends
+   600.000 → −50.000 and the gauge empties; at 58 it crosses zero, the red
+   copy of the figure comes up (opacity transition) and the red fill grows
+   left of the tick. 62–66 the Over-committed pill drops in; 70–74 the
+   ADR-022 note. 94–100 everything narrative fades for the next pass.
+   ============================================================ */
+.mg-fin-bal {
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: start;
+  gap: clamp(12px, 2cqw, 26px);
+}
+.mg-fin-bal__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+}
+.mg-fin-bal__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(16px, 3.4cqw, 56px);
+  align-items: start;
+}
+
+/* The subtraction. */
+.mg-fin-bal__stack {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.mg-fin-bal__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.2em minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.6em;
+  padding: clamp(8px, 1.1cqw, 14px) 0;
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+}
+.mg-fin-bal__rule {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--border-hairline);
+  transform: scale3d(0, 1, 1);
+  transform-origin: left center;
+}
+.mg-fin-bal__cursor {
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: -0.9em;
+  width: 2px;
+  background: var(--text-primary);
+  opacity: 0;
+}
+.mg-fin-bal__sign {
+  font-family: var(--font-mono);
+  font-size: clamp(12px, 1.4cqw, 18px);
+  color: var(--text-muted);
+}
+.mg-fin-bal__name {
+  font-size: clamp(12px, 1.4cqw, 18px);
+  line-height: 1.2;
+}
+.mg-fin-bal__amount {
+  font-family: var(--font-mono);
+  font-size: clamp(12px, 1.5cqw, 19px);
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The product's ink card: DISPONIBLE, the headline figure. */
+.mg-fin-bal__result {
+  display: grid;
+  gap: 0.45em;
+  padding: clamp(16px, 2.4cqw, 34px) clamp(18px, 2.6cqw, 38px);
+  border-radius: var(--r-md);
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  opacity: 0;
+  transform: translate3d(0, 8px, 0) scale(0.98);
+}
+.mg-fin-bal__result-label {
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  letter-spacing: var(--ls-caps);
+  line-height: var(--lh-mono);
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-inverse) 72%, transparent);
+}
+.mg-fin-bal__result-amount {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.8cqw, 68px);
+  font-weight: 500;
+  letter-spacing: var(--ls-display-3);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+/* The red copy, the over-committed colour, only its opacity moves. */
+.mg-fin-bal__result-red {
+  position: absolute;
+  inset: 0;
+  color: var(--fin-red);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out-quart);
+}
+.mg-fin-bal[data-negative] .mg-fin-bal__result-red {
+  opacity: 1;
+}
+.mg-fin-bal__pill {
+  justify-self: start;
+  margin-top: 0.3em;
+  padding: 0.45em 0.8em;
+  border: 1px solid var(--fin-red);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--fin-red) 22%, var(--text-primary));
+  color: var(--text-inverse);
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 0.95cqw, 11px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translate3d(0, -6px, 0);
+}
+
+/* The gauge: a hairline track, a zero tick, the ink fill to its right and
+   the red fill to its left. 80% of the track is 600.000, so the red fill
+   for −50.000 is one twelfth of that. */
+.mg-fin-bal__side {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2cqw, 28px);
+  min-width: 0;
+}
+.mg-fin-bal__gauge {
+  display: grid;
+  gap: 0.7em;
+}
+.mg-fin-bal__track {
+  position: relative;
+  height: clamp(10px, 1.4cqw, 16px);
+}
+.mg-fin-bal__track::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--border-hairline);
+}
+.mg-fin-bal__pos,
+.mg-fin-bal__neg {
+  position: absolute;
+  top: 50%;
+  height: clamp(6px, 0.9cqw, 10px);
+  border-radius: 2px;
+  transform: translate3d(0, -50%, 0) scale3d(0, 1, 1);
+}
+.mg-fin-bal__pos {
+  left: 12%;
+  width: 80%;
+  background: var(--text-primary);
+  transform-origin: left center;
+}
+.mg-fin-bal__neg {
+  right: 88%;
+  width: calc(80% / 12);
+  background: var(--fin-red);
+  transform-origin: right center;
+}
+.mg-fin-bal__zero {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: 12%;
+  width: 1px;
+  background: var(--border-strong);
+}
+.mg-fin-bal__zero-label {
+  margin-left: 12%;
+  transform: translateX(-50%);
+  width: max-content;
+}
+.mg-fin-bal__note {
+  text-transform: none;
+  letter-spacing: var(--ls-label);
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+}
+
+@container (max-width: 639px) {
+  .mg-fin-bal__main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The narrative, restarted on every entry. */
+.mg-stage[data-playing] .mg-fin-bal__row[data-row="1"] {
+  animation: mg-fin-bal-row-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__row[data-row="2"] {
+  animation: mg-fin-bal-row-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__row[data-row="3"] {
+  animation: mg-fin-bal-row-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__row[data-row="4"] {
+  animation: mg-fin-bal-row-4 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__row[data-row="1"] .mg-fin-bal__rule {
+  animation: mg-fin-bal-rule-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__row[data-row="2"] .mg-fin-bal__rule {
+  animation: mg-fin-bal-rule-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__row[data-row="3"] .mg-fin-bal__rule {
+  animation: mg-fin-bal-rule-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__row[data-row="4"] .mg-fin-bal__rule {
+  animation: mg-fin-bal-rule-4 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__row[data-row="2"] .mg-fin-bal__cursor {
+  animation: mg-fin-bal-cursor var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__result {
+  animation: mg-fin-bal-result var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__pos {
+  animation: mg-fin-bal-pos var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__neg {
+  animation: mg-fin-bal-neg var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__pill {
+  animation: mg-fin-bal-pill var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-bal__note {
+  animation: mg-fin-bal-note var(--mg-cycle) linear infinite both;
+}
+
+/* One rise per row, at its own moment, instead of a staggered delay. */
+@keyframes mg-fin-bal-row-1 {
+  0%,
+  4% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  7%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-bal-row-2 {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  11%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-bal-row-3 {
+  0%,
+  12% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  15%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-bal-row-4 {
+  0%,
+  16% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  19%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-bal-rule-1 {
+  0%,
+  6% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  10%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-fin-bal-rule-2 {
+  0%,
+  10% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  14%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-fin-bal-rule-3 {
+  0%,
+  14% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  18%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-fin-bal-rule-4 {
+  0%,
+  18% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  22%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-fin-bal-cursor {
+  0%,
+  33% {
+    opacity: 0;
+  }
+  35%,
+  60% {
+    opacity: 1;
+  }
+  62%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-fin-bal-result {
+  0%,
+  18% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0) scale(0.98);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  22%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+/* The fills follow the JS figures: the count is eased, the climb linear,
+   so the zero crossing lands at 58. */
+@keyframes mg-fin-bal-pos {
+  0%,
+  20% {
+    transform: translate3d(0, -50%, 0) scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  30%,
+  34% {
+    transform: translate3d(0, -50%, 0) scale3d(1, 1, 1);
+    animation-timing-function: linear;
+  }
+  58%,
+  100% {
+    transform: translate3d(0, -50%, 0) scale3d(0, 1, 1);
+  }
+}
+@keyframes mg-fin-bal-neg {
+  0%,
+  58% {
+    transform: translate3d(0, -50%, 0) scale3d(0, 1, 1);
+    animation-timing-function: linear;
+  }
+  60%,
+  94% {
+    transform: translate3d(0, -50%, 0) scale3d(1, 1, 1);
+  }
+  100% {
+    transform: translate3d(0, -50%, 0) scale3d(0, 1, 1);
+  }
+}
+@keyframes mg-fin-bal-pill {
+  0%,
+  62% {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  66%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-bal-note {
+  0%,
+  70% {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  74%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* Reduced motion: the subtraction done, over-committed, in red. */
+.mg-stage[data-reduced] .mg-fin-bal__row,
+.mg-stage[data-reduced] .mg-fin-bal__rule,
+.mg-stage[data-reduced] .mg-fin-bal__result,
+.mg-stage[data-reduced] .mg-fin-bal__pill,
+.mg-stage[data-reduced] .mg-fin-bal__note {
+  opacity: 1;
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-fin-bal__neg {
+  transform: translate3d(0, -50%, 0) scale3d(1, 1, 1);
+}
+.mg-stage[data-reduced] .mg-fin-bal__result-red {
+  transition: none;
+}
+
+/* ============================================================
+   three-channels
+   Cycle (percent of --mg-cycle): 2–6 the structure rises. 8–14 the text
+   packet travels its wire to the Worker (ease-in-out), 14 the Worker's
+   ring pulses and the parse quota drops 20 → 19 (JS), 16–21 the answer
+   travels to the inbox and at 21 the first pending card lands; the same
+   again for audio (26–32, 32, 34–39, 39) and photo (44–50, 50, 52–57, 57).
+   The cards' ages tick one schematic minute every quarter cycle (JS).
+   64–68 the note. 94–100 everything narrative fades for the next pass.
+   ============================================================ */
+.mg-fin-chan {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  gap: clamp(12px, 2cqw, 26px);
+}
+.mg-fin-chan__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+}
+
+/* Five columns: the phone, a wire, the Worker's bus, a wire, the inbox.
+   Three equal rows, one per channel, so each wire's hairline meets its
+   channel box at the vertical centre; a fourth row for the quota. */
+.mg-fin-chan__body {
+  --inset: clamp(10px, 1.4cqw, 18px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(20px, 0.4fr) auto minmax(20px, 0.4fr) minmax(0, 1.15fr);
+  grid-template-rows: repeat(3, minmax(0, 1fr)) auto;
+  row-gap: 0;
+}
+.mg-fin-chan__phone {
+  position: relative;
+  grid-area: 1 / 1 / 5 / 2;
+  border: 1px dashed var(--border-mid);
+  border-radius: var(--r-lg);
+}
+.mg-fin-chan__phone-label {
+  position: absolute;
+  bottom: -0.6em;
+  left: 1.2em;
+  padding: 0 0.5em;
+  background: var(--surface-raised);
+}
+.mg-fin-chan__chan {
+  grid-column: 1;
+  display: grid;
+  gap: 0.25em;
+  margin: clamp(5px, 0.7cqw, 9px) var(--inset);
+  padding: clamp(8px, 1.1cqw, 14px) clamp(10px, 1.3cqw, 16px);
+  min-width: 0;
+}
+.mg-fin-chan__chan[data-i="0"] {
+  grid-row: 1;
+  margin-top: var(--inset);
+}
+.mg-fin-chan__chan[data-i="1"] {
+  grid-row: 2;
+}
+.mg-fin-chan__chan[data-i="2"] {
+  grid-row: 3;
+}
+.mg-fin-chan__kind {
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.1cqw, 13px);
+  font-weight: 500;
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+}
+.mg-fin-chan__sample {
+  font-size: clamp(11px, 1.25cqw, 15px);
+  line-height: 1.3;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.mg-fin-chan__model {
+  text-transform: none;
+  letter-spacing: var(--ls-label);
+}
+.mg-fin-chan__quota {
+  grid-column: 1;
+  grid-row: 4;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.4em 1em;
+  margin: clamp(6px, 0.8cqw, 10px) var(--inset) calc(var(--inset) + 0.6em);
+}
+.mg-fin-chan__quota-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1em;
+}
+.mg-fin-chan__quota-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+}
+.mg-fin-chan__quota-n {
+  font-family: var(--font-mono);
+  font-size: clamp(12px, 1.4cqw, 17px);
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Wires: each is a container so its packet can travel its own width. */
+.mg-fin-chan__wire {
+  grid-column: 2;
+  position: relative;
+  container-type: inline-size;
+}
+.mg-fin-chan__wire[data-i="0"] {
+  grid-row: 1;
+  margin-top: var(--inset);
+}
+.mg-fin-chan__wire[data-i="1"] {
+  grid-row: 2;
+}
+.mg-fin-chan__wire[data-i="2"] {
+  grid-row: 3;
+}
+.mg-fin-chan__hair {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--border-mid);
+}
+.mg-fin-chan__packet {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: clamp(6px, 0.8cqw, 9px);
+  height: clamp(6px, 0.8cqw, 9px);
+  border-radius: 2px;
+  background: var(--text-primary);
+  transform: translate3d(0, -50%, 0);
+  opacity: 0;
+}
+
+/* The bus: a vertical hairline from the first channel's centre to the
+   last one's, the Worker on it. */
+.mg-fin-chan__bus {
+  grid-column: 3;
+  grid-row: 1 / 4;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: var(--inset) clamp(6px, 1cqw, 14px) 0;
+}
+.mg-fin-chan__bus-line {
+  position: absolute;
+  top: calc(var(--inset) + (100% - var(--inset)) / 6);
+  bottom: calc((100% - var(--inset)) / 6);
+  left: 50%;
+  width: 1px;
+  background: var(--border-mid);
+}
+.mg-fin-chan__worker {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.3em;
+  width: clamp(96px, 15cqw, 190px);
+  padding: clamp(10px, 1.3cqw, 16px) clamp(10px, 1.3cqw, 16px);
+  text-align: center;
+}
+.mg-fin-chan__worker-name {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.5cqw, 20px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: 1.1;
+}
+.mg-fin-chan__ring {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--text-primary);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+.mg-fin-chan__out {
+  grid-column: 4;
+  grid-row: 1 / 4;
+  position: relative;
+  container-type: inline-size;
+  margin-top: var(--inset);
+}
+
+/* The inbox: the Pending column, amber-edged cards. */
+.mg-fin-chan__inbox {
+  grid-column: 5;
+  grid-row: 1 / 5;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, 0.9cqw, 10px);
+  padding-left: clamp(8px, 1.2cqw, 16px);
+  min-width: 0;
+}
+.mg-fin-chan__inbox-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  margin-bottom: 0.2em;
+}
+.mg-fin-chan__inbox-title {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.5cqw, 20px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: 1.1;
+}
+.mg-fin-chan__inbox-count {
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.2cqw, 14px);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.mg-fin-chan__card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2em 0.8em;
+  padding: clamp(8px, 1.1cqw, 14px) clamp(10px, 1.3cqw, 16px);
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+}
+/* Amber left border: the product's pending colour. */
+.mg-fin-chan__card::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: -1px;
+  width: 3px;
+  border-radius: var(--r-md) 0 0 var(--r-md);
+  background: var(--fin-amber);
+}
+.mg-fin-chan__card-title {
+  font-size: clamp(11px, 1.25cqw, 15px);
+  font-weight: 500;
+  line-height: 1.3;
+}
+.mg-fin-chan__card-age {
+  grid-column: 2;
+  grid-row: 1;
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: var(--ls-label);
+}
+.mg-fin-chan__card-missing {
+  grid-column: 1 / -1;
+  text-transform: none;
+  letter-spacing: var(--ls-label);
+}
+.mg-fin-chan__note {
+  text-transform: none;
+  letter-spacing: var(--ls-label);
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+}
+
+/* Narrow: one column, the phone, then the Worker, then the inbox; the
+   wires go (the packets with them), the cards still land. */
+@container (max-width: 639px) {
+  .mg-fin-chan__body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+  .mg-fin-chan__phone {
+    grid-area: 1 / 1 / 5 / 2;
+  }
+  .mg-fin-chan__wire,
+  .mg-fin-chan__out,
+  .mg-fin-chan__bus-line {
+    display: none;
+  }
+  .mg-fin-chan__bus {
+    grid-column: 1;
+    grid-row: 5;
+    padding: clamp(14px, 2.4cqw, 20px) 0 clamp(10px, 1.6cqw, 16px);
+  }
+  .mg-fin-chan__worker {
+    width: min(100%, 260px);
+  }
+  .mg-fin-chan__inbox {
+    grid-column: 1;
+    grid-row: 6;
+    padding-left: 0;
+  }
+}
+
+/* The narrative, restarted on every entry. */
+.mg-stage[data-playing] .mg-fin-chan__wire[data-i="0"] .mg-fin-chan__packet {
+  animation: mg-fin-chan-packet-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-chan__wire[data-i="1"] .mg-fin-chan__packet {
+  animation: mg-fin-chan-packet-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-chan__wire[data-i="2"] .mg-fin-chan__packet {
+  animation: mg-fin-chan-packet-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-chan__ring {
+  animation: mg-fin-chan-ring var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-chan__packet--out {
+  animation: mg-fin-chan-out var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-chan__card[data-i="0"] {
+  animation: mg-fin-chan-card-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-chan__card[data-i="1"] {
+  animation: mg-fin-chan-card-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-chan__card[data-i="2"] {
+  animation: mg-fin-chan-card-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-fin-chan__note {
+  animation: mg-fin-chan-note var(--mg-cycle) linear infinite both;
+}
+
+/* One packet per wire, at its own moment, instead of a staggered delay. */
+@keyframes mg-fin-chan-packet-1 {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  8.5% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  14% {
+    opacity: 1;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+  14.5%,
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+}
+@keyframes mg-fin-chan-packet-2 {
+  0%,
+  26% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  26.5% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  32% {
+    opacity: 1;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+  32.5%,
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+}
+@keyframes mg-fin-chan-packet-3 {
+  0%,
+  44% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  44.5% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  50% {
+    opacity: 1;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+  50.5%,
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+}
+/* The Worker acknowledges each arrival: a ring that fades as it grows. */
+@keyframes mg-fin-chan-ring {
+  0%,
+  14% {
+    opacity: 0;
+    transform: none;
+  }
+  14.5% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: var(--ease-out-quart);
+  }
+  17%,
+  32% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  32.5% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: var(--ease-out-quart);
+  }
+  35%,
+  50% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  50.5% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: var(--ease-out-quart);
+  }
+  53%,
+  100% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+/* One answer packet, reused three times along the same wire. */
+@keyframes mg-fin-chan-out {
+  0%,
+  16% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  16.5% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  21% {
+    opacity: 1;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+  21.5%,
+  34% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  34.5% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  39% {
+    opacity: 1;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+  39.5%,
+  52% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  52.5% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  57% {
+    opacity: 1;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+  57.5%,
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+}
+@keyframes mg-fin-chan-card-1 {
+  0%,
+  21% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  24%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-chan-card-2 {
+  0%,
+  39% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  42%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-chan-card-3 {
+  0%,
+  57% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  60%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-fin-chan-note {
+  0%,
+  64% {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  68%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* Reduced motion: three captures proxied, three cards pending. */
+.mg-stage[data-reduced] .mg-fin-chan__card,
+.mg-stage[data-reduced] .mg-fin-chan__note {
+  opacity: 1;
+  transform: none;
+}

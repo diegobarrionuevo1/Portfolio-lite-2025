@@ -166,4 +166,8 @@ and follow `next_transition`. First boundary: `58d6abf`.
 - Route: delegated writer. Live ids `day-256`, `inscribe-states`, `incident-ledger`; 6 chapters, 6-item gallery, metrics with the archive note; `useStagePlayback` extracted to `scenes/mg/use-stage-playback.ts`.
 - Checks observed: lint clean; tsc clean (re-run by parent); build SSG 23/23 (work routes 108 kB); runtime probe desktop/mobile/reduced; six visual fixes. Parent spot check: viewed day-256, inscribe-states and the portrait footage chapter.
 
-### T8 hermes — IN PROGRESS (delegated writer)
+### T8 hermes — DONE (commit `d86b557`)
+- Route: delegated writer. Live ids `theme-morph`, `order-capsule`, `menu-import`; 8 chapters, 10-item gallery, "En construcción" metrics; hermes.ar link omitted (not verified live); Cloud Run not repeated.
+- Checks observed: lint clean; tsc clean (re-run by parent); build SSG 23/23 (work routes 112 kB); 17 captures + 6 recaptures + tablet/phone checks, four fixes; reduced-motion probe. Parent spot check: viewed theme-morph (Street), order-capsule final frame and menu-import.
+
+### T9 finanzas-ia — IN PROGRESS (delegated writer)
