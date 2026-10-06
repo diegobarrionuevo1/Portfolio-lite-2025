@@ -1,0 +1,1551 @@
+/* ============================================================
+   DonWeb Cloud, content platform: the live components of the
+   /work/donweb-contenidos showcase (scenes/mg/donweb-contenidos.tsx).
+
+   Three stages share the `.mg-dwc` root:
+     content-pipeline  GHOST → THEME ← DASHBOARD. A `post` token travels
+                       Ghost → theme along a rule that lights up; three
+                       `json` tokens travel dashboard → theme (/api/series,
+                       /api/hub-pages, /api/home-carousels); inside the
+                       theme a page assembles piece by piece (hero slide,
+                       "Episodio 5 de 5" bar, hub sections, carousels) and
+                       four counters tick to 257 · 268 · 603 · 100 %
+     hex-lattice       the hero slider without an image: the brand's hexagon
+                       lattice draws itself (stroke-dashoffset) over the
+                       product's navy gradient while three slide titles type
+                       in turn and the green pill rises under each
+     video-wall        18 YouTube thumbnails enter as a staggered grid, then
+                       sort into three labelled rows (SHORTS · SERIES ·
+                       VIDEOS) by internal tag; the counters tick once
+
+   Stage contract (showcase.css): structural pieces enter once through
+   `.mg-run` (longhands, paused off screen); narratives are declared only
+   under `.mg-stage[data-playing]` so they restart on entry; the final frame
+   lives under `.mg-stage[data-reduced]`. Keyframes move transform, opacity
+   and, for the lattice, stroke-dashoffset (the one SVG property that draws
+   a line). No transitions. Sizes use container units (cqw) so each stage
+   scales as one picture from a phone column to the full 1520px frame. The
+   pipeline and the slider loop on one `--mg-cycle` (12s, CYCLE_MS in the
+   component); the wall runs once per entry (WALL_RUN_MS, 4.4s).
+
+   This is a DARK page: the atmosphere already maps the product's navy
+   (#071226 canvas, #001C3A sunken), white ink and green CTA (#58E55B, the
+   page accent) onto the tokens, so everything here reads tokens. The only
+   colour quotes in this file are the product's brand blue and the navy end
+   of its hero gradient, shown only inside the stages and only as the brand:
+     royal blue  #3071F2  the lattice strokes, the hero-slide placeholder
+     navy        #001C3A  the far end of the slider gradient
+   The lattice stage is the one place a gradient appears: it quotes the
+   product's own slider background. No shadow anywhere.
+   ============================================================ */
+.mg-dwc {
+  --dwc-royal: #3071f2;
+  --dwc-navy: #001c3a;
+  --mg-cycle: 12s;
+  position: absolute;
+  inset: 0;
+  /* Named, because the pipeline's wires are size containers of their own
+     and their children would otherwise answer the queries below against
+     the wire instead of the stage. */
+  container: mg-dwc / inline-size;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}
+.mg-dwc-pipe,
+.mg-dwc-hex,
+.mg-dwc-wall {
+  --pad: clamp(16px, 3cqw, 48px);
+  position: absolute;
+  inset: 0;
+  padding: var(--pad);
+}
+
+/* Inside a frame the stage is absolutely positioned with inset 0, but it
+   also carries its aspect-ratio inline, and an absolutely positioned box
+   takes its height from that ratio before it honours `bottom: 0`. These
+   stages must follow the frame instead, so the inline ratio is switched
+   off: the frame keeps the media's aspect on a desktop and gets a floor
+   where that ratio would be too short for the stacked content. Floors
+   measured on the final frame at 390 and 900px wide, plus a little slack. */
+.showcase-frame > .mg-stage[data-mg="content-pipeline"],
+.showcase-frame > .mg-stage[data-mg="hex-lattice"],
+.showcase-frame > .mg-stage[data-mg="video-wall"] {
+  aspect-ratio: auto !important;
+}
+@media (max-width: 699px) {
+  .showcase-frame:has(> .mg-stage[data-mg="content-pipeline"]) {
+    min-height: 770px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="hex-lattice"]) {
+    min-height: 300px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="video-wall"]) {
+    min-height: 520px;
+  }
+}
+@media (min-width: 700px) and (max-width: 1099px) {
+  .showcase-frame:has(> .mg-stage[data-mg="content-pipeline"]) {
+    min-height: 930px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="hex-lattice"]) {
+    min-height: 360px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="video-wall"]) {
+    min-height: 630px;
+  }
+}
+
+/* ============================================================
+   Shared pieces
+   ============================================================ */
+
+/* Mono caps label, the stage's annotation voice. */
+.mg-dwc-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  font-weight: 400;
+  letter-spacing: var(--ls-caps);
+  line-height: var(--lh-mono);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Hairline + surface: a box of the system (Ghost, theme, dashboard). */
+.mg-dwc-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  min-width: 0;
+  padding: clamp(12px, 1.5cqw, 20px);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-card);
+}
+
+/* A box's name: the display face at weight 500. */
+.mg-dwc-name {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 1.9cqw, 26px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: var(--lh-snug);
+}
+
+/* Entrance shared by the structural pieces: fade + 12px rise, once. */
+.mg-dwc-rise {
+  animation-name: mg-dwc-rise;
+  animation-duration: var(--dur-reveal);
+  animation-timing-function: var(--ease-out-expo);
+  animation-fill-mode: both;
+}
+@keyframes mg-dwc-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   content-pipeline
+   Cycle (percent of --mg-cycle): 2–16 the `posts` row in Ghost lights up;
+   4–14 the post token travels Ghost → theme as the rule fills; 15–19 the
+   hero slide snaps into the page. 22–36 /api/series lights up, 24–34 the
+   json token travels dashboard → theme, 35–39 the "Episodio 5 de 5" bar
+   snaps in. 46–60 /api/hub-pages, 48–58 json, 59–66 the three hub tiles
+   snap in one after another (per-element keyframes). 68–82
+   /api/home-carousels, 70–80 json, 81–85 the carousel row. 8–10 the
+   counters fade in and 10–42 tick (JS). 94–100 the page and the rules fade
+   for the next pass; 96–100 the counters fade so their reset is unseen.
+   ============================================================ */
+.mg-dwc-pipe {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 8fr) minmax(0, 3fr) minmax(0, 5fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(12px, 2cqw, 28px) 0;
+  align-content: start;
+}
+.mg-dwc-pipe__head,
+.mg-dwc-hex__head,
+.mg-dwc-wall__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+.mg-dwc-pipe__head {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+.mg-dwc-pipe__ghost {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+}
+.mg-dwc-pipe__wire--post {
+  grid-column: 2;
+  grid-row: 2;
+}
+.mg-dwc-pipe__theme {
+  grid-column: 3;
+  grid-row: 2;
+}
+.mg-dwc-pipe__wire--json {
+  grid-column: 4;
+  grid-row: 2;
+}
+.mg-dwc-pipe__dash {
+  grid-column: 5;
+  grid-row: 2;
+  align-self: center;
+}
+.mg-dwc-pipe__counters {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+/* Ghost's rows and the dashboard's endpoints: mono lists; a left accent bar
+   (opacity only) marks the one that is sending. */
+.mg-dwc-pipe__items,
+.mg-dwc-pipe__endpoints {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  margin: 0.55em 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.1cqw, 13px);
+  line-height: var(--lh-mono);
+  color: var(--text-secondary);
+}
+.mg-dwc-pipe__item,
+.mg-dwc-pipe__endpoint {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.3em 0.7em;
+  border-radius: var(--r-xs);
+  white-space: nowrap;
+}
+.mg-dwc-pipe__item::before,
+.mg-dwc-pipe__endpoint::before {
+  content: "";
+  position: absolute;
+  top: 0.3em;
+  bottom: 0.3em;
+  left: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--text-accent);
+  opacity: 0;
+}
+.mg-dwc-pipe__dot {
+  flex: none;
+  width: 0.45em;
+  height: 0.45em;
+  border-radius: 1px;
+  background: var(--text-muted);
+}
+
+/* The wires. Each is a size container: the token travels 100cqw of the
+   wire (100cqh when the layout stacks), whatever the stage width. The
+   font-size is set on the wire itself, where cqw still means the stage,
+   and the packet reads it as 1em. */
+.mg-dwc-pipe__wire {
+  position: relative;
+  align-self: center;
+  height: clamp(26px, 2.8cqw, 40px);
+  font-size: clamp(9px, 0.9cqw, 11px);
+  container-type: size;
+}
+.mg-dwc-pipe__hair,
+.mg-dwc-pipe__fill {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+  margin-top: -0.5px;
+  background: var(--border-hairline);
+}
+.mg-dwc-pipe__fill {
+  background: var(--text-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.mg-dwc-pipe__wire--json .mg-dwc-pipe__fill {
+  transform-origin: right center;
+}
+.mg-dwc-pipe__packet {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  padding: 0.25em 0.6em;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--r-pill);
+  background: var(--surface-canvas);
+  font-family: var(--font-mono);
+  font-size: 1em;
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1.4;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-primary);
+  transform: translate3d(0, -50%, 0);
+  opacity: 0;
+}
+.mg-dwc-pipe__wire--json .mg-dwc-pipe__packet {
+  left: auto;
+  right: 0;
+}
+
+/* The page inside the theme: a hairline sheet with the pieces the data
+   fills. Every piece rests invisible and snaps in on its cue. */
+.mg-dwc-pipe__page {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(7px, 0.9cqw, 12px);
+  margin-top: 0.8em;
+  padding: clamp(8px, 1.1cqw, 14px);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-sm);
+  background: var(--surface-canvas);
+}
+.mg-dwc-pipe__page-url {
+  text-transform: none;
+  letter-spacing: var(--ls-caps-tight);
+}
+/* The hero slide: the brand blue, flat, with two title rules and the pill. */
+.mg-dwc-pipe__slide {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(5px, 0.7cqw, 9px);
+  height: clamp(50px, 5.6cqw, 84px);
+  padding: 0 clamp(10px, 1.4cqw, 20px);
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--dwc-royal) 62%, var(--surface-card));
+  opacity: 0;
+}
+.mg-dwc-pipe__slide-line {
+  width: 52%;
+  height: clamp(5px, 0.6cqw, 8px);
+  border-radius: 2px;
+  background: var(--text-primary);
+}
+.mg-dwc-pipe__slide-line--short {
+  width: 34%;
+}
+.mg-dwc-pipe__slide-pill {
+  width: clamp(28px, 3.6cqw, 52px);
+  height: clamp(7px, 0.9cqw, 12px);
+  margin-top: 0.2em;
+  border-radius: var(--r-pill);
+  background: var(--action-accent-bg);
+}
+/* The series bar: the episode counter the dashboard's order decides. */
+.mg-dwc-pipe__bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  padding: 0.4em 0.6em;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.1cqw, 13px);
+  line-height: var(--lh-mono);
+  color: var(--text-primary);
+  opacity: 0;
+}
+.mg-dwc-pipe__arrow {
+  color: var(--text-muted);
+}
+.mg-dwc-pipe__hub,
+.mg-dwc-pipe__carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.mg-dwc-pipe__hub-label,
+.mg-dwc-pipe__carousel-label {
+  opacity: 0;
+}
+.mg-dwc-pipe__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(6px, 0.8cqw, 10px);
+}
+.mg-dwc-pipe__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  opacity: 0;
+}
+.mg-dwc-pipe__tile-thumb {
+  display: block;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-xs);
+  background: var(--surface-raised);
+}
+.mg-dwc-pipe__tile-line {
+  display: block;
+  width: 70%;
+  height: clamp(4px, 0.5cqw, 6px);
+  border-radius: 2px;
+  background: var(--text-muted);
+}
+.mg-dwc-pipe__cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(6px, 0.8cqw, 10px);
+  opacity: 0;
+}
+.mg-dwc-pipe__card {
+  display: block;
+  height: clamp(20px, 2.4cqw, 34px);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-xs);
+  background: var(--surface-raised);
+}
+
+/* The counters: display figures over mono labels. The row fades out at
+   the end of the cycle so the JS reset to zero is never seen. */
+.mg-dwc-pipe__counters,
+.mg-dwc-wall__counters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  padding-top: clamp(10px, 1.4cqw, 18px);
+  border-top: 1px solid var(--border-hairline);
+}
+.mg-dwc-pipe__counter,
+.mg-dwc-wall__counter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+.mg-dwc-pipe__counter-n,
+.mg-dwc-wall__counter-n {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.6cqw, 40px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: var(--lh-tight);
+  font-variant-numeric: tabular-nums;
+}
+.mg-dwc-pipe__counters {
+  opacity: 0;
+}
+
+/* Stacked, below the desktop range: the two sources side by side on top,
+   two vertical wires, then the page across the full width. */
+@container mg-dwc (max-width: 899px) {
+  .mg-dwc-pipe {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto;
+    column-gap: clamp(10px, 2.4cqw, 20px);
+    row-gap: clamp(8px, 1.6cqw, 16px);
+  }
+  .mg-dwc-pipe__ghost {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: stretch;
+  }
+  .mg-dwc-pipe__dash {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: stretch;
+  }
+  .mg-dwc-pipe__wire--post {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .mg-dwc-pipe__wire--json {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .mg-dwc-pipe__theme {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+  .mg-dwc-pipe__counters {
+    grid-column: 1 / -1;
+    grid-row: 5;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mg-dwc-pipe__wire {
+    height: clamp(40px, 9cqw, 56px);
+    font-size: clamp(9px, 1.6cqw, 11px);
+  }
+  .mg-dwc-pipe__hair,
+  .mg-dwc-pipe__fill {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    height: auto;
+    margin: 0 0 0 -0.5px;
+  }
+  .mg-dwc-pipe__fill,
+  .mg-dwc-pipe__wire--json .mg-dwc-pipe__fill {
+    transform: scaleY(0);
+    transform-origin: center top;
+  }
+  .mg-dwc-pipe__packet,
+  .mg-dwc-pipe__wire--json .mg-dwc-pipe__packet {
+    top: 0;
+    right: auto;
+    left: 50%;
+    transform: translate3d(-50%, 0, 0);
+  }
+  .mg-dwc-pipe__items,
+  .mg-dwc-pipe__endpoints {
+    font-size: clamp(10px, 2cqw, 13px);
+  }
+  .mg-dwc-pipe__endpoint {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+/* A phone column keeps one head label; the second would take two lines. */
+@container mg-dwc (max-width: 699px) {
+  .mg-dwc-pipe__head .mg-dwc-label:last-child {
+    display: none;
+  }
+}
+
+/* The narrative, restarted on every entry. */
+.mg-stage[data-playing] .mg-dwc-pipe__item[data-i="0"]::before {
+  animation: mg-dwc-pipe-source var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__wire--post .mg-dwc-pipe__packet {
+  animation: mg-dwc-pipe-post var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__wire--post .mg-dwc-pipe__fill {
+  animation: mg-dwc-pipe-fill-post var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__wire--json .mg-dwc-pipe__packet {
+  animation: mg-dwc-pipe-json var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__wire--json .mg-dwc-pipe__fill {
+  animation: mg-dwc-pipe-fill-json var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__endpoint[data-i="0"]::before {
+  animation: mg-dwc-pipe-ep-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__endpoint[data-i="1"]::before {
+  animation: mg-dwc-pipe-ep-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__endpoint[data-i="2"]::before {
+  animation: mg-dwc-pipe-ep-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__slide {
+  animation: mg-dwc-pipe-snap-slide var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__bar {
+  animation: mg-dwc-pipe-snap-bar var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__hub-label,
+.mg-stage[data-playing] .mg-dwc-pipe__tile[data-i="0"] {
+  animation: mg-dwc-pipe-snap-tile-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__tile[data-i="1"] {
+  animation: mg-dwc-pipe-snap-tile-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__tile[data-i="2"] {
+  animation: mg-dwc-pipe-snap-tile-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__carousel-label,
+.mg-stage[data-playing] .mg-dwc-pipe__cards {
+  animation: mg-dwc-pipe-snap-carousel var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-pipe__counters {
+  animation: mg-dwc-pipe-counters var(--mg-cycle) linear infinite both;
+}
+@container mg-dwc (max-width: 899px) {
+  .mg-stage[data-playing] .mg-dwc-pipe__wire--post .mg-dwc-pipe__packet {
+    animation-name: mg-dwc-pipe-post-v;
+  }
+  .mg-stage[data-playing] .mg-dwc-pipe__wire--post .mg-dwc-pipe__fill {
+    animation-name: mg-dwc-pipe-fill-post-v;
+  }
+  .mg-stage[data-playing] .mg-dwc-pipe__wire--json .mg-dwc-pipe__packet {
+    animation-name: mg-dwc-pipe-json-v;
+  }
+  .mg-stage[data-playing] .mg-dwc-pipe__wire--json .mg-dwc-pipe__fill {
+    animation-name: mg-dwc-pipe-fill-json-v;
+  }
+}
+
+/* The source row: lit while its post is on its way. */
+@keyframes mg-dwc-pipe-source {
+  0%,
+  2% {
+    opacity: 0;
+  }
+  3%,
+  15% {
+    opacity: 1;
+  }
+  16%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The post token, Ghost → theme, once per cycle. */
+@keyframes mg-dwc-pipe-post {
+  0%,
+  3.5% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  4% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  14% {
+    opacity: 1;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+  15.5%,
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(100cqw - 100%), -50%, 0);
+  }
+}
+@keyframes mg-dwc-pipe-post-v {
+  0%,
+  3.5% {
+    opacity: 0;
+    transform: translate3d(-50%, 0, 0);
+  }
+  4% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  14% {
+    opacity: 1;
+    transform: translate3d(-50%, calc(100cqh - 100%), 0);
+  }
+  15.5%,
+  100% {
+    opacity: 0;
+    transform: translate3d(-50%, calc(100cqh - 100%), 0);
+  }
+}
+/* The rule under it fills with the token and stays lit until the pass ends. */
+@keyframes mg-dwc-pipe-fill-post {
+  0%,
+  4% {
+    opacity: 1;
+    transform: scaleX(0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  14%,
+  94% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+@keyframes mg-dwc-pipe-fill-post-v {
+  0%,
+  4% {
+    opacity: 1;
+    transform: scaleY(0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  14%,
+  94% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+
+/* The json token, dashboard → theme, three times per cycle. Between
+   travels it returns to the start while invisible. */
+@keyframes mg-dwc-pipe-json {
+  0%,
+  23.5% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  24% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  34% {
+    opacity: 1;
+    transform: translate3d(calc(100% - 100cqw), -50%, 0);
+  }
+  35.5% {
+    opacity: 0;
+    transform: translate3d(calc(100% - 100cqw), -50%, 0);
+  }
+  36%,
+  47.5% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  48% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  58% {
+    opacity: 1;
+    transform: translate3d(calc(100% - 100cqw), -50%, 0);
+  }
+  59.5% {
+    opacity: 0;
+    transform: translate3d(calc(100% - 100cqw), -50%, 0);
+  }
+  60%,
+  69.5% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+  }
+  70% {
+    opacity: 1;
+    transform: translate3d(0, -50%, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  80% {
+    opacity: 1;
+    transform: translate3d(calc(100% - 100cqw), -50%, 0);
+  }
+  81.5%,
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(100% - 100cqw), -50%, 0);
+  }
+}
+@keyframes mg-dwc-pipe-json-v {
+  0%,
+  23.5% {
+    opacity: 0;
+    transform: translate3d(-50%, 0, 0);
+  }
+  24% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  34% {
+    opacity: 1;
+    transform: translate3d(-50%, calc(100cqh - 100%), 0);
+  }
+  35.5% {
+    opacity: 0;
+    transform: translate3d(-50%, calc(100cqh - 100%), 0);
+  }
+  36%,
+  47.5% {
+    opacity: 0;
+    transform: translate3d(-50%, 0, 0);
+  }
+  48% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  58% {
+    opacity: 1;
+    transform: translate3d(-50%, calc(100cqh - 100%), 0);
+  }
+  59.5% {
+    opacity: 0;
+    transform: translate3d(-50%, calc(100cqh - 100%), 0);
+  }
+  60%,
+  69.5% {
+    opacity: 0;
+    transform: translate3d(-50%, 0, 0);
+  }
+  70% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  80% {
+    opacity: 1;
+    transform: translate3d(-50%, calc(100cqh - 100%), 0);
+  }
+  81.5%,
+  100% {
+    opacity: 0;
+    transform: translate3d(-50%, calc(100cqh - 100%), 0);
+  }
+}
+/* The dashboard rule fills with each json and lets go between sends. */
+@keyframes mg-dwc-pipe-fill-json {
+  0%,
+  24% {
+    opacity: 1;
+    transform: scaleX(0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  34%,
+  42% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  46% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+  47.5% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  48% {
+    opacity: 1;
+    transform: scaleX(0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  58%,
+  64% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  68% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+  69.5% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  70% {
+    opacity: 1;
+    transform: scaleX(0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  80%,
+  94% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+@keyframes mg-dwc-pipe-fill-json-v {
+  0%,
+  24% {
+    opacity: 1;
+    transform: scaleY(0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  34%,
+  42% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  46% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+  47.5% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  48% {
+    opacity: 1;
+    transform: scaleY(0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  58%,
+  64% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  68% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+  69.5% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  70% {
+    opacity: 1;
+    transform: scaleY(0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  80%,
+  94% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+
+/* One endpoint lit per send, instead of a staggered delay. */
+@keyframes mg-dwc-pipe-ep-1 {
+  0%,
+  21% {
+    opacity: 0;
+  }
+  22%,
+  35% {
+    opacity: 1;
+  }
+  36%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-dwc-pipe-ep-2 {
+  0%,
+  45% {
+    opacity: 0;
+  }
+  46%,
+  59% {
+    opacity: 1;
+  }
+  60%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-dwc-pipe-ep-3 {
+  0%,
+  67% {
+    opacity: 0;
+  }
+  68%,
+  81% {
+    opacity: 1;
+  }
+  82%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The page pieces snap in on their cue (8px rise, expo out) and fade with
+   the pass at 94–100. */
+@keyframes mg-dwc-pipe-snap-slide {
+  0%,
+  15% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  19%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-dwc-pipe-snap-bar {
+  0%,
+  35% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  39%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-dwc-pipe-snap-tile-1 {
+  0%,
+  59% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  63%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-dwc-pipe-snap-tile-2 {
+  0%,
+  60.5% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  64.5%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-dwc-pipe-snap-tile-3 {
+  0%,
+  62% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  66%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-dwc-pipe-snap-carousel {
+  0%,
+  81% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  85%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-dwc-pipe-counters {
+  0%,
+  8% {
+    opacity: 0;
+  }
+  10%,
+  96% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: the page assembled, every rule lit, the last endpoint
+   marked, the counters at their figures (the component writes them). */
+.mg-stage[data-reduced] .mg-dwc-pipe__fill,
+.mg-stage[data-reduced] .mg-dwc-pipe__wire--json .mg-dwc-pipe__fill {
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-dwc-pipe__endpoint[data-i="2"]::before,
+.mg-stage[data-reduced] .mg-dwc-pipe__slide,
+.mg-stage[data-reduced] .mg-dwc-pipe__bar,
+.mg-stage[data-reduced] .mg-dwc-pipe__hub-label,
+.mg-stage[data-reduced] .mg-dwc-pipe__tile,
+.mg-stage[data-reduced] .mg-dwc-pipe__carousel-label,
+.mg-stage[data-reduced] .mg-dwc-pipe__cards,
+.mg-stage[data-reduced] .mg-dwc-pipe__counters {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   hex-lattice
+   Cycle (percent of --mg-cycle), three slots of 33.3: within each, the
+   title types from 2 to 56 (JS), the pill rises 19.5–23, both fade
+   30.5–32.5 and the next slot starts with an empty line. The dots mark the
+   active slot (per-element keyframes). The lattice is not on the cycle: it
+   draws once on every entry, cell by cell in diagonal order (stroke-
+   dashoffset 1 → 0 over 1.2s, 26ms apart), and stays drawn.
+   ============================================================ */
+.mg-dwc-hex {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(12px, 2cqw, 28px);
+  overflow: hidden;
+  /* The product's slider background, quoted: brand blue into its navy end. */
+  background: linear-gradient(100deg, color-mix(in srgb, var(--dwc-royal) 72%, var(--dwc-navy)) 0%, var(--dwc-navy) 100%);
+}
+.mg-dwc-hex .mg-dwc-label {
+  color: color-mix(in srgb, var(--text-primary) 64%, transparent);
+}
+/* Kept clear of the head and foot rows, so no bond crosses a label. */
+.mg-dwc-hex__lattice {
+  position: absolute;
+  top: calc(var(--pad) * 1.7);
+  right: 0;
+  bottom: calc(var(--pad) * 1.7);
+  width: 54%;
+  fill: none;
+  stroke: var(--dwc-royal);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.mg-dwc-hex__cell {
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0.55;
+}
+.mg-dwc-hex__bond {
+  opacity: 0.42;
+}
+.mg-dwc-hex__head {
+  position: relative;
+  grid-row: 1;
+}
+.mg-dwc-hex__arrow {
+  position: absolute;
+  top: 50%;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3.4cqw, 44px);
+  font-weight: 500;
+  line-height: 1;
+  color: color-mix(in srgb, var(--text-primary) 55%, transparent);
+  transform: translate3d(0, -50%, 0);
+}
+.mg-dwc-hex__arrow--prev {
+  left: calc(var(--pad) * 0.42);
+}
+.mg-dwc-hex__arrow--next {
+  right: calc(var(--pad) * 0.42);
+}
+.mg-dwc-hex__copy {
+  position: relative;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: center;
+  gap: clamp(12px, 1.8cqw, 24px);
+  width: min(100%, 56%);
+  padding-left: clamp(14px, 2cqw, 28px);
+}
+/* Three lines reserved, so the pill never jumps as the title wraps. */
+.mg-dwc-hex__title {
+  display: block;
+  min-height: calc(3 * var(--lh-snug) * 1em);
+  font-family: var(--font-display);
+  font-size: clamp(22px, 4.1cqw, 56px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: var(--lh-snug);
+  text-wrap: balance;
+}
+/* The product's green CTA, drawn as the slider draws it. */
+.mg-dwc-hex__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6em 1.5em;
+  border-radius: var(--r-pill);
+  background: var(--action-accent-bg);
+  font-size: clamp(11px, 1.15cqw, 14px);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--action-accent-fg);
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+}
+.mg-dwc-hex__foot {
+  position: relative;
+  grid-row: 3;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding-left: clamp(14px, 2cqw, 28px);
+}
+.mg-dwc-hex__dots {
+  display: flex;
+  gap: 0.6em;
+  font-size: clamp(6px, 0.7cqw, 9px);
+}
+.mg-dwc-hex__dot {
+  display: block;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  background: var(--text-primary);
+  opacity: 0.3;
+}
+
+@container mg-dwc (max-width: 699px) {
+  .mg-dwc-hex__lattice {
+    top: 0;
+    bottom: 0;
+    width: 78%;
+    opacity: 0.6;
+  }
+  .mg-dwc-hex__copy {
+    width: 100%;
+    padding-right: clamp(14px, 2cqw, 28px);
+  }
+  .mg-dwc-hex__title {
+    font-size: clamp(22px, 6.6cqw, 34px);
+  }
+  .mg-dwc-hex__arrow {
+    display: none;
+  }
+}
+
+/* The lattice draws on every entry, once. */
+.mg-stage[data-playing] .mg-dwc-hex__cell {
+  animation: mg-dwc-hex-draw 1.2s var(--ease-out-quart) calc(var(--i, 0) * 26ms) 1 both;
+}
+@keyframes mg-dwc-hex-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* The slider's cycle. */
+.mg-stage[data-playing] .mg-dwc-hex__title {
+  animation: mg-dwc-hex-title var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-hex__pill {
+  animation: mg-dwc-hex-pill var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-hex__dot[data-i="0"] {
+  animation: mg-dwc-hex-dot-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-hex__dot[data-i="1"] {
+  animation: mg-dwc-hex-dot-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-dwc-hex__dot[data-i="2"] {
+  animation: mg-dwc-hex-dot-3 var(--mg-cycle) linear infinite both;
+}
+@keyframes mg-dwc-hex-title {
+  0%,
+  30.5% {
+    opacity: 1;
+  }
+  32.5%,
+  33.3% {
+    opacity: 0;
+  }
+  33.4%,
+  63.8% {
+    opacity: 1;
+  }
+  65.8%,
+  66.6% {
+    opacity: 0;
+  }
+  66.7%,
+  97.2% {
+    opacity: 1;
+  }
+  99.2%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-dwc-hex-pill {
+  0%,
+  19.5% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  23%,
+  30.5% {
+    opacity: 1;
+    transform: none;
+  }
+  32.5%,
+  52.8% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  56.3%,
+  63.8% {
+    opacity: 1;
+    transform: none;
+  }
+  65.8%,
+  86.2% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  89.7%,
+  97.2% {
+    opacity: 1;
+    transform: none;
+  }
+  99.2%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+}
+@keyframes mg-dwc-hex-dot-1 {
+  0%,
+  33.3% {
+    opacity: 1;
+  }
+  33.4%,
+  100% {
+    opacity: 0.3;
+  }
+}
+@keyframes mg-dwc-hex-dot-2 {
+  0%,
+  33.3% {
+    opacity: 0.3;
+  }
+  33.4%,
+  66.6% {
+    opacity: 1;
+  }
+  66.7%,
+  100% {
+    opacity: 0.3;
+  }
+}
+@keyframes mg-dwc-hex-dot-3 {
+  0%,
+  66.6% {
+    opacity: 0.3;
+  }
+  66.7%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: the lattice drawn, the first slide typed, the pill up. */
+.mg-stage[data-reduced] .mg-dwc-hex__cell {
+  stroke-dashoffset: 0;
+}
+.mg-stage[data-reduced] .mg-dwc-hex__pill {
+  opacity: 1;
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-dwc-hex__dot[data-i="0"] {
+  opacity: 1;
+}
+
+/* ============================================================
+   video-wall
+   One run per entry (WALL_RUN_MS, 4.4s), not a loop: tile i starts 45ms
+   after tile i−1 (one-shot, so a delay is fine), enters in 14 % of its
+   3.2s (fade + scale .94 → 1, expo out), holds until 50 %, then moves to
+   its sorted place (in-out). The row labels fade in at 3.4s, when the
+   last tiles are settling; the counters tick 2.2–4s (JS). The board keeps
+   the sorted height, which is always the taller layout.
+
+   Coordinates: the component sets each tile's entry and sorted cell
+   (--c0/--r0/--c1/--r1) for the three column counts (8 / 6 / 4) and the
+   container ranges below pick one set; the keyframes read the resulting
+   --x0/--y0/--x1/--y1, so one keyframe set moves every tile.
+   ============================================================ */
+.mg-dwc-wall {
+  --cols: 8;
+  --gap: clamp(6px, 0.8cqw, 12px);
+  --lane: clamp(26px, 2.6cqw, 38px);
+  --tw: calc((100cqw - 2 * var(--pad) - (var(--cols) - 1) * var(--gap)) / var(--cols));
+  --th: calc(var(--tw) * 9 / 16);
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: clamp(12px, 2cqw, 28px);
+  align-content: start;
+}
+.mg-dwc-wall__board {
+  --rows: var(--rows-w);
+  position: relative;
+  height: calc(var(--rows) * (var(--th) + var(--gap)) - var(--gap) + 3 * var(--lane));
+}
+.mg-dwc-wall__row {
+  --r: var(--r-w);
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-4);
+  height: var(--lane);
+  padding-bottom: var(--gap);
+  transform: translate3d(0, calc(var(--r) * (var(--th) + var(--gap)) + var(--g) * var(--lane)), 0);
+  opacity: 0;
+}
+.mg-dwc-wall__row-name {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.4cqw, 18px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: 1;
+}
+.mg-dwc-wall__tile {
+  --c0: var(--c0-w);
+  --r0: var(--r0-w);
+  --c1: var(--c1-w);
+  --r1: var(--r1-w);
+  --x0: calc(var(--c0) * (var(--tw) + var(--gap)));
+  --y0: calc(var(--r0) * (var(--th) + var(--gap)));
+  --x1: calc(var(--c1) * (var(--tw) + var(--gap)));
+  --y1: calc(var(--r1) * (var(--th) + var(--gap)) + (var(--g) + 1) * var(--lane));
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--tw);
+  height: var(--th);
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-sm);
+  background: var(--surface-raised);
+  transform: translate3d(var(--x0), var(--y0), 0);
+  opacity: 0;
+}
+.mg-dwc-wall__tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The internal tag, on a navy scrim so it reads over any thumbnail. */
+.mg-dwc-wall__tag {
+  position: absolute;
+  bottom: 0.4em;
+  left: 0.4em;
+  padding: 0.15em 0.5em;
+  border-radius: var(--r-xs);
+  background: color-mix(in srgb, var(--surface-canvas) 82%, transparent);
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 0.75cqw, 11px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+@container mg-dwc (max-width: 999px) {
+  .mg-dwc-wall {
+    --cols: 6;
+  }
+  .mg-dwc-wall__board {
+    --rows: var(--rows-m);
+  }
+  .mg-dwc-wall__row {
+    --r: var(--r-m);
+  }
+  .mg-dwc-wall__tile {
+    --c0: var(--c0-m);
+    --r0: var(--r0-m);
+    --c1: var(--c1-m);
+    --r1: var(--r1-m);
+  }
+}
+@container mg-dwc (max-width: 699px) {
+  .mg-dwc-wall {
+    --cols: 4;
+    --lane: clamp(26px, 7cqw, 32px);
+  }
+  .mg-dwc-wall__board {
+    --rows: var(--rows-n);
+  }
+  .mg-dwc-wall__row {
+    --r: var(--r-n);
+  }
+  .mg-dwc-wall__tile {
+    --c0: var(--c0-n);
+    --r0: var(--r0-n);
+    --c1: var(--c1-n);
+    --r1: var(--r1-n);
+  }
+  .mg-dwc-wall__tag {
+    display: none;
+  }
+  .mg-dwc-wall__counters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* The run, restarted on every entry. */
+.mg-stage[data-playing] .mg-dwc-wall__tile {
+  animation: mg-dwc-wall-tile 3.2s linear calc(var(--i, 0) * 45ms) 1 both;
+}
+.mg-stage[data-playing] .mg-dwc-wall__row {
+  animation: mg-dwc-wall-row var(--dur-slow) var(--ease-out-expo) 3.4s 1 both;
+}
+@keyframes mg-dwc-wall-tile {
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--x0), var(--y0), 0) scale(0.94);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  14%,
+  50% {
+    opacity: 1;
+    transform: translate3d(var(--x0), var(--y0), 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(var(--x1), var(--y1), 0);
+  }
+}
+@keyframes mg-dwc-wall-row {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: the wall sorted, labelled and counted. */
+.mg-stage[data-reduced] .mg-dwc-wall__tile {
+  opacity: 1;
+  transform: translate3d(var(--x1), var(--y1), 0);
+}
+.mg-stage[data-reduced] .mg-dwc-wall__row {
+  opacity: 1;
+}

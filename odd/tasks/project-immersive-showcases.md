@@ -170,4 +170,8 @@ and follow `next_transition`. First boundary: `58d6abf`.
 - Route: delegated writer. Live ids `theme-morph`, `order-capsule`, `menu-import`; 8 chapters, 10-item gallery, "En construcción" metrics; hermes.ar link omitted (not verified live); Cloud Run not repeated.
 - Checks observed: lint clean; tsc clean (re-run by parent); build SSG 23/23 (work routes 112 kB); 17 captures + 6 recaptures + tablet/phone checks, four fixes; reduced-motion probe. Parent spot check: viewed theme-morph (Street), order-capsule final frame and menu-import.
 
-### T9 finanzas-ia — IN PROGRESS (delegated writer)
+### T9 finanzas-ia — DONE (commit `beeaf28`)
+- Route: delegated writer. Live ids `message-to-movement`, `available-balance`, `three-channels`; 6 chapters, 3-item gallery, "En desarrollo" metrics; light scheme verified (nav light, contrast of mono labels and hairlines).
+- Checks observed: lint clean; tsc clean (re-run by parent); build SSG 23/23 (work routes 116 kB); runtime probe desktop/tablet/mobile/reduced; five fixes. Parent spot check: viewed hero, parser, balance and channels captures.
+
+### T4 donweb-contenidos motion graphics — IN PROGRESS (delegated writer)

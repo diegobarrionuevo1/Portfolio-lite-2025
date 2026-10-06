@@ -4,6 +4,7 @@ import type { ComponentType } from "react";
 import type { Lang } from "@/lib/i18n";
 import type { ShowcaseLive } from "../types";
 import { Day256, IncidentLedger, InscribeStates } from "./mg/ada13";
+import { ContentPipeline, HexLattice, VideoWall } from "./mg/donweb-contenidos";
 import { CertTilt, FourServices, LegacyUrl } from "./mg/donweb-talleres";
 import { AvailableBalance, MessageToMovement, ThreeChannels } from "./mg/finanzas-ia";
 import { MenuImport, OrderCapsule, ThemeMorph } from "./mg/hermes";
@@ -23,6 +24,9 @@ import { mono } from "./typography";
 export type LiveComponent = ComponentType<{ lang: Lang }>;
 
 export const LIVE_COMPONENTS: Record<string, LiveComponent> = {
+  "content-pipeline": ContentPipeline,
+  "hex-lattice": HexLattice,
+  "video-wall": VideoWall,
   "cert-tilt": CertTilt,
   "legacy-url": LegacyUrl,
   "four-services": FourServices,
