@@ -1,0 +1,1581 @@
+/* ============================================================
+   Ada13, web platform: the live components of the /work/ada13 showcase
+   (scenes/mg/ada13.tsx).
+
+   Three stages share the `.mg-ada` root:
+     day-256          a mono counter walks the year to day 256 while a rule
+                      sweeps the months, then the digits resolve into 13 · 09
+     inscribe-states  the registration pipeline: form → POST /inscribe →
+                      Express → one of four states → an e-mail, with
+                      Directus feeding the countries into the form
+     incident-ledger  a mono table of incidents types itself in and closes
+                      row by row as a rule sweeps down (schematic)
+
+   They follow the stage contract in showcase.css: structural pieces enter
+   once through `.mg-run` (longhands, paused off screen), the narratives are
+   declared only under `.mg-stage[data-playing]` so they restart on every
+   entry, and the resting/final frame is styled under `.mg-stage[data-reduced]`.
+   Only transform, opacity and clip-path move. Sizes use container units
+   (cqw) so a stage scales as one picture from a phone column to the full
+   1520px frame. The three narratives share one `--mg-cycle` (12s); the JS
+   ticks that write the digits use the same figure (CYCLE_MS in the
+   component) and the same phase marks noted above each timeline.
+
+   Brand quotes, the only hex values in this tree, from the archived
+   stylesheet of ada13.tech: --ada-cyan #35EEE0 is the product's own success
+   colour (its "anotado" / sent states); it appears only on the sent stamp
+   and the closed incidents, never as a page accent. The page accent, the
+   product's orange #FF8000, is the atmosphere's --text-accent and is read
+   through the tokens like everything else.
+   ============================================================ */
+.mg-ada {
+  --ada-cyan: #35eee0;
+  --mg-cycle: 12s;
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}
+.mg-ada-day,
+.mg-ada-ins,
+.mg-ada-ledger {
+  --pad: clamp(20px, 4.5cqw, 64px);
+  position: absolute;
+  inset: 0;
+  padding: var(--pad);
+}
+
+/* Inside a frame the stage is absolutely positioned with inset 0, but it
+   also carries its aspect-ratio inline, and an absolutely positioned box
+   takes its height from that ratio before it honours `bottom: 0`. These
+   stages must follow the frame instead (a phone column gives the frame a
+   min-height below), so the inline ratio is switched off here. */
+.showcase-frame > .mg-stage[data-mg="day-256"],
+.showcase-frame > .mg-stage[data-mg="inscribe-states"],
+.showcase-frame > .mg-stage[data-mg="incident-ledger"] {
+  aspect-ratio: auto !important;
+}
+@media (max-width: 699px) {
+  .showcase-frame:has(> .mg-stage[data-mg="day-256"]) {
+    min-height: 440px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="inscribe-states"]) {
+    min-height: 800px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="incident-ledger"]) {
+    min-height: 440px;
+  }
+}
+
+/* ── Two chapter-level fixes the primitives expose no prop for ──
+   The 2024 footage is portrait (9:16). The split layout hands the frame the
+   whole 7/12 column, which at desktop would make it taller than the
+   viewport, so the figure is capped by the hero's own rule (80svh at the
+   media's aspect, 720/1280) and centred in the column.
+   The gallery sizes every item from its aspect, and the 3:1 wordmark would
+   come out 1,400px wide; it gets a 16:10 card instead, the mark contained
+   on the raised surface with a margin, as a plate rather than a capture. */
+#chapter-footage .showcase-chapter__figure {
+  width: min(100%, calc(80svh * 0.5625));
+  margin-inline: auto;
+}
+.showcase-strip__item:has(> .showcase-frame > img[src$="/work/ada13/logo.webp"]) {
+  width: calc(var(--strip-h) * 1.6);
+}
+.showcase-strip__item > .showcase-frame:has(> img[src$="/work/ada13/logo.webp"]) {
+  aspect-ratio: 1.6 !important;
+}
+.showcase-strip__item img[src$="/work/ada13/logo.webp"] {
+  padding: 18%;
+  object-fit: contain;
+}
+
+/* Mono caps label, the stage's annotation voice. */
+.mg-ada-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  font-weight: 400;
+  letter-spacing: var(--ls-caps);
+  line-height: var(--lh-mono);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Hairline + surface, the house card. */
+.mg-ada-box {
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-card);
+}
+
+/* Entrance shared by the structural pieces: fade + 12px rise, once. */
+.mg-ada-rise {
+  animation-name: mg-ada-rise;
+  animation-duration: var(--dur-reveal);
+  animation-timing-function: var(--ease-out-expo);
+  animation-fill-mode: both;
+}
+@keyframes mg-ada-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   day-256
+   Cycle (percent of --mg-cycle): 4–40 the counter walks 001 → 256 (JS) and
+   the accent rule sweeps 70.1% of the year with it (ease-out-quart on both
+   ends), 40–44 the digits dissolve, 41–46 "13 · 09" resolves, 40–43 the
+   day mark and the lit month, 47–51 the caption stamps in, 53–57 the venue
+   line, 59–63 the 2024 tag, 94–100 everything fades for the next pass.
+   ============================================================ */
+.mg-ada-day {
+  --day-x: 0.7014; /* 256 / 365 */
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: clamp(12px, 2.4cqw, 32px);
+}
+.mg-ada-day__head,
+.mg-ada-day__foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.mg-ada-day__main {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(8px, 1.6cqw, 20px);
+  min-width: 0;
+  text-align: center;
+}
+.mg-ada-day__digits {
+  display: grid;
+  justify-items: center;
+}
+.mg-ada-day__digits > * {
+  grid-area: 1 / 1;
+}
+.mg-ada-day__counter {
+  font-family: var(--font-mono);
+  font-size: clamp(56px, 15cqw, 200px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.mg-ada-day__date {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 15cqw, 200px);
+  font-weight: 500;
+  letter-spacing: var(--ls-display-2);
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transform: scale3d(0.96, 0.96, 1);
+}
+.mg-ada-day__stamp {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 2.8cqw, 36px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: var(--lh-snug);
+  color: var(--text-accent);
+  opacity: 0;
+  transform: scale3d(1.06, 1.06, 1);
+}
+
+/* The year: a hairline track with the twelve month ticks, the accent sweep
+   that stops at day 256, the mark on that day. */
+.mg-ada-day__year {
+  position: relative;
+  height: clamp(36px, 5cqw, 64px);
+}
+.mg-ada-day__track,
+.mg-ada-day__sweep {
+  position: absolute;
+  top: 40%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+.mg-ada-day__track {
+  background: var(--border-mid);
+}
+.mg-ada-day__sweep {
+  background: var(--text-accent);
+  transform: scale3d(0, 1, 1);
+  transform-origin: left center;
+}
+.mg-ada-day__tick {
+  position: absolute;
+  top: 25%;
+  left: calc(var(--x) * 100%);
+  width: 1px;
+  height: 30%;
+  background: var(--border-mid);
+}
+.mg-ada-day__month {
+  position: absolute;
+  top: 70%;
+  left: calc(var(--x) * 100%);
+  font-size: clamp(8px, 0.9cqw, 11px);
+  opacity: 0.6;
+}
+.mg-ada-day__month--lit {
+  color: var(--text-accent);
+  opacity: 0;
+}
+.mg-ada-day__mark {
+  position: absolute;
+  top: 0;
+  left: calc(var(--day-x) * 100%);
+  width: 2px;
+  height: 100%;
+  margin-left: -1px;
+  background: var(--text-accent);
+  opacity: 0;
+  transform: scale3d(1, 0, 1);
+  transform-origin: center bottom;
+}
+
+.mg-ada-day__venue {
+  color: var(--text-secondary);
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+}
+.mg-ada-day__tag {
+  padding: 0.55em 0.85em;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0;
+  transform: translate3d(-8px, 0, 0);
+}
+
+@container (max-width: 560px) {
+  .mg-ada-day__counter,
+  .mg-ada-day__date {
+    font-size: clamp(48px, 22cqw, 96px);
+  }
+  .mg-ada-day__stamp {
+    font-size: clamp(16px, 5.4cqw, 22px);
+  }
+  .mg-ada-day__month {
+    display: none;
+  }
+  /* Only the lit month survives, just right of the day mark. */
+  .mg-ada-day__month--lit {
+    display: block;
+    left: calc(var(--day-x) * 100% + 8px);
+    font-size: 10px;
+  }
+}
+
+/* The narrative, restarted on every entry. */
+.mg-stage[data-playing] .mg-ada-day__counter {
+  animation: mg-ada-day-counter var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-day__sweep {
+  animation: mg-ada-day-sweep var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-day__mark {
+  animation: mg-ada-day-mark var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-day__month--lit {
+  animation: mg-ada-day-lit var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-day__date {
+  animation: mg-ada-day-date var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-day__stamp {
+  animation: mg-ada-day-stamp var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-day__venue {
+  animation: mg-ada-day-venue var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-day__tag {
+  animation: mg-ada-day-tag var(--mg-cycle) linear infinite both;
+}
+
+@keyframes mg-ada-day-counter {
+  0%,
+  40% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: var(--ease-out-quart);
+  }
+  44%,
+  100% {
+    opacity: 0;
+    transform: scale3d(1.03, 1.03, 1);
+  }
+}
+@keyframes mg-ada-day-sweep {
+  0%,
+  4% {
+    opacity: 1;
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  40%,
+  92% {
+    opacity: 1;
+    transform: scale3d(var(--day-x), 1, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale3d(var(--day-x), 1, 1);
+  }
+}
+@keyframes mg-ada-day-mark {
+  0%,
+  39% {
+    opacity: 0;
+    transform: scale3d(1, 0, 1);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  43%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-ada-day-lit {
+  0%,
+  40% {
+    opacity: 0;
+  }
+  44%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-ada-day-date {
+  0%,
+  41% {
+    opacity: 0;
+    transform: scale3d(0.96, 0.96, 1);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  46%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-ada-day-stamp {
+  0%,
+  47% {
+    opacity: 0;
+    transform: scale3d(1.06, 1.06, 1);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  51%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-ada-day-venue {
+  0%,
+  53% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  57%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-ada-day-tag {
+  0%,
+  59% {
+    opacity: 0;
+    transform: translate3d(-8px, 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  63%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* Reduced motion: the date, resolved. */
+.mg-stage[data-reduced] .mg-ada-day__counter {
+  opacity: 0;
+}
+.mg-stage[data-reduced] .mg-ada-day__date,
+.mg-stage[data-reduced] .mg-ada-day__stamp,
+.mg-stage[data-reduced] .mg-ada-day__mark,
+.mg-stage[data-reduced] .mg-ada-day__month--lit,
+.mg-stage[data-reduced] .mg-ada-day__venue,
+.mg-stage[data-reduced] .mg-ada-day__tag {
+  opacity: 1;
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-ada-day__sweep {
+  transform: scale3d(var(--day-x), 1, 1);
+}
+
+/* ============================================================
+   inscribe-states
+   Cycle (percent of --mg-cycle): 0–3 the form arrives, 2–10 Directus,
+   its riser and the countries request reach the form, 5–20 the six fields
+   fill one by one, 21–28 the POST wire draws and the JSON packet travels
+   it, 28–30 Express lights, 30–32 the next wire, 33–50 the cursor steps
+   through the four states (five points each) while the e-mail stamps and
+   re-stamps after every one (JS counts them 1 → 4), 52–55 the product's
+   message, 94–100 everything fades for the next pass.
+   ============================================================ */
+.mg-ada-ins {
+  --state-h: clamp(26px, 3.4cqw, 44px);
+  --state-gap: clamp(5px, 0.7cqw, 9px);
+  --riser: clamp(20px, 3.2cqw, 44px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(12px, 2.4cqw, 32px);
+}
+.mg-ada-ins__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+}
+
+/* The flow: one grid, the pipeline on the first row, Directus under the
+   form on the second. Row 1 is content-sized so the riser (a fixed row
+   gap) spans exactly the space between the form and the Directus box. */
+.mg-ada-ins__flow {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 4.8fr) minmax(0, 2.8fr) minmax(0, 4fr) minmax(0, 1.4fr) minmax(0, 5.2fr) minmax(0, 1.4fr)
+    minmax(0, 4.8fr);
+  grid-template-rows: auto auto;
+  align-content: center;
+  align-items: center;
+  row-gap: var(--riser);
+  min-width: 0;
+}
+
+.mg-ada-ins__name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(14px, 1.7cqw, 24px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: var(--lh-snug);
+}
+
+/* The form: six payload keys, each with a value bar that fills in. */
+.mg-ada-ins__form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(5px, 0.8cqw, 10px);
+  padding: clamp(10px, 1.4cqw, 20px) clamp(12px, 1.6cqw, 22px);
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+}
+.mg-ada-ins__form > .mg-ada-label {
+  margin-bottom: clamp(2px, 0.4cqw, 6px);
+}
+.mg-ada-ins__field {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1cqw, 12px);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.mg-ada-ins__fill {
+  display: block;
+  flex: 0 0 auto;
+  width: calc(var(--w) * 100%);
+  max-width: 48%;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--text-primary);
+  transform: scale3d(0, 1, 1);
+  transform-origin: left center;
+}
+
+/* Wires between the nodes. A link spans its grid column; the wire is a
+   hairline across its middle, drawn with scaleX (scaleY when the flow is a
+   column), the pill above it names the request, the packet rides below. */
+.mg-ada-ins__link {
+  --wire-from-x: 0;
+  --wire-from-y: 1;
+  position: relative;
+  align-self: stretch;
+  min-height: clamp(44px, 7cqw, 96px);
+  overflow: hidden;
+}
+.mg-ada-ins__wire {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--border-strong);
+  transform: scale3d(var(--wire-from-x), var(--wire-from-y), 1);
+  transform-origin: left center;
+}
+.mg-ada-ins__pill {
+  position: absolute;
+  top: calc(50% - 0.5em);
+  left: 50%;
+  padding: 0.3em 0.55em;
+  border-radius: var(--r-xs);
+  background: var(--action-accent-bg);
+  color: var(--action-accent-fg);
+  font-family: var(--font-mono);
+  font-size: clamp(8px, 0.85cqw, 11px);
+  letter-spacing: 0.03em;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translate3d(-50%, calc(-100% - 6px), 0);
+}
+/* The packet is as wide as the link and carries the braces at its right
+   end, so translating it from -100% to 0 walks the braces along the wire
+   (as tall as the link, braces at the bottom, -100% on y when the flow is
+   a column). */
+.mg-ada-ins__packet {
+  --packet-x: -100%;
+  --packet-y: 0;
+  position: absolute;
+  top: calc(50% + 6px);
+  left: 0;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1cqw, 12px);
+  line-height: 1;
+  text-align: right;
+  color: var(--text-primary);
+  opacity: 0;
+  transform: translate3d(var(--packet-x), var(--packet-y), 0);
+}
+
+/* Nodes: Express and the e-mail service. The lit outline is an ::after in
+   the accent, faded in. */
+.mg-ada-ins__node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  padding: clamp(10px, 1.4cqw, 18px) clamp(12px, 1.6cqw, 22px);
+  min-width: 0;
+}
+.mg-ada-ins__node::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--text-accent);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+/* Host names: tighter caps so utils.ada13.tech fits its node; a narrower
+   container still truncates gracefully rather than wrapping a hostname. */
+.mg-ada-ins__node .mg-ada-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: var(--ls-caps-tight);
+}
+
+/* The four states and the cursor that steps through them. */
+.mg-ada-ins__states {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--state-gap);
+  min-width: 0;
+}
+.mg-ada-ins__state {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  height: var(--state-h);
+  padding: 0 clamp(10px, 1.2cqw, 16px);
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1.05cqw, 13px);
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0.45;
+}
+.mg-ada-ins__state-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mg-ada-ins__n {
+  color: var(--text-accent);
+}
+.mg-ada-ins__cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--state-h);
+  border: 1px solid var(--text-accent);
+  border-radius: var(--r-md);
+  opacity: 0;
+  pointer-events: none;
+}
+.mg-ada-ins__message {
+  margin-top: clamp(6px, 0.9cqw, 12px);
+  font-family: var(--font-mono);
+  font-size: clamp(8px, 0.95cqw, 11px);
+  line-height: var(--lh-mono);
+  color: var(--text-muted);
+  text-wrap: pretty;
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+}
+
+/* The e-mail service: name, counter and the stamp. */
+.mg-ada-ins__count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  margin-top: clamp(4px, 0.8cqw, 10px);
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.8cqw, 40px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+/* Stamped in the node's lower-right corner, beside the count, clear of the name. */
+.mg-ada-ins__stamp {
+  position: absolute;
+  right: clamp(10px, 1.4cqw, 18px);
+  bottom: clamp(10px, 1.4cqw, 18px);
+  padding: 0.35em 0.5em;
+  border: 2px solid var(--ada-cyan);
+  border-radius: var(--r-xs);
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1.05cqw, 13px);
+  font-weight: 500;
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  color: var(--ada-cyan);
+  opacity: 0;
+  transform: rotate(-6deg) scale3d(1.3, 1.3, 1);
+}
+
+/* Directus, under the form, with its riser and the countries request. */
+.mg-ada-ins__directus {
+  position: relative;
+  grid-row: 2;
+  grid-column: 1;
+  align-self: start;
+  justify-self: center;
+  width: min(100%, 88%);
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+}
+.mg-ada-ins__riser {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 1px;
+  height: var(--riser);
+  background: var(--border-strong);
+  transform: scale3d(1, 0, 1);
+  transform-origin: center bottom;
+}
+.mg-ada-ins__pill--countries {
+  top: auto;
+  bottom: calc(100% + var(--riser) / 2);
+  left: calc(50% + 8px);
+  transform: translate3d(0, calc(50% + var(--riser) / 2), 0);
+}
+
+@container (max-width: 640px) {
+  .mg-ada-ins__flow {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    row-gap: 0;
+  }
+  .mg-ada-ins__form {
+    order: 1;
+  }
+  .mg-ada-ins__directus {
+    order: 2;
+    grid-row: auto;
+    grid-column: auto;
+    width: min(100%, 70%);
+    margin-top: var(--riser);
+  }
+  .mg-ada-ins__link {
+    --wire-from-x: 1;
+    --wire-from-y: 0;
+    align-self: auto;
+    width: 100%;
+    min-height: clamp(44px, 12cqw, 64px);
+  }
+  .mg-ada-ins__link--post {
+    order: 3;
+  }
+  .mg-ada-ins__express {
+    order: 4;
+  }
+  .mg-ada-ins__link--state {
+    order: 5;
+  }
+  .mg-ada-ins__states {
+    order: 6;
+  }
+  .mg-ada-ins__link--mail {
+    order: 7;
+  }
+  .mg-ada-ins__mail {
+    order: 8;
+  }
+  .mg-ada-ins__wire {
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+    transform-origin: center top;
+  }
+  .mg-ada-ins__link .mg-ada-ins__pill {
+    top: 50%;
+    left: calc(50% + 10px);
+    transform: translate3d(0, -50%, 0);
+  }
+  .mg-ada-ins__packet {
+    --packet-x: 0;
+    --packet-y: -100%;
+    top: 0;
+    left: calc(50% - 2.4em);
+    width: auto;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    text-align: left;
+  }
+  .mg-ada-ins__field,
+  .mg-ada-ins__state {
+    font-size: clamp(11px, 3.2cqw, 13px);
+  }
+  .mg-ada-ins__name {
+    font-size: clamp(15px, 4.6cqw, 20px);
+  }
+  .mg-ada-ins__count {
+    font-size: clamp(22px, 7cqw, 32px);
+  }
+}
+
+/* The narrative, restarted on every entry. The six value bars and the four
+   state rows get their own keyframes rather than a delay, so the reset at
+   0% happens while the form is still invisible and nothing snaps mid-pass. */
+.mg-stage[data-playing] .mg-ada-ins__form {
+  animation: mg-ada-ins-form var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__field:nth-child(2) .mg-ada-ins__fill {
+  animation: mg-ada-ins-fill-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__field:nth-child(3) .mg-ada-ins__fill {
+  animation: mg-ada-ins-fill-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__field:nth-child(4) .mg-ada-ins__fill {
+  animation: mg-ada-ins-fill-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__field:nth-child(5) .mg-ada-ins__fill {
+  animation: mg-ada-ins-fill-4 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__field:nth-child(6) .mg-ada-ins__fill {
+  animation: mg-ada-ins-fill-5 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__field:nth-child(7) .mg-ada-ins__fill {
+  animation: mg-ada-ins-fill-6 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__directus {
+  animation: mg-ada-ins-directus var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__riser {
+  animation: mg-ada-ins-riser var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__pill--countries {
+  animation: mg-ada-ins-countries var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__link--post .mg-ada-ins__wire {
+  animation: mg-ada-ins-wire-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__link--post .mg-ada-ins__pill {
+  animation: mg-ada-ins-post var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__packet {
+  animation: mg-ada-ins-packet var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__express::after {
+  animation: mg-ada-ins-express var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__link--state .mg-ada-ins__wire {
+  animation: mg-ada-ins-wire-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__link--mail .mg-ada-ins__wire {
+  animation: mg-ada-ins-wire-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__cursor {
+  animation: mg-ada-ins-cursor var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__state:nth-child(1) {
+  animation: mg-ada-ins-state-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__state:nth-child(2) {
+  animation: mg-ada-ins-state-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__state:nth-child(3) {
+  animation: mg-ada-ins-state-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__state:nth-child(4) {
+  animation: mg-ada-ins-state-4 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__message {
+  animation: mg-ada-ins-message var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__mail::after {
+  animation: mg-ada-ins-mail var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ins__stamp {
+  animation: mg-ada-ins-stamp var(--mg-cycle) linear infinite both;
+}
+
+@keyframes mg-ada-ins-form {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  3%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-fill-1 {
+  0%,
+  5% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  7%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-fill-2 {
+  0%,
+  7.5% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  9.5%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-fill-3 {
+  0%,
+  10% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  12%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-fill-4 {
+  0%,
+  12.5% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  14.5%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-fill-5 {
+  0%,
+  15% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  17%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-fill-6 {
+  0%,
+  17.5% {
+    transform: scale3d(0, 1, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  19.5%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-directus {
+  0%,
+  2% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  5%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-riser {
+  0%,
+  4% {
+    transform: scale3d(1, 0, 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  7%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-countries {
+  0%,
+  7% {
+    opacity: 0;
+    transform: translate3d(0, calc(50% + var(--riser) / 2), 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  10%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-wire-1 {
+  0%,
+  21% {
+    transform: scale3d(var(--wire-from-x), var(--wire-from-y), 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  24%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-post {
+  0%,
+  22% {
+    opacity: 0;
+  }
+  24%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-ada-ins-packet {
+  0%,
+  23% {
+    opacity: 0;
+    transform: translate3d(var(--packet-x), var(--packet-y), 0);
+  }
+  24% {
+    opacity: 1;
+    transform: translate3d(var(--packet-x), var(--packet-y), 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  28% {
+    opacity: 1;
+    transform: none;
+  }
+  30%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-express {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  30%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-ada-ins-wire-2 {
+  0%,
+  30% {
+    transform: scale3d(var(--wire-from-x), var(--wire-from-y), 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  32%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-wire-3 {
+  0%,
+  33% {
+    transform: scale3d(var(--wire-from-x), var(--wire-from-y), 1);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  35%,
+  100% {
+    transform: none;
+  }
+}
+/* One step is a state row plus the gap; the cursor's own height is the row. */
+@keyframes mg-ada-ins-cursor {
+  0%,
+  32% {
+    opacity: 0;
+    transform: none;
+    animation-timing-function: var(--ease-out-expo);
+  }
+  33%,
+  37% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: var(--ease-in-out);
+  }
+  38%,
+  42% {
+    opacity: 1;
+    transform: translate3d(0, calc(100% + var(--state-gap)), 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  43%,
+  47% {
+    opacity: 1;
+    transform: translate3d(0, calc(2 * (100% + var(--state-gap))), 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  48%,
+  92% {
+    opacity: 1;
+    transform: translate3d(0, calc(3 * (100% + var(--state-gap))), 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, calc(3 * (100% + var(--state-gap))), 0);
+  }
+}
+@keyframes mg-ada-ins-state-1 {
+  0%,
+  32% {
+    opacity: 0.45;
+  }
+  34%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes mg-ada-ins-state-2 {
+  0%,
+  37% {
+    opacity: 0.45;
+  }
+  39%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes mg-ada-ins-state-3 {
+  0%,
+  42% {
+    opacity: 0.45;
+  }
+  44%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes mg-ada-ins-state-4 {
+  0%,
+  47% {
+    opacity: 0.45;
+  }
+  49%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes mg-ada-ins-message {
+  0%,
+  52% {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  55%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-ada-ins-mail {
+  0%,
+  34% {
+    opacity: 0;
+  }
+  36%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* Stamped after the first state, re-stamped after each of the next three. */
+@keyframes mg-ada-ins-stamp {
+  0%,
+  35% {
+    opacity: 0;
+    transform: rotate(-6deg) scale3d(1.3, 1.3, 1);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  37%,
+  40% {
+    opacity: 1;
+    transform: rotate(-6deg);
+  }
+  40.5% {
+    opacity: 1;
+    transform: rotate(-6deg) scale3d(1.12, 1.12, 1);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  42%,
+  45% {
+    opacity: 1;
+    transform: rotate(-6deg);
+  }
+  45.5% {
+    opacity: 1;
+    transform: rotate(-6deg) scale3d(1.12, 1.12, 1);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  47%,
+  50% {
+    opacity: 1;
+    transform: rotate(-6deg);
+  }
+  50.5% {
+    opacity: 1;
+    transform: rotate(-6deg) scale3d(1.12, 1.12, 1);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  52%,
+  92% {
+    opacity: 1;
+    transform: rotate(-6deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-6deg);
+  }
+}
+
+/* Reduced motion: a registration that went all the way through. The POST
+   pill keeps its transform, which is what positions it. */
+.mg-stage[data-reduced] .mg-ada-ins__form,
+.mg-stage[data-reduced] .mg-ada-ins__directus,
+.mg-stage[data-reduced] .mg-ada-ins__fill,
+.mg-stage[data-reduced] .mg-ada-ins__riser,
+.mg-stage[data-reduced] .mg-ada-ins__wire,
+.mg-stage[data-reduced] .mg-ada-ins__pill--countries,
+.mg-stage[data-reduced] .mg-ada-ins__state,
+.mg-stage[data-reduced] .mg-ada-ins__message,
+.mg-stage[data-reduced] .mg-ada-ins__express::after,
+.mg-stage[data-reduced] .mg-ada-ins__mail::after {
+  opacity: 1;
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-ada-ins__pill {
+  opacity: 1;
+}
+.mg-stage[data-reduced] .mg-ada-ins__cursor {
+  opacity: 1;
+  transform: translate3d(0, calc(3 * (100% + var(--state-gap))), 0);
+}
+.mg-stage[data-reduced] .mg-ada-ins__stamp {
+  opacity: 1;
+  transform: rotate(-6deg);
+}
+.mg-stage[data-reduced] .mg-ada-ins__packet {
+  opacity: 0;
+}
+
+/* ============================================================
+   incident-ledger
+   Cycle (percent of --mg-cycle): 2 the table arrives, 4–33 the six rows
+   type themselves in (five points apart), 38–70 the accent rule sweeps
+   down the rows and each status flips OPEN → CLOSED as it passes (the flip
+   is delayed by --i, a reset that lands while the row is still clipped),
+   the tally counts the closed rows (JS), 94–100 everything fades.
+   Schematic: the ids are placeholders, the areas are the platform's own.
+   ============================================================ */
+.mg-ada-ledger {
+  --row-h: clamp(24px, 3.4cqw, 44px);
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(12px, 2cqw, 28px) clamp(20px, 4cqw, 64px);
+}
+.mg-ada-ledger__head {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+}
+
+.mg-ada-ledger__table {
+  position: relative;
+  align-self: center;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1.1cqw, 13px);
+  line-height: 1;
+}
+.mg-ada-ledger__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 4fr) minmax(0, 2.2fr);
+  align-items: center;
+  gap: clamp(8px, 1.4cqw, 20px);
+  height: var(--row-h);
+  border-bottom: 1px solid var(--border-hairline);
+  white-space: nowrap;
+}
+.mg-ada-ledger__row--head {
+  color: var(--text-muted);
+  letter-spacing: var(--ls-caps-tight);
+  text-transform: uppercase;
+  font-size: clamp(8px, 0.95cqw, 11px);
+}
+.mg-ada-ledger__row--item {
+  clip-path: inset(0 100% 0 0);
+}
+.mg-ada-ledger__id {
+  color: var(--text-muted);
+}
+.mg-ada-ledger__area {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mg-ada-ledger__status {
+  display: grid;
+  letter-spacing: var(--ls-caps-tight);
+  text-transform: uppercase;
+}
+.mg-ada-ledger__status > * {
+  grid-area: 1 / 1;
+}
+.mg-ada-ledger__open {
+  color: var(--text-secondary);
+}
+.mg-ada-ledger__closed {
+  color: var(--ada-cyan);
+  opacity: 0;
+  transform: translate3d(0, 40%, 0);
+}
+.mg-ada-ledger__body {
+  position: relative;
+  opacity: 0;
+}
+/* The sweep: a rule over the first row's top edge that travels down the
+   six rows while they close. */
+.mg-ada-ledger__sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--text-accent);
+  opacity: 0;
+}
+
+.mg-ada-ledger__tally {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(6px, 1cqw, 12px);
+  min-width: 0;
+}
+.mg-ada-ledger__count {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 12cqw, 160px);
+  font-weight: 500;
+  letter-spacing: var(--ls-display-2);
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+.mg-ada-ledger__count-label {
+  color: var(--text-secondary);
+}
+
+@container (max-width: 560px) {
+  .mg-ada-ledger {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .mg-ada-ledger__tally {
+    flex-direction: row;
+    align-items: baseline;
+    gap: clamp(10px, 4cqw, 20px);
+  }
+  .mg-ada-ledger__count {
+    font-size: clamp(44px, 18cqw, 72px);
+  }
+  .mg-ada-ledger__table {
+    font-size: clamp(10px, 3cqw, 12px);
+  }
+  .mg-ada-ledger__row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 4fr) minmax(0, 3fr);
+  }
+}
+
+/* The narrative, restarted on every entry. */
+.mg-stage[data-playing] .mg-ada-ledger__body {
+  animation: mg-ada-ledger-body var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ledger__row--item:nth-child(1) {
+  animation: mg-ada-ledger-row-1 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ledger__row--item:nth-child(2) {
+  animation: mg-ada-ledger-row-2 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ledger__row--item:nth-child(3) {
+  animation: mg-ada-ledger-row-3 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ledger__row--item:nth-child(4) {
+  animation: mg-ada-ledger-row-4 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ledger__row--item:nth-child(5) {
+  animation: mg-ada-ledger-row-5 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ledger__row--item:nth-child(6) {
+  animation: mg-ada-ledger-row-6 var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ledger__sweep {
+  animation: mg-ada-ledger-sweep var(--mg-cycle) linear infinite both;
+}
+/* --i delays the flip by one row's share of the sweep (600ms = 5%). */
+.mg-stage[data-playing] .mg-ada-ledger__open {
+  animation: mg-ada-ledger-open var(--mg-cycle) linear calc(var(--i, 0) * 600ms) infinite both;
+}
+.mg-stage[data-playing] .mg-ada-ledger__closed {
+  animation: mg-ada-ledger-closed var(--mg-cycle) linear calc(var(--i, 0) * 600ms) infinite both;
+}
+
+@keyframes mg-ada-ledger-body {
+  0% {
+    opacity: 0;
+  }
+  2%,
+  94% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-ada-ledger-row-1 {
+  0%,
+  4% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(14, end);
+  }
+  8%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-ada-ledger-row-2 {
+  0%,
+  9% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(14, end);
+  }
+  13%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-ada-ledger-row-3 {
+  0%,
+  14% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(14, end);
+  }
+  18%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-ada-ledger-row-4 {
+  0%,
+  19% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(14, end);
+  }
+  23%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-ada-ledger-row-5 {
+  0%,
+  24% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(14, end);
+  }
+  28%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-ada-ledger-row-6 {
+  0%,
+  29% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(14, end);
+  }
+  33%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-ada-ledger-sweep {
+  0%,
+  37% {
+    opacity: 0;
+    transform: none;
+  }
+  38% {
+    opacity: 1;
+    transform: none;
+  }
+  70% {
+    opacity: 1;
+    transform: translate3d(0, calc(6 * var(--row-h)), 0);
+  }
+  73%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, calc(6 * var(--row-h)), 0);
+  }
+}
+@keyframes mg-ada-ledger-open {
+  0%,
+  41.5% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: var(--ease-out-expo);
+  }
+  43%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -40%, 0);
+  }
+}
+@keyframes mg-ada-ledger-closed {
+  0%,
+  41.5% {
+    opacity: 0;
+    transform: translate3d(0, 40%, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  43%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Reduced motion: every incident closed. */
+.mg-stage[data-reduced] .mg-ada-ledger__body,
+.mg-stage[data-reduced] .mg-ada-ledger__closed {
+  opacity: 1;
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-ada-ledger__row--item {
+  clip-path: none;
+}
+.mg-stage[data-reduced] .mg-ada-ledger__open,
+.mg-stage[data-reduced] .mg-ada-ledger__sweep {
+  opacity: 0;
+}

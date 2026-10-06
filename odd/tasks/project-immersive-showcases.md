@@ -158,4 +158,8 @@ and follow `next_transition`. First boundary: `58d6abf`.
 - Parent spot check: viewed the final desktop/mobile/gallery captures of `/work/donweb-contenidos`.
 - RDD (range 58d6abf..d22ec3d, untracked excluded): assess medium / slice_budget_reached → STATUS → START returned the `gentle-ai.review-integration.consent/v3` envelope (lineage `review-b74645fa44937d94`, target `sha256:1006d627…`). Relayed to the user losslessly; the user answered `granted` (2026-10-05 23:45). Two attempts: the first START failed `invalid_request` (untracked inventory changed while the Talleres writer created files); renegotiated with the same target identity and ran the new `granted` invocation verbatim → `lens_context_budget_exceeded` (terminal: 205 files / 4,771 lines exceed the native reviewer context; no authority created, nothing to abandon). The CLI only targets base-to-HEAD, so narrower slices need their own HEAD: review per PR slice at delivery time (chained PRs) or in a throwaway worktree per commit. Consent stays candidate-scoped; later candidates ask again.
 
-### T5 donweb-talleres — IN PROGRESS (delegated writer)
+### T5 donweb-talleres — DONE (commit `d72a27d`)
+- Route: delegated writer. Live ids `cert-tilt`, `legacy-url`, `four-services`; 7 chapters, 9-item gallery, metrics as the carousel states them (user's figures, note added).
+- Checks observed: lint clean; tsc clean (re-run by parent); build SSG 23/23; runtime probe desktop/mobile/reduced (counters, timer, keyboard chips, tilt, no overflow); six visual fixes recorded by the writer. Parent spot check: viewed certificate, legacy-url, four-services desktop and mobile captures.
+
+### T7 ada13 — IN PROGRESS (delegated writer)
