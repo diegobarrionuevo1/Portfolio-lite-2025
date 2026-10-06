@@ -149,4 +149,13 @@ and follow `next_transition`. First boundary: `58d6abf`.
 - Remote own assets: 3 DonWeb Cloud og banners, 18 YouTube maxres thumbnails of Diego's DonWeb Cloud videos, current DWC logo, Talleres 2023 demo video (Vercel Blob, 17 MB), Diego's legacy course-236 certificate renders, Ada13 logo/hero image and the 2024 vertical event video (Wayback).
 - Clips recorded (1920x1080): cloud home slider + scroll, cinema-mode episode page, certificate 3D tilt + gallery, registro landing, Hermes landing night→day scroll, archived Ada13 scroll. Transcoded with ffmpeg to H.264 MP4 (crf 23) + VP9 WebM (crf 34) + WebP poster.
 - Output: `public/work/<slug>/` as WebP (2400w + 1200w variants, q82; alpha assets q90) and `public/work/manifest.json` with dimensions. 144 images, heaviest 176 KB.
-- Pending: Finanzas simulator screenshots (Expo iOS build running), final video transcode run, commit.
+- DONE (commit `63250d4`): 144 WebP images + 8 clips (MP4/WebM/poster), 65 MB under `public/work/`.
+- Finanzas: Expo Release build installed on the iPhone 17 simulator (`xcrun simctl`, no panel permission needed); home screen captured light and dark at 1206x2622 → `public/work/finanzas-ia/home-{light,dark}.webp`. Other tabs need taps (deep links trigger the system "¿Abrir en…?" dialog), so they wait for the user to grant simulator access.
+
+### T3 Scene primitives — DONE (commit `d22ec3d`)
+- Route: delegated writer (8 components + CSS; writer trigger).
+- Checks observed: `npm run lint` clean; `npx tsc --noEmit` clean; `npm run build` SSG 23/23, work routes 102 kB first load; visual pass at 1440 and 390 with four fixes (nav dark from y=0 by pulling the band under the sticky nav, gallery bleed, strip heights, parallax range); reduced-motion probe with Playwright (`--p` 0.5, videos paused, cue hidden).
+- Parent spot check: viewed the final desktop/mobile/gallery captures of `/work/donweb-contenidos`.
+- RDD (range 58d6abf..d22ec3d, untracked excluded): assess medium / slice_budget_reached → STATUS → START returned the `gentle-ai.review-integration.consent/v3` envelope (lineage `review-b74645fa44937d94`, target `sha256:1006d627…`). Relayed to the user losslessly; the user answered `granted` (2026-10-05 23:45). Two attempts: the first START failed `invalid_request` (untracked inventory changed while the Talleres writer created files); renegotiated with the same target identity and ran the new `granted` invocation verbatim → `lens_context_budget_exceeded` (terminal: 205 files / 4,771 lines exceed the native reviewer context; no authority created, nothing to abandon). The CLI only targets base-to-HEAD, so narrower slices need their own HEAD: review per PR slice at delivery time (chained PRs) or in a throwaway worktree per commit. Consent stays candidate-scoped; later candidates ask again.
+
+### T5 donweb-talleres — IN PROGRESS (delegated writer)

@@ -3,6 +3,7 @@
 import type { ComponentType } from "react";
 import type { Lang } from "@/lib/i18n";
 import type { ShowcaseLive } from "../types";
+import { CertTilt, FourServices, LegacyUrl } from "./mg/donweb-talleres";
 import { MotionStage } from "./stage";
 import { mono } from "./typography";
 
@@ -18,7 +19,11 @@ import { mono } from "./typography";
  */
 export type LiveComponent = ComponentType<{ lang: Lang }>;
 
-export const LIVE_COMPONENTS: Record<string, LiveComponent> = {};
+export const LIVE_COMPONENTS: Record<string, LiveComponent> = {
+  "cert-tilt": CertTilt,
+  "legacy-url": LegacyUrl,
+  "four-services": FourServices,
+};
 
 export function LiveMedia({ media, lang }: { media: ShowcaseLive; lang: Lang }) {
   const Component = LIVE_COMPONENTS[media.component];

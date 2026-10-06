@@ -1,0 +1,1395 @@
+/* ============================================================
+   DonWeb Cloud, workshops and certification: the live components of the
+   /work/donweb-talleres showcase (scenes/mg/donweb-talleres.tsx).
+
+   Three stages share the `.mg-tal` root:
+     cert-tilt      the product's certificate hero re-created, pointer-driven
+     legacy-url     a 2023 URL becoming the 2026 one, with a 307 and counters
+     four-services  a SHA promoted through CI → GHCR → prod, then rolled back
+
+   They follow the stage contract in showcase.css: structural entrances are
+   `.mg-run` (declared with longhands, paused off screen, play once and
+   hold), the narratives are declared only under `.mg-stage[data-playing]`
+   so they restart on every entry, and the resting/final frame is styled
+   under `.mg-stage[data-reduced]`. Only transform, opacity and clip-path
+   move. Sizes use container units (cqw) so a stage scales as one picture
+   from a phone column to the full 1520px frame. Both narratives share one
+   `--mg-cycle` (12s); the JS ticks that write counter and timer text use
+   the same figure (CYCLE_MS in the component).
+
+   `.mg-tal` is the query container and fills the stage; the layout lives
+   on its one child (`.mg-tal-cert`, `.mg-tal-legacy`, `.mg-tal-four`),
+   because an element cannot answer a container query about itself.
+
+   Brand quotes, the only hex values in this tree, all from the product's
+   own stylesheet: --tal-navy #071226 is the certificate page's field,
+   --tal-green #90F268 the marker under the person's name, --tal-orange
+   #FC6600 the download CTA and the certificate frame, --tal-paper #FFFFFF
+   the certificate itself. The orange appears only inside the re-created
+   certificate component, as the product's own CTA colour.
+   ============================================================ */
+.mg-tal {
+  --tal-navy: #071226;
+  --tal-green: #90f268;
+  --tal-orange: #fc6600;
+  --tal-paper: #ffffff;
+  --mg-cycle: 12s;
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}
+.mg-tal-cert,
+.mg-tal-legacy,
+.mg-tal-four {
+  --pad: clamp(20px, 4.5cqw, 64px);
+  position: absolute;
+  inset: 0;
+  padding: var(--pad);
+}
+
+/* Inside a frame the stage is absolutely positioned with inset 0, but it
+   also carries its aspect-ratio inline, and an absolutely positioned box
+   takes its height from that ratio before it honours `bottom: 0`. These
+   three stages must follow the frame instead (a phone column gives the
+   frame a min-height below), so the inline ratio is switched off here. */
+.showcase-frame > .mg-stage[data-mg="cert-tilt"],
+.showcase-frame > .mg-stage[data-mg="legacy-url"],
+.showcase-frame > .mg-stage[data-mg="four-services"] {
+  aspect-ratio: auto !important;
+}
+@media (max-width: 699px) {
+  .showcase-frame:has(> .mg-stage[data-mg="cert-tilt"]) {
+    min-height: 620px;
+  }
+  .showcase-frame:has(> .mg-stage[data-mg="legacy-url"]),
+  .showcase-frame:has(> .mg-stage[data-mg="four-services"]) {
+    min-height: 460px;
+  }
+}
+
+/* Mono caps label, the stage's annotation voice. */
+.mg-tal-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  font-weight: 400;
+  letter-spacing: var(--ls-caps);
+  line-height: var(--lh-mono);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Hairline + surface, the house card. */
+.mg-tal-box {
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-md);
+  background: var(--surface-card);
+}
+
+/* Entrance shared by the structural pieces: fade + 12px rise, once. */
+@keyframes mg-tal-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   cert-tilt
+   ============================================================ */
+.mg-tal-cert {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: clamp(16px, 3cqw, 48px) clamp(20px, 4cqw, 64px);
+  align-items: center;
+  background: var(--tal-navy);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+/* The product's honeycomb tramas, hugging the stage edges behind everything. */
+.mg-tal-cert__trama {
+  position: absolute;
+  top: 0;
+  width: auto;
+  height: 100%;
+  opacity: 0.9;
+  pointer-events: none;
+  user-select: none;
+}
+.mg-tal-cert__trama--l {
+  left: -3%;
+}
+.mg-tal-cert__trama--r {
+  right: -2%;
+}
+
+.mg-tal-cert__copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.6cqw, 20px);
+  min-width: 0;
+}
+.mg-tal-cert__hi {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.4cqw, 50px);
+  font-weight: 500;
+  letter-spacing: var(--ls-display-3);
+  line-height: var(--lh-snug);
+  text-wrap: balance;
+}
+/* The name and its punctuation stay on one line. */
+.mg-tal-cert__who {
+  white-space: nowrap;
+}
+.mg-tal-cert__mark {
+  display: inline-block;
+  padding: 0 0.16em;
+  margin-inline: -0.04em;
+  border-radius: var(--r-xs);
+  background: var(--tal-green);
+  color: var(--tal-navy);
+}
+.mg-tal-cert__title {
+  margin: 0;
+  max-width: 30ch;
+  font-size: clamp(13px, 1.5cqw, 20px);
+  line-height: var(--lh-title);
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+.mg-tal-cert__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(8px, 1cqw, 12px);
+  padding-top: clamp(4px, 0.8cqw, 10px);
+}
+.mg-tal-cert__cta,
+.mg-tal-cert__ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: clamp(34px, 3.2cqw, 46px);
+  padding: 0 clamp(14px, 1.6cqw, 22px);
+  border-radius: var(--r-pill);
+  font-family: var(--font-sans);
+  font-size: clamp(12px, 1.15cqw, 15px);
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out-quart),
+    background-color var(--dur-fast) var(--ease-out-quart),
+    border-color var(--dur-fast) var(--ease-out-quart);
+}
+.mg-tal-cert__cta,
+.mg-tal-cert__cta:hover {
+  color: var(--tal-paper);
+}
+.mg-tal-cert__cta {
+  border: 0;
+  background: var(--tal-orange);
+}
+.mg-tal-cert__ghost {
+  border: 1px solid var(--border-mid);
+  background: transparent;
+  color: var(--text-primary);
+}
+.mg-tal-cert__cta:active,
+.mg-tal-cert__ghost:active {
+  transform: scale(0.97);
+}
+.mg-tal-cert__cta:focus-visible,
+.mg-tal-cert__ghost:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .mg-tal-cert__cta:hover {
+    background: color-mix(in srgb, var(--tal-orange) 88%, var(--tal-paper));
+  }
+  .mg-tal-cert__ghost:hover {
+    border-color: var(--border-strong);
+  }
+}
+
+/* The certificate: a perspective scene, an idle float that pauses off
+   screen, and the card that tilts after the pointer (transform written by
+   the component; the transition is what makes it feel sprung). */
+.mg-tal-cert__scene {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  perspective: 1400px;
+}
+.mg-tal-cert__float {
+  animation-name: mg-tal-cert-float;
+  animation-duration: 7s;
+  animation-timing-function: var(--ease-in-out);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-fill-mode: both;
+}
+@keyframes mg-tal-cert-float {
+  from {
+    transform: translate3d(0, -0.5cqw, 0);
+  }
+  to {
+    transform: translate3d(0, 0.5cqw, 0);
+  }
+}
+.mg-tal-cert__card {
+  --paper-pad: clamp(6px, 1cqw, 14px);
+  position: relative;
+  width: 100%;
+  aspect-ratio: 760 / 537;
+  overflow: hidden;
+  border: clamp(3px, 0.5cqw, 7px) solid var(--tal-orange);
+  background: var(--tal-paper);
+  transform: none;
+  transition: transform var(--dur-slow) var(--ease-out-expo);
+  will-change: transform;
+}
+.mg-tal-cert__paper {
+  position: absolute;
+  inset: var(--paper-pad);
+}
+.mg-tal-cert__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(0.985);
+  transition:
+    opacity var(--dur-base) var(--ease-out-quart),
+    transform var(--dur-base) var(--ease-out-quart);
+}
+.mg-tal-cert__img[data-active] {
+  opacity: 1;
+  transform: none;
+}
+/* The green fold on the product's certificate corner. */
+.mg-tal-cert__fold {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: clamp(14px, 3cqw, 40px);
+  height: clamp(14px, 3cqw, 40px);
+  background: var(--tal-green);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+/* Pointer glare: a soft disc that slides with the pointer and brightens
+   what it passes over (overlay, so the white paper stays white). */
+.mg-tal-cert__glare {
+  position: absolute;
+  inset: -50%;
+  z-index: 3;
+  background: radial-gradient(circle at center, rgb(255 255 255 / 0.9) 0%, rgb(255 255 255 / 0) 55%);
+  mix-blend-mode: overlay;
+  opacity: 0;
+  transform: none;
+  transition:
+    opacity var(--dur-base) var(--ease-out-quart),
+    transform var(--dur-slow) var(--ease-out-expo);
+  pointer-events: none;
+}
+
+/* Sibling certificates: the product's "Tus otros certificados" row. */
+.mg-tal-cert__chips {
+  grid-column: 1 / -1;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(8px, 1cqw, 14px);
+}
+.mg-tal-cert__chips .mg-tal-label {
+  flex: 0 0 100%;
+  margin-bottom: clamp(2px, 0.4cqw, 6px);
+}
+.mg-tal-cert__chip {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(56px, 8cqw, 112px);
+  aspect-ratio: 760 / 537;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-sm);
+  background: var(--tal-paper);
+  cursor: pointer;
+  opacity: 0.6;
+  transition:
+    opacity var(--dur-fast) var(--ease-out-quart),
+    border-color var(--dur-fast) var(--ease-out-quart),
+    transform var(--dur-fast) var(--ease-out-quart);
+}
+.mg-tal-cert__chip img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mg-tal-cert__chip[aria-pressed="true"] {
+  opacity: 1;
+  border-color: var(--tal-green);
+}
+.mg-tal-cert__chip:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.mg-tal-cert__chip:active {
+  transform: scale(0.97);
+}
+@media (hover: hover) and (pointer: fine) {
+  .mg-tal-cert__chip:hover {
+    opacity: 1;
+  }
+}
+
+/* Touch: no pointer to follow, so the card rests at a gentle fixed tilt. */
+@media (hover: none) {
+  .mg-tal-cert__card {
+    transform: rotateX(4deg) rotateY(-7deg);
+  }
+}
+
+/* A phone column: one column, headline first, certificate, then the row. */
+@container (max-width: 640px) {
+  .mg-tal-cert {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-content: center;
+    gap: clamp(16px, 5cqw, 24px);
+  }
+  .mg-tal-cert__hi {
+    font-size: clamp(20px, 6.4cqw, 30px);
+  }
+  .mg-tal-cert__title {
+    font-size: clamp(13px, 3.6cqw, 16px);
+  }
+  .mg-tal-cert__cta,
+  .mg-tal-cert__ghost {
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+  .mg-tal-cert__chip {
+    width: clamp(52px, 15cqw, 72px);
+  }
+  .mg-tal-cert__trama {
+    height: 70%;
+    opacity: 0.55;
+  }
+  .mg-tal-cert__trama--l {
+    top: auto;
+    bottom: -10%;
+    left: -12%;
+  }
+  .mg-tal-cert__trama--r {
+    top: -8%;
+    right: -14%;
+  }
+}
+
+/* Reduced motion: flat card, no glare, no float, instant swaps. */
+.mg-stage[data-reduced] .mg-tal-cert__card,
+.mg-stage[data-reduced] .mg-tal-cert__img,
+.mg-stage[data-reduced] .mg-tal-cert__chip {
+  transition: none;
+}
+.mg-stage[data-reduced] .mg-tal-cert__card {
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-tal-cert__glare {
+  display: none;
+}
+
+/* ============================================================
+   legacy-url
+   Cycle (percent of --mg-cycle): 2–14 the 2023 URL types in, 18–23 the
+   accent rule strikes the e-mail, 24–33 the line morphs into the 2026 URL
+   and the 307 badge slides in, 34–46 the route chips light up, 46–56 the
+   43 GB of stored PDFs shrink into "PDF on demand", 94–100 everything
+   fades for the next pass. Counters count up by JS on entry and hold.
+   ============================================================ */
+.mg-tal-legacy {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: clamp(12px, 2.4cqw, 32px);
+}
+.mg-tal-legacy__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.mg-tal-legacy__phase {
+  display: grid;
+}
+.mg-tal-legacy__phase > .mg-tal-label {
+  grid-area: 1 / 1;
+}
+.mg-tal-legacy__phase-b {
+  opacity: 0;
+}
+
+.mg-tal-legacy__main {
+  display: grid;
+  align-content: center;
+  gap: clamp(12px, 2cqw, 28px);
+  min-width: 0;
+}
+.mg-tal-legacy__box {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(8px, 1.4cqw, 18px);
+  padding: clamp(12px, 2cqw, 28px) clamp(14px, 2.4cqw, 36px);
+  font-family: var(--font-mono);
+  font-size: clamp(13px, 2.8cqw, 38px);
+  line-height: 1.3;
+}
+.mg-tal-legacy__badge {
+  display: inline-block;
+  padding: 0.25em 0.55em;
+  border-radius: var(--r-xs);
+  background: var(--action-accent-bg);
+  color: var(--action-accent-fg);
+  font-size: 0.6em;
+  letter-spacing: var(--ls-caps-tight);
+  opacity: 0;
+  transform: translate3d(-8px, 0, 0);
+}
+.mg-tal-legacy__lines {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+.mg-tal-legacy__line {
+  grid-area: 1 / 1;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.mg-tal-legacy__typed {
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+}
+.mg-tal-legacy__email {
+  position: relative;
+}
+.mg-tal-legacy__strike {
+  position: absolute;
+  top: 54%;
+  right: 0;
+  left: 0;
+  height: 0.09em;
+  background: var(--text-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.mg-tal-legacy__caret {
+  position: absolute;
+  top: 0.12em;
+  bottom: 0.12em;
+  left: 0;
+  width: 0.08em;
+  background: var(--text-primary);
+  opacity: 0;
+}
+.mg-tal-legacy__new {
+  opacity: 0;
+  transform: translate3d(0, 40%, 0);
+}
+.mg-tal-legacy__uuid {
+  color: var(--text-accent);
+}
+
+.mg-tal-legacy__route {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(6px, 1cqw, 12px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mg-tal-legacy__step {
+  padding: 0.55em 0.85em;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.1cqw, 13px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.35;
+}
+.mg-tal-legacy__link {
+  flex: 1 1 8px;
+  max-width: 56px;
+  height: 1px;
+  background: var(--border-mid);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.mg-tal-legacy__foot {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 2cqw, 32px);
+  margin: 0;
+  padding-top: clamp(12px, 1.8cqw, 24px);
+  border-top: 1px solid var(--border-hairline);
+}
+.mg-tal-legacy__count {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  min-width: 0;
+}
+.mg-tal-legacy__value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 3.2cqw, 46px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: var(--lh-tight);
+  font-variant-numeric: tabular-nums;
+}
+.mg-tal-legacy__storage {
+  position: relative;
+  display: grid;
+  align-content: end;
+}
+.mg-tal-legacy__storage > * {
+  grid-area: 1 / 1;
+}
+.mg-tal-legacy__gb {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  opacity: 0;
+  transform-origin: left bottom;
+}
+.mg-tal-legacy__pdf {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  color: var(--text-accent);
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+}
+.mg-tal-legacy__pdf .mg-tal-legacy__value {
+  font-size: clamp(16px, 2.2cqw, 30px);
+}
+
+@container (max-width: 560px) {
+  .mg-tal-legacy__box {
+    font-size: clamp(12px, 3.6cqw, 16px);
+  }
+  .mg-tal-legacy__foot {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mg-tal-legacy__value {
+    font-size: clamp(20px, 6.5cqw, 28px);
+  }
+  .mg-tal-legacy__pdf .mg-tal-legacy__value {
+    font-size: clamp(14px, 4.5cqw, 20px);
+  }
+}
+
+/* The narrative, restarted on every entry. */
+.mg-stage[data-playing] .mg-tal-legacy__typed {
+  animation: mg-tal-legacy-type var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__caret {
+  animation: mg-tal-legacy-caret var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__strike {
+  animation: mg-tal-legacy-strike var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__old {
+  animation: mg-tal-legacy-old var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__new {
+  animation: mg-tal-legacy-new var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__badge {
+  animation: mg-tal-legacy-badge var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__phase-a {
+  animation: mg-tal-legacy-phase-a var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__phase-b {
+  animation: mg-tal-legacy-phase-b var(--mg-cycle) linear infinite both;
+}
+/* Steps and links stagger through --i: a constant phase offset, which an
+   infinite animation keeps on every pass. */
+.mg-stage[data-playing] .mg-tal-legacy__step {
+  animation: mg-tal-legacy-step var(--mg-cycle) linear calc(var(--i, 0) * 300ms) infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__link {
+  animation: mg-tal-legacy-link var(--mg-cycle) linear calc((var(--i, 0) + 0.5) * 300ms) infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__gb {
+  animation: mg-tal-legacy-gb var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-legacy__pdf {
+  animation: mg-tal-legacy-pdf var(--mg-cycle) linear infinite both;
+}
+
+@keyframes mg-tal-legacy-type {
+  0%,
+  2% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: steps(23, end);
+  }
+  14%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes mg-tal-legacy-caret {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  2% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: steps(23, end);
+  }
+  14% {
+    opacity: 1;
+    transform: translate3d(23ch, 0, 0);
+    animation-timing-function: step-end;
+  }
+  15.5% {
+    opacity: 0;
+    transform: translate3d(23ch, 0, 0);
+    animation-timing-function: step-end;
+  }
+  17% {
+    opacity: 1;
+    transform: translate3d(23ch, 0, 0);
+    animation-timing-function: step-end;
+  }
+  18.5% {
+    opacity: 0;
+    transform: translate3d(23ch, 0, 0);
+    animation-timing-function: step-end;
+  }
+  20% {
+    opacity: 1;
+    transform: translate3d(23ch, 0, 0);
+    animation-timing-function: step-end;
+  }
+  22%,
+  100% {
+    opacity: 0;
+    transform: translate3d(23ch, 0, 0);
+  }
+}
+@keyframes mg-tal-legacy-strike {
+  0%,
+  18% {
+    transform: scaleX(0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  23%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+@keyframes mg-tal-legacy-old {
+  0%,
+  24% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: var(--ease-in-out);
+  }
+  30%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -40%, 0);
+  }
+}
+@keyframes mg-tal-legacy-new {
+  0%,
+  26% {
+    opacity: 0;
+    transform: translate3d(0, 40%, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  33%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-tal-legacy-badge {
+  0%,
+  32% {
+    opacity: 0;
+    transform: translate3d(-8px, 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  36%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes mg-tal-legacy-phase-a {
+  0%,
+  26% {
+    opacity: 1;
+  }
+  30%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-tal-legacy-phase-b {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  33%,
+  94% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-tal-legacy-step {
+  0%,
+  34% {
+    opacity: 0.35;
+  }
+  37%,
+  94% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+@keyframes mg-tal-legacy-link {
+  0%,
+  35% {
+    transform: scaleX(0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  38%,
+  94% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+@keyframes mg-tal-legacy-gb {
+  0% {
+    opacity: 0;
+    transform: none;
+  }
+  4%,
+  46% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: var(--ease-in-out);
+  }
+  54%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@keyframes mg-tal-legacy-pdf {
+  0%,
+  50% {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  56%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* Reduced motion: the whole story as one still, the two URLs stacked. */
+.mg-stage[data-reduced] .mg-tal-legacy__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+.mg-stage[data-reduced] .mg-tal-legacy__old {
+  opacity: 0.55;
+}
+.mg-stage[data-reduced] .mg-tal-legacy__typed {
+  clip-path: none;
+}
+.mg-stage[data-reduced] .mg-tal-legacy__strike,
+.mg-stage[data-reduced] .mg-tal-legacy__link {
+  transform: scaleX(1);
+}
+.mg-stage[data-reduced] .mg-tal-legacy__new,
+.mg-stage[data-reduced] .mg-tal-legacy__badge,
+.mg-stage[data-reduced] .mg-tal-legacy__phase-b,
+.mg-stage[data-reduced] .mg-tal-legacy__step,
+.mg-stage[data-reduced] .mg-tal-legacy__pdf {
+  opacity: 1;
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-tal-legacy__phase-a,
+.mg-stage[data-reduced] .mg-tal-legacy__gb {
+  opacity: 0;
+}
+
+/* ============================================================
+   four-services
+   Entrances (once): the pipeline nodes and the four service boxes rise in
+   with the house stagger. Loop: 4–8 the tests pass, 8–20 the SHA tag
+   travels CI → GHCR, 26–40 GHCR → prod while the timer counts 03:00 down,
+   40–48 the deploy line drops from prod, runs along the bus and into each
+   service, 48–52 the four services switch to the new SHA, 58–61 the
+   previous SHA is re-promoted in one beat (rollback), 62–66 the services
+   switch back, 92–100 the loop pieces fade.
+
+   The tag docks beside each node instead of over it: --lane is the
+   distance between node centres, --node-w the node width, and --dock-0/1/2
+   the tag's X at CI, GHCR and prod (its own-size percentages plus lanes),
+   --dock-y its Y. A narrow container moves the dock under the nodes by
+   overriding those variables, so the keyframes exist once.
+   ============================================================ */
+.mg-tal-four {
+  --lane: calc((100cqw - 2 * var(--pad)) / 3);
+  --node-w: clamp(84px, 16cqw, 200px);
+  --row-gap: clamp(36px, 7cqw, 96px);
+  --dock-y: -50%;
+  --dock-0: calc(var(--node-w) / 2 + 6px);
+  --dock-1: calc(-100% + var(--lane) - var(--node-w) / 2 - 6px);
+  --dock-2: calc(-100% + 2 * var(--lane) - var(--node-w) / 2 - 6px);
+  /* Where the replaced tag is shelved during the rollback beat. */
+  --shelf-y: -170%;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: center;
+  gap: var(--row-gap) 0;
+}
+.mg-tal-four__pipe {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+}
+.mg-tal-four__track {
+  position: absolute;
+  top: 50%;
+  right: calc(100% / 6);
+  left: calc(100% / 6);
+  height: 1px;
+  background: var(--border-mid);
+  opacity: 0;
+}
+.mg-tal-four__node {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+}
+.mg-tal-four__node-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4em;
+  min-width: var(--node-w);
+  padding: clamp(10px, 1.4cqw, 18px) clamp(12px, 1.8cqw, 24px);
+  text-align: center;
+}
+.mg-tal-four__node-box .mg-tal-label {
+  color: var(--text-primary);
+}
+.mg-tal-four__sub {
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  line-height: var(--lh-mono);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.mg-tal-four__ok {
+  color: var(--text-accent);
+  opacity: 0;
+}
+.mg-tal-four__timer {
+  color: var(--text-primary);
+}
+.mg-tal-four__tag {
+  position: absolute;
+  top: 50%;
+  left: calc(100% / 6);
+  z-index: 2;
+  padding: 0.45em 0.7em;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--r-xs);
+  background: var(--action-accent-bg);
+  color: var(--action-accent-fg);
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.1cqw, 13px);
+  letter-spacing: var(--ls-caps-tight);
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate3d(var(--dock-0), var(--dock-y), 0);
+}
+.mg-tal-four__tag--prev {
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border-color: var(--border-mid);
+  transform: translate3d(calc(var(--dock-2) + 16px), var(--dock-y), 0);
+}
+/* Under the track, between GHCR and prod. */
+.mg-tal-four__rollback {
+  position: absolute;
+  top: calc(50% + 1.3em);
+  left: calc(100% * 4 / 6);
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  letter-spacing: var(--ls-caps-tight);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-accent);
+  opacity: 0;
+  transform: translate3d(calc(-50% + 6px), 0, 0);
+}
+/* The deploy fan-out: prod → down → along the bus → into each service. */
+.mg-tal-four__drop {
+  position: absolute;
+  top: 100%;
+  left: calc(100% * 5 / 6);
+  width: 1px;
+  height: calc(var(--row-gap) / 2);
+  background: var(--border-accent);
+  transform: scaleY(0);
+  transform-origin: top center;
+}
+.mg-tal-four__bus {
+  position: absolute;
+  top: calc(100% + var(--row-gap) / 2);
+  right: 12.5%;
+  left: 12.5%;
+  height: 1px;
+  background: var(--border-accent);
+  transform: scaleX(0);
+  /* Grows from where the drop lands: 5/6 of the row, 94.4% of the bus. */
+  transform-origin: 94.4% center;
+}
+.mg-tal-four__stub {
+  position: absolute;
+  top: calc(100% + var(--row-gap) / 2);
+  left: calc(100% * (1 + 2 * var(--n, 0)) / 8);
+  width: 1px;
+  height: calc(var(--row-gap) / 2);
+  background: var(--border-accent);
+  transform: scaleY(0);
+  transform-origin: top center;
+}
+
+.mg-tal-four__services {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 1.4cqw, 20px);
+}
+.mg-tal-four__svc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+  min-width: 0;
+  padding: clamp(12px, 1.8cqw, 24px);
+  opacity: 0;
+}
+.mg-tal-four__svc::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--border-accent);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+.mg-tal-four__svc-name {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 2.4cqw, 34px);
+  font-weight: 500;
+  letter-spacing: var(--ls-title);
+  line-height: 1;
+}
+.mg-tal-four__svc-stack {
+  font-size: clamp(11px, 1.15cqw, 14px);
+  line-height: var(--lh-title);
+  color: var(--text-secondary);
+}
+.mg-tal-four__ver {
+  position: relative;
+  display: grid;
+  margin-top: 0.3em;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.05cqw, 12px);
+  line-height: var(--lh-mono);
+  white-space: nowrap;
+}
+.mg-tal-four__ver > span {
+  grid-area: 1 / 1;
+}
+.mg-tal-four__ver-old {
+  color: var(--text-muted);
+}
+.mg-tal-four__ver-new {
+  color: var(--text-accent);
+  opacity: 0;
+}
+.mg-tal-four__foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+}
+
+/* A phone column: the nodes keep only their names (the timer stays), the
+   tags ride under the nodes instead of beside them, and the rollback label
+   sits above the row. */
+@container (max-width: 560px) {
+  .mg-tal-four {
+    --node-w: clamp(56px, 20cqw, 110px);
+    --row-gap: 64px;
+    --dock-y: 6px;
+    --dock-0: -50%;
+    --dock-1: calc(-50% + var(--lane));
+    --dock-2: calc(-50% + 2 * var(--lane));
+    --shelf-y: 6px;
+  }
+  .mg-tal-four__svc-stack,
+  .mg-tal-four__sub--quiet {
+    display: none;
+  }
+  .mg-tal-four__svc {
+    padding: 10px;
+  }
+  .mg-tal-four__node-box {
+    padding: 8px 6px;
+  }
+  .mg-tal-four__tag {
+    top: 100%;
+    padding: 0.4em 0.5em;
+    font-size: 9px;
+  }
+  .mg-tal-four__rollback {
+    top: -2em;
+  }
+}
+
+/* Entrances: once, paused off screen, held afterwards. */
+.mg-tal-four__node,
+.mg-tal-four__svc {
+  animation-name: mg-tal-rise;
+  animation-duration: var(--dur-reveal);
+  animation-timing-function: var(--ease-out-expo);
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+  animation-fill-mode: both;
+}
+.mg-tal-four__track {
+  animation-name: mg-tal-four-track;
+  animation-duration: var(--dur-reveal);
+  animation-timing-function: var(--ease-out-expo);
+  animation-delay: calc(3 * var(--stagger));
+  animation-fill-mode: both;
+}
+@keyframes mg-tal-four-track {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The loop, restarted on every entry. */
+.mg-stage[data-playing] .mg-tal-four__ok {
+  animation: mg-tal-four-ok var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-four__tag--sha {
+  animation: mg-tal-four-tag var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-four__tag--prev {
+  animation: mg-tal-four-tagprev var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-four__rollback {
+  animation: mg-tal-four-rollback var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-four__drop {
+  animation: mg-tal-four-drop var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-four__bus {
+  animation: mg-tal-four-bus var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-four__stub {
+  animation: mg-tal-four-stub var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-four__svc::after {
+  animation: mg-tal-four-live var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-four__ver-new {
+  animation: mg-tal-four-ver-new var(--mg-cycle) linear infinite both;
+}
+.mg-stage[data-playing] .mg-tal-four__ver-old {
+  animation: mg-tal-four-ver-old var(--mg-cycle) linear infinite both;
+}
+
+@keyframes mg-tal-four-ok {
+  0%,
+  4% {
+    opacity: 0;
+  }
+  8%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-tal-four-tag {
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--dock-0), var(--dock-y), 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  4%,
+  8% {
+    opacity: 1;
+    transform: translate3d(var(--dock-0), var(--dock-y), 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  20%,
+  26% {
+    opacity: 1;
+    transform: translate3d(var(--dock-1), var(--dock-y), 0);
+    animation-timing-function: var(--ease-in-out);
+  }
+  40%,
+  58% {
+    opacity: 1;
+    transform: translate3d(var(--dock-2), var(--dock-y), 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  61%,
+  92% {
+    opacity: 0.4;
+    transform: translate3d(var(--dock-2), var(--shelf-y), 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--dock-2), var(--shelf-y), 0);
+  }
+}
+@keyframes mg-tal-four-tagprev {
+  0%,
+  58% {
+    opacity: 0;
+    transform: translate3d(calc(var(--dock-2) + 16px), var(--dock-y), 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  61%,
+  92% {
+    opacity: 1;
+    transform: translate3d(var(--dock-2), var(--dock-y), 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--dock-2), var(--dock-y), 0);
+  }
+}
+@keyframes mg-tal-four-rollback {
+  0%,
+  56% {
+    opacity: 0;
+    transform: translate3d(calc(-50% + 6px), 0, 0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  60%,
+  90% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+  }
+  94%,
+  100% {
+    opacity: 0;
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+@keyframes mg-tal-four-drop {
+  0%,
+  40% {
+    opacity: 1;
+    transform: scaleY(0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  43%,
+  92% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+@keyframes mg-tal-four-bus {
+  0%,
+  43% {
+    opacity: 1;
+    transform: scaleX(0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  46%,
+  92% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+@keyframes mg-tal-four-stub {
+  0%,
+  46% {
+    opacity: 1;
+    transform: scaleY(0);
+    animation-timing-function: var(--ease-out-expo);
+  }
+  48%,
+  92% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+@keyframes mg-tal-four-live {
+  0%,
+  47% {
+    opacity: 0;
+  }
+  51%,
+  60% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0;
+  }
+  66%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-tal-four-ver-new {
+  0%,
+  47% {
+    opacity: 0;
+  }
+  51%,
+  62% {
+    opacity: 1;
+  }
+  66%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes mg-tal-four-ver-old {
+  0%,
+  47% {
+    opacity: 1;
+  }
+  51%,
+  62% {
+    opacity: 0;
+  }
+  66%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: the deploy landed, nothing travels. */
+.mg-stage[data-reduced] .mg-tal-four__node,
+.mg-stage[data-reduced] .mg-tal-four__svc,
+.mg-stage[data-reduced] .mg-tal-four__track,
+.mg-stage[data-reduced] .mg-tal-four__ok,
+.mg-stage[data-reduced] .mg-tal-four__svc::after,
+.mg-stage[data-reduced] .mg-tal-four__ver-new {
+  opacity: 1;
+  transform: none;
+}
+.mg-stage[data-reduced] .mg-tal-four__ver-old,
+.mg-stage[data-reduced] .mg-tal-four__tag--prev,
+.mg-stage[data-reduced] .mg-tal-four__rollback {
+  opacity: 0;
+}
+.mg-stage[data-reduced] .mg-tal-four__tag--sha {
+  opacity: 1;
+  transform: translate3d(var(--dock-2), var(--dock-y), 0);
+}
+.mg-stage[data-reduced] .mg-tal-four__drop,
+.mg-stage[data-reduced] .mg-tal-four__stub {
+  transform: scaleY(1);
+}
+.mg-stage[data-reduced] .mg-tal-four__bus {
+  transform: scaleX(1);
+}
