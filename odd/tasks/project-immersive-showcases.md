@@ -174,4 +174,17 @@ and follow `next_transition`. First boundary: `58d6abf`.
 - Route: delegated writer. Live ids `message-to-movement`, `available-balance`, `three-channels`; 6 chapters, 3-item gallery, "En desarrollo" metrics; light scheme verified (nav light, contrast of mono labels and hairlines).
 - Checks observed: lint clean; tsc clean (re-run by parent); build SSG 23/23 (work routes 116 kB); runtime probe desktop/tablet/mobile/reduced; five fixes. Parent spot check: viewed hero, parser, balance and channels captures.
 
-### T4 donweb-contenidos motion graphics — IN PROGRESS (delegated writer)
+### T4 donweb-contenidos motion graphics — DONE (commit `8bafeaf`)
+- Route: delegated writer. Live ids `hex-lattice`, `content-pipeline`, `video-wall`; final chapter order editorial → lattice → cinema → pipeline → hubs → dashboard → wall → metrics → gallery.
+- Checks observed: lint clean; tsc clean (re-run by parent); build SSG 23/23 (work routes 120 kB); 28 captures, runtime probe at 1440/1024/900/390 and reduced; seven fixes. Parent spot check: viewed lattice, pipeline and wall.
+
+### T10 Verification — DONE with one open item
+- Full capture of 12 pages (home ES/EN + 5 showcases × 2 languages, desktop + mobile, full page sliced into tiles). The visual QA workflow reviewed home ES/EN before the weekly subagent limit stopped the other 10 reviewers (resets 13:00 America/Cordoba); those pages were reviewed by the parent from the writers' captures instead. Home findings fixed: carousel first slides now show real captures (P/01 home, P/02 real registration landing + certificate, P/03 archived ada13.tech before the plate), Hashi card uses a cropped composer screenshot, mobile caption no longer collides with the drag hint. Left as is: the capabilities grid orphan (pre-existing design), the capture artifact above 16,384 device px.
+- Parent checks: `npm run lint` clean, `npx tsc --noEmit` clean, `npm run build` SSG 23/23 (work routes 121 kB first load), sitemap lists 10 work URLs, OG route answers 200 for ES/EN titles, hreflang pairs present, `/work/nope` → 404.
+
+### T11 Refinement pass (user feedback: videos choppy, video pages generic) — DONE (commit after `8bafeaf`)
+- Diagnosis: headless playback probe showed 60 fps and 0 dropped video frames with and without the grain layers, so the stutter was in the recordings (wheel-tick scroll + 25→30 fps duplication), not in playback.
+- Fix: `record2.mjs` captures frame by frame through CDP with eased scroll/pointer timelines at 60 fps (deterministic, independent of real-time performance); five clips replaced (0.6–2.4 MB MP4 + VP9 WebM + poster). `ShowcaseVideo` now switches to `preload="auto"` within one viewport.
+- Design (impeccable `animate`/`bolder` + Emil Kowalski `animate`): new `media-cinema` chapter layout, the authored peak of each showcase: the clip opens from an inset rounded card into a full-bleed sharp screen as it scrolls in (clip-path inset + scale follow `--p`), the title sits on the picture over the `--scrim-bottom` token, prose and facts follow in two columns; video heroes run edge to edge. Applied to Contenidos (editorial, cinema), Talleres (registro, first-generation); Talleres and Hermes heroes. Reduced motion renders the open state.
+- Pruned 7.3 MB of unreferenced media (ada13 clip-home) and three unused Hashi captures; `public/work` is 56 MB.
+- RDD: the branch candidate exceeds the native reviewer context (`lens_context_budget_exceeded`); review per PR slice at delivery time.
