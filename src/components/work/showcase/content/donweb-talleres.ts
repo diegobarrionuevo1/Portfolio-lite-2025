@@ -49,18 +49,14 @@ export const donwebTalleres: ShowcaseDefinition = {
     hero: { media: clip("clip-certificate") },
     chapters: [
       { id: "certificate", layout: "live-full", media: live("cert-tilt", 1.6) },
-      { id: "registro", layout: "media-right", media: [clip("clip-registro"), capture("acreditacion")] },
+      { id: "registro", layout: "media-cinema", media: clip("clip-registro") },
       { id: "legacy-url", layout: "live-full", media: live("legacy-url", 2) },
       {
         id: "before-after",
         layout: "media-full",
         media: [workImage(SLUG, "cert-236-legacy", 1024, 768), capture("certificate")],
       },
-      {
-        id: "first-generation",
-        layout: "media-left",
-        media: [clip("demo-2023", 1920, 966), workImage(SLUG, "legacy-2023", 1121, 793)],
-      },
+      { id: "first-generation", layout: "media-cinema", media: clip("demo-2023", 1920, 966) },
       { id: "platform", layout: "live-full", media: live("four-services", 2) },
       { id: "operators", layout: "media-right", media: capture("panel-login") },
     ],
@@ -68,6 +64,7 @@ export const donwebTalleres: ShowcaseDefinition = {
       capture("hub", "hub"),
       capture("registro-real", "registro-real"),
       capture("registro-oficial", "registro-oficial"),
+      capture("acreditacion", "acreditacion"),
       capture("certificate-s1", "certificate-s1"),
       phone("certificate-mobile", "certificate-mobile"),
       phone("registro-cloud-mobile", "registro-cloud-mobile"),
@@ -119,11 +116,8 @@ export const donwebTalleres: ShowcaseDefinition = {
             { value: "2", label: "marcas, una landing por taller" },
             { value: "0", label: "cuentas necesarias" },
           ],
-          mediaAlt: [
-            "Recorrido por la landing de registro de un taller de DonWeb Cloud",
-            "Página de acreditación de asistencia a un taller",
-          ],
-          caption: ["Landing de registro, marca Cloud", "Acreditación de asistencia"],
+          mediaAlt: "Recorrido por la landing de registro de un taller de DonWeb Cloud",
+          caption: "Landing de registro, marca Cloud",
         },
         "legacy-url": {
           kicker: "Migración",
@@ -160,11 +154,8 @@ export const donwebTalleres: ShowcaseDefinition = {
             "La primera versión la construí solo, en mayo de 2023: Next 13 y Express, certificados compuestos con sharp y pdfkit, correos por Envialo Simple. Un único servicio que registraba, acreditaba y emitía.",
             "Esa versión emitió los primeros certificados y definió lo que el sistema tenía que preservar: la URL pública como prueba y el mail como identidad. La renovación de 2026 heredó esas dos decisiones y reemplazó todo lo demás.",
           ],
-          mediaAlt: [
-            "Grabación de pantalla de la primera versión de la plataforma, en 2023",
-            "Certificado de la primera generación, con datos de prueba",
-          ],
-          caption: ["Demo de la primera versión, 2023", "Certificado de la primera generación (datos de prueba)"],
+          mediaAlt: "Grabación de pantalla de la primera versión de la plataforma, en 2023",
+          caption: "Demo de la primera versión, 2023",
         },
         platform: {
           kicker: "Plataforma",
@@ -214,6 +205,10 @@ export const donwebTalleres: ShowcaseDefinition = {
           "registro-oficial": {
             alt: "Landing de registro con la marca oficial de DonWeb",
             caption: "Registro, marca oficial",
+          },
+          acreditacion: {
+            alt: "Página de acreditación de asistencia a un taller",
+            caption: "Acreditación de asistencia",
           },
           "certificate-s1": {
             alt: "La sección de otros certificados en la página de un certificado",
@@ -279,11 +274,8 @@ export const donwebTalleres: ShowcaseDefinition = {
             { value: "2", label: "brands, one landing page per workshop" },
             { value: "0", label: "accounts required" },
           ],
-          mediaAlt: [
-            "A walk through the registration landing page of a DonWeb Cloud workshop",
-            "The attendance check-in page of a workshop",
-          ],
-          caption: ["Registration landing, Cloud brand", "Attendance check-in"],
+          mediaAlt: "A walk through the registration landing page of a DonWeb Cloud workshop",
+          caption: "Registration landing, Cloud brand",
         },
         "legacy-url": {
           kicker: "Migration",
@@ -320,11 +312,8 @@ export const donwebTalleres: ShowcaseDefinition = {
             "I built the first version alone, in May 2023: Next 13 and Express, certificates composed with sharp and pdfkit, e-mail through Envialo Simple. A single service that registered, checked in and issued.",
             "That version issued the first certificates and defined what the system had to preserve: the public URL as proof and the e-mail as identity. The 2026 renewal inherited those two decisions and replaced everything else.",
           ],
-          mediaAlt: [
-            "Screen recording of the platform's first version, in 2023",
-            "A first-generation certificate, with test data",
-          ],
-          caption: ["Demo of the first version, 2023", "First-generation certificate (test data)"],
+          mediaAlt: "Screen recording of the platform's first version, in 2023",
+          caption: "Demo of the first version, 2023",
         },
         platform: {
           kicker: "Platform",
@@ -374,6 +363,10 @@ export const donwebTalleres: ShowcaseDefinition = {
           "registro-oficial": {
             alt: "A registration landing page under DonWeb's official brand",
             caption: "Registration, official brand",
+          },
+          acreditacion: {
+            alt: "The attendance check-in page of a workshop",
+            caption: "Attendance check-in",
           },
           "certificate-s1": {
             alt: "The other-certificates section on a certificate page",

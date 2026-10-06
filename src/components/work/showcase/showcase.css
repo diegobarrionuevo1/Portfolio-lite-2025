@@ -470,6 +470,135 @@
 }
 
 /* ============================================================
+   Cinema: the authored peak of a showcase. One clip opens from an inset,
+   rounded card into a full-bleed, sharp-cornered screen as it scrolls in:
+   clip-path and scale follow --p directly (no easing: the reader's hand is
+   the timeline), the title sits on the picture over the scrim token from
+   860px, and the prose and facts follow in two columns. The open state is
+   the resting state: server HTML (no --p) and reduced motion render it.
+   A video hero gets the same edge-to-edge treatment without the reveal.
+   ============================================================ */
+/* The chapter keeps the page padding; the screen cancels it (plus the
+   gutter beyond the 1680px column) to reach the viewport edges exactly. */
+.showcase-cinema {
+  /* 0 at the bottom of the viewport, fully open 30% of the travel later. */
+  --k: clamp(0, calc((var(--p, 0.5) - 0.06) / 0.3), 1);
+  position: relative;
+  margin-inline: calc((var(--page-margin) + var(--bleed)) * -1);
+}
+.showcase-cinema__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 92svh;
+  overflow: hidden;
+  background: var(--surface-raised);
+  clip-path: inset(
+    calc((1 - var(--k)) * 7%) calc((1 - var(--k)) * 9%) round calc(var(--r-media) * (1 - var(--k)))
+  );
+  transform: scale(calc(0.94 + 0.06 * var(--k)));
+  transform-origin: 50% 60%;
+}
+@media (min-width: 860px) {
+  .showcase-cinema__frame {
+    aspect-ratio: 16 / 9;
+  }
+}
+/* The media frame gives up its chrome inside the screen: the screen is the frame. */
+.showcase-cinema__frame > .showcase-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto !important;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.showcase-cinema__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: none;
+  pointer-events: none;
+  background: var(--scrim-bottom);
+  opacity: var(--k);
+}
+.showcase-cinema__title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6) calc(var(--page-margin) + var(--bleed)) 0;
+}
+.showcase-cinema__kicker {
+  color: var(--text-accent);
+}
+.showcase-cinema__heading {
+  margin: 0;
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: var(--fs-display-3);
+  font-weight: 500;
+  letter-spacing: var(--ls-display-3, var(--ls-title));
+  line-height: var(--lh-tight);
+  text-wrap: balance;
+}
+@media (min-width: 860px) {
+  .showcase-cinema__scrim {
+    display: block;
+  }
+  .showcase-cinema__title {
+    position: absolute;
+    left: calc(var(--page-margin) + var(--bleed));
+    right: calc(var(--page-margin) + var(--bleed));
+    bottom: clamp(24px, 5vw, 64px);
+    z-index: 2;
+    padding: 0;
+    color: var(--on-media-fg);
+    opacity: var(--k);
+    transform: translate3d(0, calc((1 - var(--k)) * 24px), 0);
+  }
+  .showcase-cinema__kicker {
+    color: var(--on-media-fg);
+    opacity: 0.72;
+  }
+}
+.showcase-cinema__after {
+  display: grid;
+  gap: var(--space-6);
+  padding-top: var(--space-8);
+}
+.showcase-cinema__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+@media (min-width: 860px) {
+  .showcase-cinema__after {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-9);
+    align-items: start;
+  }
+}
+
+/* Video hero: edge to edge, no card, capped to the viewport height. */
+.showcase-hero__cinema {
+  width: calc(100% + 2 * (var(--page-margin) + var(--bleed)));
+  margin-inline: calc((var(--page-margin) + var(--bleed)) * -1);
+}
+.showcase-hero__stage .showcase-hero__cinema .showcase-frame {
+  max-width: none;
+  max-height: 92svh;
+  border-left: 0;
+  border-right: 0;
+  border-radius: 0;
+}
+.showcase-hero__frame {
+  width: 100%;
+}
+
+/* ============================================================
    Entrances. Only when motion is welcome: the resting state is the visible
    one, so server HTML and reduced motion render everything settled.
    ============================================================ */
@@ -519,6 +648,9 @@
     height: 100%;
     transform: none;
     will-change: auto;
+  }
+  .showcase-cinema {
+    --k: 1;
   }
   .showcase-cue {
     display: none;

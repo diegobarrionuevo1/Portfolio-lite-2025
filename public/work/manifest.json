@@ -533,10 +533,11 @@
    }
   },
   "clip-home": {
-   "source": "cloud-home.raw.webm",
+   "source": "record2.mjs frame-by-frame 60fps",
    "width": 1920,
    "height": 1080,
-   "duration": 16.266667,
+   "fps": 60,
+   "duration": 16.27,
    "files": {
     "clip-home.mp4": 3126793,
     "clip-home.webm": 2548288,
@@ -544,10 +545,11 @@
    }
   },
   "clip-episode": {
-   "source": "cloud-episode.raw.webm",
+   "source": "record2.mjs frame-by-frame 60fps",
    "width": 1920,
    "height": 1080,
-   "duration": 25.666667,
+   "fps": 60,
+   "duration": 25.67,
    "files": {
     "clip-episode.mp4": 3532059,
     "clip-episode.webm": 2914447,
@@ -932,10 +934,11 @@
    }
   },
   "clip-certificate": {
-   "source": "cert-tilt.raw.webm",
+   "source": "record2.mjs frame-by-frame 60fps",
    "width": 1920,
    "height": 1080,
-   "duration": 33.833333,
+   "fps": 60,
+   "duration": 33.83,
    "files": {
     "clip-certificate.mp4": 4540427,
     "clip-certificate.webm": 3685557,
@@ -943,10 +946,11 @@
    }
   },
   "clip-registro": {
-   "source": "cert-registro.raw.webm",
+   "source": "record2.mjs frame-by-frame 60fps",
    "width": 1920,
    "height": 1080,
-   "duration": 10.866667,
+   "fps": 60,
+   "duration": 10.87,
    "files": {
     "clip-registro.mp4": 1217791,
     "clip-registro.webm": 857852,
@@ -1103,17 +1107,6 @@
      "height": 683,
      "bytes": 56442
     }
-   }
-  },
-  "clip-home": {
-   "source": "ada13-2023.raw.webm",
-   "width": 1920,
-   "height": 1080,
-   "duration": 27.4,
-   "files": {
-    "clip-home.mp4": 4176490,
-    "clip-home.webm": 3478662,
-    "clip-home-poster.webp": 47694
    }
   },
   "event-2024": {
@@ -1431,14 +1424,15 @@
    }
   },
   "clip-landing": {
-   "source": "hermes-landing.raw.webm",
+   "source": "record2.mjs frame-by-frame 60fps",
    "width": 1920,
    "height": 1080,
-   "duration": 23.8,
+   "fps": 60,
+   "duration": 9.4,
    "files": {
-    "clip-landing.mp4": 2826059,
-    "clip-landing.webm": 2331039,
-    "clip-landing-poster.webp": 58694
+    "clip-landing.mp4": 2136118,
+    "clip-landing.webm": 1101093,
+    "clip-landing-poster.webp": 68760
    }
   }
  },
@@ -1452,6 +1446,30 @@
      "width": 1024,
      "height": 1024,
      "bytes": 32060
+    }
+   }
+  },
+  "home-light": {
+   "source": "ios-simulator iPhone 17 (Release build)",
+   "width": 1206,
+   "height": 2622,
+   "files": {
+    "home-light.webp": {
+     "width": 1206,
+     "height": 2622,
+     "bytes": 81484
+    }
+   }
+  },
+  "home-dark": {
+   "source": "ios-simulator iPhone 17 (Release build)",
+   "width": 1206,
+   "height": 2622,
+   "files": {
+    "home-dark.webp": {
+     "width": 1206,
+     "height": 2622,
+     "bytes": 79182
     }
    }
   }
@@ -1471,57 +1489,6 @@
      "width": 1200,
      "height": 593,
      "bytes": 9744
-    }
-   }
-  },
-  "hashi-composer-dark": {
-   "source": "composer-2025-dark.png",
-   "width": 1915,
-   "height": 945,
-   "files": {
-    "hashi-composer-dark.webp": {
-     "width": 1914,
-     "height": 945,
-     "bytes": 18588
-    },
-    "hashi-composer-dark-1200.webp": {
-     "width": 1200,
-     "height": 592,
-     "bytes": 9488
-    }
-   }
-  },
-  "hashi-dashboard-2024": {
-   "source": "dashboard-2024-light.png",
-   "width": 2880,
-   "height": 1600,
-   "files": {
-    "hashi-dashboard-2024.webp": {
-     "width": 2400,
-     "height": 1333,
-     "bytes": 19308
-    },
-    "hashi-dashboard-2024-1200.webp": {
-     "width": 1200,
-     "height": 667,
-     "bytes": 8258
-    }
-   }
-  },
-  "hashi-site": {
-   "source": "hashi-home-desktop.png",
-   "width": 2880,
-   "height": 1800,
-   "files": {
-    "hashi-site.webp": {
-     "width": 2400,
-     "height": 1500,
-     "bytes": 168536
-    },
-    "hashi-site-1200.webp": {
-     "width": 1200,
-     "height": 750,
-     "bytes": 68280
     }
    }
   }

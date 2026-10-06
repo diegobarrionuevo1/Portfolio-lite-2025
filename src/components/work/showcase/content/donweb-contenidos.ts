@@ -42,9 +42,9 @@ export const donwebContenidos: ShowcaseDefinition = {
     stack: ["Ghost", "Handlebars", "Next.js", "PostgreSQL", "Docker", "Caddy"],
     hero: { media: capture("home") },
     chapters: [
-      { id: "editorial", layout: "media-right", media: clip("clip-home") },
+      { id: "editorial", layout: "media-cinema", media: clip("clip-home") },
       { id: "lattice", layout: "live-full", media: live("hex-lattice", 2.4) },
-      { id: "cinema", layout: "media-left", media: clip("clip-episode") },
+      { id: "cinema", layout: "media-cinema", media: clip("clip-episode") },
       { id: "pipeline", layout: "live-full", media: live("content-pipeline", 1.8) },
       { id: "hubs", layout: "media-full", media: [capture("pildoras"), capture("academia")] },
       { id: "dashboard", layout: "media-right", media: capture("hub") },

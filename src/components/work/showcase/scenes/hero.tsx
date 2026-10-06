@@ -128,15 +128,18 @@ export function ShowcaseHero({ showcase }: { showcase: Showcase }) {
               {firstChapter.kicker}
             </ScrollCue>
           ) : null}
-          <ShowcaseMediaFrame
-            media={media}
-            alt={showcase.hero.mediaAlt ?? showcase.name}
-            lang={lang}
-            priority
-            sizes={HERO_SIZES}
-            parallax={48}
-            grain
-          />
+          {/* A video hero runs edge to edge, sharp-cornered, like the cinema chapters. */}
+          <div className={media.kind === "video" ? "showcase-hero__cinema" : "showcase-hero__frame"}>
+            <ShowcaseMediaFrame
+              media={media}
+              alt={showcase.hero.mediaAlt ?? showcase.name}
+              lang={lang}
+              priority
+              sizes={media.kind === "video" ? "100vw" : HERO_SIZES}
+              parallax={48}
+              grain
+            />
+          </div>
         </HeroStage>
       ) : null}
     </header>

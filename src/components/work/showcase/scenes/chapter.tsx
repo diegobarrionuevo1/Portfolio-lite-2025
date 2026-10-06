@@ -58,6 +58,20 @@ export function ShowcaseChapter({ chapter, index, lang }: { chapter: Chapter; in
       </figure>
     ));
 
+  if (chapter.layout === "media-cinema" && media[0]) {
+    return (
+      <CinemaChapter
+        id={id}
+        index={index}
+        lang={lang}
+        chapter={chapter}
+        media={media[0]}
+        alt={alts[0] ?? chapter.title}
+        caption={captions[0]}
+      />
+    );
+  }
+
   if (split) {
     return (
       <section
@@ -87,6 +101,88 @@ export function ShowcaseChapter({ chapter, index, lang }: { chapter: Chapter; in
           {frames(media.length > 1 ? SIZES.pair : SIZES.full, 0)}
         </div>
       ) : null}
+    </section>
+  );
+}
+
+/**
+ * The cinema layout: the showcase's authored peak. One video (or image)
+ * opens from an inset, rounded card into a full-bleed, sharp-cornered screen
+ * as the reader scrolls it in (clip-path + scale follow `--p`, no easing: the
+ * reader's hand is the timeline), the title sits on the picture over a scrim
+ * from 860px, and the prose and facts follow in two columns. Server HTML and
+ * reduced motion render the open state (see showcase.css, "Cinema").
+ */
+function CinemaChapter({
+  id,
+  index,
+  lang,
+  chapter,
+  media,
+  alt,
+  caption,
+}: {
+  id: string;
+  index: number;
+  lang: Lang;
+  chapter: Chapter;
+  media: Chapter["media"] extends infer M ? (M extends Array<infer I> ? I : NonNullable<M>) : never;
+  alt: string;
+  caption?: string;
+}) {
+  const facts = chapter.facts ?? [];
+  const factBase = (chapter.body.length + 1) * 70;
+
+  return (
+    <section
+      id={id}
+      lang={lang}
+      data-index={index + 1}
+      className="showcase-chapter showcase-chapter--cinema"
+    >
+      <div className="showcase-cinema" data-scene>
+        <div className="showcase-cinema__frame">
+          <ShowcaseMediaFrame media={media} alt={alt} lang={lang} sizes="100vw" />
+          <span className="showcase-cinema__scrim" aria-hidden="true" />
+        </div>
+        <div className="showcase-cinema__title">
+          <span data-reveal className="showcase-cinema__kicker" style={mono}>
+            {chapter.kicker}
+          </span>
+          <h2 data-reveal data-delay="70" className="showcase-cinema__heading">
+            {chapter.title}
+          </h2>
+        </div>
+      </div>
+
+      <div className="showcase-cinema__after">
+        <div className="showcase-cinema__aside">
+          {caption ? (
+            <p data-reveal style={{ ...mono, margin: 0, color: "var(--text-muted)" }}>
+              {caption}
+            </p>
+          ) : null}
+          {facts.length ? (
+            <dl className="showcase-facts">
+              {facts.map((fact, i) => (
+                <div key={fact.label} data-reveal data-delay={String(factBase + i * 70)} className="showcase-fact">
+                  <dt data-numeric style={factValue} {...countAttrs(fact.value)}>
+                    {fact.value}
+                  </dt>
+                  <dd style={factLabel}>{fact.label}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </div>
+        <div className="showcase-chapter__prose">
+          {chapter.body.map((paragraph, i) => (
+            <p key={paragraph} data-reveal data-delay={String((i + 1) * 70)} style={prose}>
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

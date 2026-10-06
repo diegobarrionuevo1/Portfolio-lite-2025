@@ -513,7 +513,7 @@ function SlideInner({
             left: "clamp(24px,4.5vw,64px)",
             bottom: "clamp(16px,2.4vw,28px)",
             zIndex: 3,
-            maxWidth: "46%",
+            maxWidth: "min(46%, calc(100% - 200px))",
             color: "var(--text-muted)",
           }}
         >
@@ -559,7 +559,7 @@ function SlideInner({
             left: "clamp(24px,4.5vw,64px)",
             bottom: "clamp(16px,2.4vw,28px)",
             zIndex: 3,
-            maxWidth: "46%",
+            maxWidth: "min(46%, calc(100% - 200px))",
             color: "rgba(247,244,237,0.72)",
           }}
         >

@@ -18,6 +18,19 @@ export function ShowcaseVideo({ media, alt }: { media: ShowcaseVideoMedia; alt: 
     if (!video) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    // Buffer ahead: once the frame is within a viewport of the screen, fetch
+    // the whole clip so the first seconds never stall when play() fires.
+    const near = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          video.preload = "auto";
+          near.disconnect();
+        }
+      },
+      { rootMargin: "100% 0px" }
+    );
+    near.observe(video);
+
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -33,6 +46,7 @@ export function ShowcaseVideo({ media, alt }: { media: ShowcaseVideoMedia; alt: 
     );
     io.observe(video);
     return () => {
+      near.disconnect();
       io.disconnect();
       video.pause();
     };

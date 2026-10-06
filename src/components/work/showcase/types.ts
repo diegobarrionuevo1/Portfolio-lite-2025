@@ -87,6 +87,7 @@ export type ChapterLayout =
   | "media-right"
   | "media-left"
   | "media-full"
+  | "media-cinema"
   | "text-only"
   | "live-full";
 

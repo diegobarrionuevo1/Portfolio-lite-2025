@@ -50,6 +50,7 @@ const PROJECTS_ES: Project[] = [
     slides: [
       {
         kind: "media",
+        src: "/work/donweb-contenidos/home.webp",
         placeholder: "Captura de DonWeb Cloud",
         caption: "Plataforma editorial · Ghost",
       },
@@ -78,6 +79,7 @@ const PROJECTS_ES: Project[] = [
     slides: [
       {
         kind: "media",
+        src: "/work/donweb-talleres/registro-real.webp",
         placeholder: "Captura de la plataforma de talleres",
         caption: "Multi-servicio · desde 2023",
       },
@@ -101,6 +103,7 @@ const PROJECTS_ES: Project[] = [
       },
       {
         kind: "media",
+        src: "/work/donweb-talleres/certificate.webp",
         placeholder: "Captura de un certificado público",
         caption: "Certificado público",
       },
@@ -111,6 +114,12 @@ const PROJECTS_ES: Project[] = [
     slug: "ada13",
     name: "Ada13 — Plataforma web",
     slides: [
+      {
+        kind: "media",
+        src: "/work/ada13/home-2023.webp",
+        placeholder: "Captura de ada13.tech (archivo, 2023)",
+        caption: "Plataforma web · mantenimiento continuo",
+      },
       {
         kind: "plate",
         numeral: "03",
@@ -148,6 +157,7 @@ const PROJECTS_EN: Project[] = [
     slides: [
       {
         kind: "media",
+        src: "/work/donweb-contenidos/home.webp",
         placeholder: "DonWeb Cloud screenshot",
         caption: "Editorial platform · Ghost",
       },
@@ -176,6 +186,7 @@ const PROJECTS_EN: Project[] = [
     slides: [
       {
         kind: "media",
+        src: "/work/donweb-talleres/registro-real.webp",
         placeholder: "Workshops platform screenshot",
         caption: "Multi-service · since 2023",
       },
@@ -199,6 +210,7 @@ const PROJECTS_EN: Project[] = [
       },
       {
         kind: "media",
+        src: "/work/donweb-talleres/certificate.webp",
         placeholder: "Public certificate screenshot",
         caption: "Public certificate",
       },
@@ -209,6 +221,12 @@ const PROJECTS_EN: Project[] = [
     slug: "ada13",
     name: "Ada13 — Web platform",
     slides: [
+      {
+        kind: "media",
+        src: "/work/ada13/home-2023.webp",
+        placeholder: "ada13.tech screenshot (archived, 2023)",
+        caption: "Web platform · ongoing maintenance",
+      },
       {
         kind: "plate",
         numeral: "03",
