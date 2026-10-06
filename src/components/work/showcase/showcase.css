@@ -1,0 +1,143 @@
+/* ============================================================
+   Showcase pages (/work/<slug>): only what inline styles cannot express,
+   which is media queries and hover states. Every colour is a token resolved
+   by the page's atmosphere scope; nothing here hardcodes one. Plain CSS,
+   outside Tailwind's @layer, so none of it is tree-shaken.
+   ============================================================ */
+
+.showcase {
+  overflow-x: clip;
+}
+
+/* ── Link to a showcase from the carousel meta row: keeps the row colour and
+   grows a hairline underline on hover. The base `a:hover` recolour is
+   layered, so these unlayered rules win. ── */
+.showcase-link,
+.showcase-link:hover {
+  color: inherit;
+}
+.showcase-link {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: transparent;
+  transition: text-decoration-color var(--dur-base) var(--ease-out-quart);
+}
+.showcase-link:hover,
+.showcase-link:focus-visible {
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+}
+
+/* ── Back link at the top of the hero ── */
+.showcase-back {
+  color: var(--text-muted);
+  transition: color var(--dur-base) var(--ease-out-quart);
+}
+.showcase-back:hover,
+.showcase-back:focus-visible {
+  color: var(--text-primary);
+}
+
+/* ── Hero: a text block over the scene. The meta row (role and period on the
+   left, links on the right) splits only when there is room for both. ── */
+.showcase-hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+.showcase-hero__meta {
+  display: grid;
+  gap: var(--space-5);
+}
+@media (min-width: 860px) {
+  .showcase-hero__meta {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
+/* ── Scene slot: a labelled frame that later tasks fill with real media.
+   Hatched like the carousel placeholders so it reads as "pending", never as
+   a fake screenshot. ── */
+.showcase-scene {
+  margin: 0;
+}
+.showcase-scene__frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  padding: var(--space-5);
+  overflow: hidden;
+  text-align: center;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--r-media);
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 10px,
+      var(--action-quiet-fill) 10px,
+      var(--action-quiet-fill) 20px
+    ),
+    var(--surface-raised);
+}
+@media (max-width: 599px) {
+  .showcase-scene__frame {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* ── Chapter: kicker and title on the left, prose on the right from 860px;
+   one column below. ── */
+.showcase-chapter {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+}
+@media (min-width: 860px) {
+  .showcase-chapter {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-9);
+  }
+}
+.showcase-chapter__prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.showcase-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: var(--space-5);
+  margin: 0;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-hairline);
+}
+
+/* ── Next project: the whole block is the link; the name takes the accent
+   and the arrow nudges on hover. ── */
+.showcase-next,
+.showcase-next:hover {
+  color: inherit;
+}
+.showcase-next {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.showcase-next__name {
+  transition: color var(--dur-base) var(--ease-out-quart);
+}
+.showcase-next__arrow {
+  display: inline-block;
+  transition: transform var(--dur-base) var(--ease-out-quart);
+}
+.showcase-next:hover .showcase-next__name,
+.showcase-next:focus-visible .showcase-next__name {
+  color: var(--text-accent);
+}
+.showcase-next:hover .showcase-next__arrow,
+.showcase-next:focus-visible .showcase-next__arrow {
+  transform: translateX(6px);
+}

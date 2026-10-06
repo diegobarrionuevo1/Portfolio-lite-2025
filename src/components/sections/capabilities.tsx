@@ -151,7 +151,7 @@ export function Capabilities({ lang = "es" }: { lang?: Lang } = {}) {
         color: "var(--text-primary)",
       }}
     >
-      <SectionLabel index="03" aside={copy.aside}>
+      <SectionLabel index="04" aside={copy.aside}>
         {copy.heading}
       </SectionLabel>
 

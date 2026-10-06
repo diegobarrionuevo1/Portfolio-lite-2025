@@ -5,6 +5,7 @@ import { Night } from "@/components/site/night";
 import { RevealObserver } from "@/components/reveal";
 import { Impact } from "@/components/sections/impact";
 import { WorkSection } from "@/components/work/work-section";
+import { Experience } from "@/components/sections/experience";
 import { Capabilities } from "@/components/sections/capabilities";
 import { Building } from "@/components/sections/building";
 import { About } from "@/components/sections/about";
@@ -41,6 +42,7 @@ export default function HomeEn() {
         <Hero lang="en" />
         <Impact lang="en" />
         <WorkSection lang="en" />
+        <Experience lang="en" />
         <Capabilities lang="en" />
         <Building lang="en" />
         <About lang="en" />

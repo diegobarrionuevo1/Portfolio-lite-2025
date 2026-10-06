@@ -52,7 +52,7 @@ export function Contact({ lang = "es" }: { lang?: Lang } = {}) {
         borderTop: "1px solid var(--border-hairline)",
       }}
     >
-      <SectionLabel index="06" aside={copy.aside}>
+      <SectionLabel index="07" aside={copy.aside}>
         {copy.heading}
       </SectionLabel>
 

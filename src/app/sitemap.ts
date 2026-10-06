@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getAllPostSlugs } from "@/lib/ghost/content";
 import { siteUrl } from "@/components/blog/shared";
-import { EN_SLUG_SUFFIX } from "@/lib/i18n";
+import { SHOWCASE_SLUGS } from "@/components/work/showcase/registry";
+import { EN_SLUG_SUFFIX, workHref } from "@/lib/i18n";
 
 export const revalidate = 3600;
 
@@ -14,6 +15,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${site}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${site}/en/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
   ];
+
+  // Project showcases come from the registry, so a new showcase is listed
+  // without touching this file.
+  const showcases: MetadataRoute.Sitemap = SHOWCASE_SLUGS.flatMap((slug) => [
+    { url: `${site}${workHref(slug, "es")}`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
+    { url: `${site}${workHref(slug, "en")}`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+  ]);
 
   let posts: MetadataRoute.Sitemap = [];
   try {
@@ -35,5 +43,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // A Ghost outage should still yield a valid sitemap for the static routes.
   }
 
-  return [...staticRoutes, ...posts];
+  return [...staticRoutes, ...showcases, ...posts];
 }

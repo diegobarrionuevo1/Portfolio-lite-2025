@@ -31,6 +31,15 @@ export function ghostSlugFor(esSlug: string, lang: Lang): string {
   return lang === "en" ? `${esSlug}${EN_SLUG_SUFFIX}` : esSlug;
 }
 
+/**
+ * URL of a project showcase. The slug is language-neutral and identical on
+ * both sides, so the nav's language switch (which rewrites by URL shape)
+ * lands on the twin page without a lookup.
+ */
+export function workHref(slug: string, lang: Lang): string {
+  return lang === "en" ? `/en/work/${slug}` : `/work/${slug}`;
+}
+
 export const htmlLang: Record<Lang, string> = { es: "es", en: "en" };
 export const dateLocale: Record<Lang, string> = { es: "es-AR", en: "en-US" };
 export const ogLocale: Record<Lang, string> = { es: "es_AR", en: "en_US" };

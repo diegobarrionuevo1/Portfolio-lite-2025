@@ -1,7 +1,9 @@
 /**
- * "Trabajo seleccionado" — four projects, one horizontal carousel each.
- * Content ported verbatim from the v3 design reference.
+ * "Trabajo seleccionado" — three projects, one horizontal carousel each.
+ * Content ported verbatim from the v3 design reference. Each project links
+ * to its showcase page by `slug`.
  */
+import type { ShowcaseSlug } from "./showcase/types";
 
 export type Slide =
   | {
@@ -32,6 +34,8 @@ export type Slide =
 
 export type Project = {
   id: string;
+  /** Showcase route: /work/<slug> and /en/work/<slug>. */
+  slug: ShowcaseSlug;
   name: string;
   badge?: { label: string; tone?: "neutral" | "positive"; dot?: boolean };
   slides: Slide[];
@@ -40,6 +44,7 @@ export type Project = {
 const PROJECTS_ES: Project[] = [
   {
     id: "P/01",
+    slug: "donweb-contenidos",
     name: "DonWeb Cloud — Plataforma de contenidos",
     badge: { label: "Producción", tone: "positive", dot: true },
     slides: [
@@ -67,6 +72,7 @@ const PROJECTS_ES: Project[] = [
   },
   {
     id: "P/02",
+    slug: "donweb-talleres",
     name: "DonWeb Cloud — Talleres y certificación",
     badge: { label: "Producción", tone: "positive", dot: true },
     slides: [
@@ -102,32 +108,12 @@ const PROJECTS_ES: Project[] = [
   },
   {
     id: "P/03",
-    name: "Somos Hashi — Contenido con IA",
-    badge: { label: "MVP", tone: "neutral" },
-    slides: [
-      {
-        kind: "media",
-        src: "/hero-light.png",
-        placeholder: "Captura de Somos Hashi",
-        caption: "Contenido con IA",
-      },
-      {
-        kind: "ficha",
-        title: "Somos Hashi — Contenido con IA",
-        role: "Desarrollo full stack",
-        body: "Desarrollé el MVP de una plataforma de creación de contenido con IA, cubriendo frontend, backend e integración con modelos de OpenAI.",
-        tags: ["Next.js", "TypeScript", "Node.js", "OpenAI", "Docker"],
-        link: { label: "Ver el sitio", href: "https://hashiapp.com", variant: "outline" },
-      },
-    ],
-  },
-  {
-    id: "P/04",
+    slug: "ada13",
     name: "Ada13 — Plataforma web",
     slides: [
       {
         kind: "plate",
-        numeral: "04",
+        numeral: "03",
         caption: "Plataforma web · mantenimiento continuo",
       },
       {
@@ -156,6 +142,7 @@ const PROJECTS_ES: Project[] = [
 const PROJECTS_EN: Project[] = [
   {
     id: "P/01",
+    slug: "donweb-contenidos",
     name: "DonWeb Cloud — Content platform",
     badge: { label: "Production", tone: "positive", dot: true },
     slides: [
@@ -183,6 +170,7 @@ const PROJECTS_EN: Project[] = [
   },
   {
     id: "P/02",
+    slug: "donweb-talleres",
     name: "DonWeb Cloud — Workshops & certification",
     badge: { label: "Production", tone: "positive", dot: true },
     slides: [
@@ -218,32 +206,12 @@ const PROJECTS_EN: Project[] = [
   },
   {
     id: "P/03",
-    name: "Somos Hashi — AI content",
-    badge: { label: "MVP", tone: "neutral" },
-    slides: [
-      {
-        kind: "media",
-        src: "/hero-light.png",
-        placeholder: "Somos Hashi screenshot",
-        caption: "AI content",
-      },
-      {
-        kind: "ficha",
-        title: "Somos Hashi — AI content",
-        role: "Full-stack development",
-        body: "I built the MVP of an AI content-creation platform, covering the frontend, the backend and the integration with OpenAI models.",
-        tags: ["Next.js", "TypeScript", "Node.js", "OpenAI", "Docker"],
-        link: { label: "Visit the site", href: "https://hashiapp.com", variant: "outline" },
-      },
-    ],
-  },
-  {
-    id: "P/04",
+    slug: "ada13",
     name: "Ada13 — Web platform",
     slides: [
       {
         kind: "plate",
-        numeral: "04",
+        numeral: "03",
         caption: "Web platform · ongoing maintenance",
       },
       {

@@ -87,7 +87,7 @@ export function Building({ lang = "es" }: { lang?: Lang } = {}) {
         padding: "var(--section-y) var(--page-margin)",
       }}
     >
-      <SectionLabel index="04" aside={copy.aside}>
+      <SectionLabel index="05" aside={copy.aside}>
         {copy.heading}
       </SectionLabel>
       <p

@@ -71,7 +71,7 @@ export function About({ lang = "es" }: { lang?: Lang } = {}) {
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
-        <SectionLabel index="05" aside={copy.aside}>
+        <SectionLabel index="06" aside={copy.aside}>
           {copy.heading}
         </SectionLabel>
         <p

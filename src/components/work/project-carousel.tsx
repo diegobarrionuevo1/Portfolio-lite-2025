@@ -1,6 +1,6 @@
 "use client";
 
-import type { Lang } from "@/lib/i18n";
+import { workHref, type Lang } from "@/lib/i18n";
 
 const UI = {
   es: {
@@ -8,18 +8,23 @@ const UI = {
     prev: "Diapositiva anterior",
     next: "Diapositiva siguiente",
     drag: "Arrastrá",
+    presentation: "Ver la presentación",
   },
   en: {
     slides: "Project slides",
     prev: "Previous slide",
     next: "Next slide",
     drag: "Drag",
+    presentation: "See the presentation",
   },
 } as const;
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Badge, Button, Tag } from "@/components/ds";
 import type { Project, Slide } from "./projects";
+// `.showcase-link`: the project name's hover underline.
+import "./showcase/showcase.css";
 
 const CARD_TRANSITION = "transform 640ms cubic-bezier(.16,1,.3,1)";
 
@@ -58,6 +63,7 @@ export function ProjectCarousel({ project, lang = "es" }: { project: Project; la
   const secondLatched = useRef(false);
 
   const N = project.slides.length;
+  const showcase = { href: workHref(project.slug, lang), label: ui.presentation };
 
   const measure = useCallback(() => {
     const t = track.current;
@@ -265,7 +271,9 @@ export function ProjectCarousel({ project, lang = "es" }: { project: Project; la
       >
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-3)" }}>
           <span style={{ color: "var(--text-muted)" }}>{project.id}</span>
-          <span style={{ color: "var(--text-accent)" }}>{project.name}</span>
+          <Link href={showcase.href} className="showcase-link" style={{ color: "var(--text-accent)" }}>
+            {project.name}
+          </Link>
           {project.badge ? (
             <Badge tone={project.badge.tone} dot={project.badge.dot}>
               {project.badge.label}
@@ -345,7 +353,7 @@ export function ProjectCarousel({ project, lang = "es" }: { project: Project; la
               : cardBase;
             return (
               <div key={i} data-card="1" style={style}>
-                <SlideInner slide={slide} />
+                <SlideInner slide={slide} showcase={showcase} />
               </div>
             );
           })}
@@ -456,7 +464,14 @@ function ArrowButton({
   );
 }
 
-function SlideInner({ slide }: { slide: Slide }) {
+function SlideInner({
+  slide,
+  showcase,
+}: {
+  slide: Slide;
+  /** Link to the project's showcase page, offered on the ficha slide. */
+  showcase: { href: string; label: string };
+}) {
   if (slide.kind === "media") {
     return (
       <>
@@ -599,13 +614,16 @@ function SlideInner({ slide }: { slide: Slide }) {
             <Tag key={tag}>{tag}</Tag>
           ))}
         </div>
-        {slide.link ? (
-          <div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-3)" }}>
+          {slide.link ? (
             <Button size="sm" variant={slide.link.variant} arrow href={slide.link.href}>
               {slide.link.label}
             </Button>
-          </div>
-        ) : null}
+          ) : null}
+          <Button size="sm" variant="outline" arrow href={showcase.href}>
+            {showcase.label}
+          </Button>
+        </div>
       </div>
     );
   }

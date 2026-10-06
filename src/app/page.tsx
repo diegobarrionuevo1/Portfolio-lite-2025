@@ -5,6 +5,7 @@ import { Night } from "@/components/site/night";
 import { RevealObserver } from "@/components/reveal";
 import { Impact } from "@/components/sections/impact";
 import { WorkSection } from "@/components/work/work-section";
+import { Experience } from "@/components/sections/experience";
 import { Capabilities } from "@/components/sections/capabilities";
 import { Building } from "@/components/sections/building";
 import { About } from "@/components/sections/about";
@@ -28,6 +29,7 @@ export default function Page() {
         <Hero />
         <Impact />
         <WorkSection />
+        <Experience />
         <Capabilities />
         <Building />
         <About />
