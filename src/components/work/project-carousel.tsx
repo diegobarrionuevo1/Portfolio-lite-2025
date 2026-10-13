@@ -543,9 +543,9 @@ function SlideInner({
             position: "relative",
             zIndex: 3,
             fontFamily: "var(--font-display)",
-            fontWeight: 500,
+            fontWeight: "var(--fw-display)",
             lineHeight: 1,
-            letterSpacing: "-0.03em",
+            letterSpacing: "var(--ls-display-1)",
             fontSize: "clamp(6rem,15vw,12rem)",
             color: "var(--bone-50)",
           }}
@@ -560,7 +560,7 @@ function SlideInner({
             bottom: "clamp(16px,2.4vw,28px)",
             zIndex: 3,
             maxWidth: "min(46%, calc(100% - 200px))",
-            color: "rgba(247,244,237,0.72)",
+            color: "rgba(245,245,245,0.72)",
           }}
         >
           {slide.caption}
@@ -588,7 +588,7 @@ function SlideInner({
             margin: 0,
             fontFamily: "var(--font-display)",
             fontSize: "var(--fs-title-1)",
-            fontWeight: 500,
+            fontWeight: "var(--fw-display)",
             letterSpacing: "var(--ls-title)",
             lineHeight: "var(--lh-snug)",
             textWrap: "balance",
@@ -650,8 +650,8 @@ function SlideInner({
               data-numeric
               style={{
                 fontFamily: "var(--font-display)",
-                fontWeight: 500,
-                letterSpacing: "-0.03em",
+                fontWeight: "var(--fw-display)",
+                letterSpacing: "var(--ls-display-2)",
                 lineHeight: 1,
                 fontSize: "clamp(2.75rem,6vw,5.5rem)",
               }}

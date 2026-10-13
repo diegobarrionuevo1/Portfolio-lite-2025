@@ -63,7 +63,7 @@ export function ShowcaseHero({ showcase }: { showcase: Showcase }) {
             maxWidth: "22ch",
             fontFamily: "var(--font-display)",
             fontSize: "var(--fs-display-2)",
-            fontWeight: 500,
+            fontWeight: "var(--fw-display)",
             letterSpacing: "var(--ls-display-2)",
             lineHeight: "var(--lh-display)",
             textWrap: "balance",

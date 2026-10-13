@@ -163,7 +163,7 @@ export function Experience({ lang = "es" }: { lang?: Lang } = {}) {
                 margin: 0,
                 fontFamily: "var(--font-display)",
                 fontSize: "var(--fs-title-2)",
-                fontWeight: 500,
+                fontWeight: "var(--fw-display)",
                 letterSpacing: "var(--ls-title)",
                 lineHeight: "var(--lh-title)",
               }}

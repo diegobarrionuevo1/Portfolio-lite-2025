@@ -348,7 +348,7 @@
   overflow: hidden;
   font-family: var(--font-display);
   font-size: clamp(12px, 1.3cqw, 16px);
-  font-weight: 500;
+  font-weight: var(--fw-display);
   letter-spacing: var(--ls-title);
 }
 .mg-fin-msg__confirm-fill {
@@ -929,7 +929,7 @@
   position: relative;
   font-family: var(--font-display);
   font-size: clamp(28px, 4.8cqw, 68px);
-  font-weight: 500;
+  font-weight: var(--fw-display);
   letter-spacing: var(--ls-display-3);
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -1481,7 +1481,7 @@
 .mg-fin-chan__worker-name {
   font-family: var(--font-display);
   font-size: clamp(13px, 1.5cqw, 20px);
-  font-weight: 500;
+  font-weight: var(--fw-display);
   letter-spacing: var(--ls-title);
   line-height: 1.1;
 }
@@ -1520,7 +1520,7 @@
 .mg-fin-chan__inbox-title {
   font-family: var(--font-display);
   font-size: clamp(13px, 1.5cqw, 20px);
-  font-weight: 500;
+  font-weight: var(--fw-display);
   letter-spacing: var(--ls-title);
   line-height: 1.1;
 }

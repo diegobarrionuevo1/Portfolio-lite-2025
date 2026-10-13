@@ -71,7 +71,7 @@ const wordmarkStyle: React.CSSProperties = {
   fontFamily: "var(--font-display)",
   fontSize: "1.375rem",
   fontWeight: 600,
-  letterSpacing: "-0.03em",
+  letterSpacing: "var(--ls-title)",
 };
 
 export function Nav({ lang = "es" }: { lang?: Lang } = {}) {

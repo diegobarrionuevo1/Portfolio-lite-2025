@@ -2,7 +2,32 @@ import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { siteUrl } from "@/components/blog/shared";
 import type { Metadata } from "next";
+import { IBM_Plex_Mono, Inter, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
+
+// Self-hosted at build time by next/font. globals.css maps these variables to
+// --font-display/--font-serif, --font-sans and --font-mono.
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+  variable: "--font-source-serif",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  style: "normal",
+  variable: "--font-plex-mono",
+  display: "swap",
+});
 
 const NAME = "Diego Barrionuevo";
 const TITLE = "Diego Barrionuevo — Desarrollador de software full stack";
@@ -76,7 +101,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html
+      lang="es"
+      className={`${sourceSerif.variable} ${inter.variable} ${plexMono.variable}`}
+      suppressHydrationWarning
+    >
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="light">
           <div

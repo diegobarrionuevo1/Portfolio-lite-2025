@@ -17,9 +17,9 @@ export const runtime = "nodejs";
 const WIDTH = 1200;
 const HEIGHT = 630;
 
-const CANVAS = "#f7f4ed";
-const INK = "#0b0b0d";
-const ACCENT = "#d63508";
+const CANVAS = "#f5f5f5";
+const INK = "#090909";
+const ACCENT = "#5533e6";
 
 /** Long titles must shrink rather than overflow the card. */
 function titleSize(length: number): number {
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
           <div style={{ width: 40, height: 3, background: ACCENT }} />
           <div
             style={{
-              fontFamily: "Bricolage",
+              fontFamily: "Display",
               fontSize: 22,
               letterSpacing: 4,
               color: INK,
@@ -75,7 +75,7 @@ export async function GET(request: Request) {
         <div
           style={{
             display: "flex",
-            fontFamily: "Bricolage",
+            fontFamily: "Display",
             fontSize: titleSize(title.length),
             lineHeight: 1.08,
             letterSpacing: -1.5,
@@ -87,7 +87,7 @@ export async function GET(request: Request) {
         </div>
 
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, fontSize: 30 }}>
-          <div style={{ fontFamily: "Bricolage", color: INK }}>Diego</div>
+          <div style={{ fontFamily: "Display", color: INK }}>Diego</div>
           <div style={{ fontFamily: "Serif", fontStyle: "italic", color: INK }}>Barrionuevo</div>
         </div>
       </div>
@@ -96,7 +96,7 @@ export async function GET(request: Request) {
       width: WIDTH,
       height: HEIGHT,
       fonts: [
-        { name: "Bricolage", data: display, style: "normal" },
+        { name: "Display", data: display, style: "normal" },
         { name: "Serif", data: serif, style: "italic" },
       ],
     }

@@ -81,7 +81,7 @@ export function About({ lang = "es" }: { lang?: Lang } = {}) {
             maxWidth: "var(--measure-display)",
             fontFamily: "var(--font-display)",
             fontSize: "var(--fs-display-3)",
-            fontWeight: 500,
+            fontWeight: "var(--fw-display)",
             letterSpacing: "var(--ls-display-3)",
             lineHeight: "var(--lh-tight)",
             textWrap: "balance",

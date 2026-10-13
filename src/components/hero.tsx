@@ -95,13 +95,13 @@ export const Hero = ({ lang = "es" }: { lang?: Lang } = {}) => {
         </span>
       </div>
 
-      {/* 2 — the wordmark: grotesque + serif italic on the same block */}
+      {/* 2 — the wordmark: serif roman + serif italic on the same block */}
       <h1
         style={{
           margin: 0,
           fontFamily: "var(--font-display)",
           fontSize: "var(--fs-display-1)",
-          fontWeight: 500,
+          fontWeight: "var(--fw-display)",
           letterSpacing: "var(--ls-display-1)",
           lineHeight: "var(--lh-display)",
           textWrap: "balance",
@@ -267,7 +267,7 @@ export const Hero = ({ lang = "es" }: { lang?: Lang } = {}) => {
           borderBottom: "1px solid var(--border-hairline)",
           fontFamily: "var(--font-display)",
           fontSize: "var(--fs-title-2)",
-          fontWeight: 500,
+          fontWeight: "var(--fw-display)",
           letterSpacing: "var(--ls-display-3)",
           color: "var(--text-primary)",
         }}

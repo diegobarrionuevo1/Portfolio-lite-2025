@@ -42,7 +42,7 @@ const mono: React.CSSProperties = {
 const cellStat: React.CSSProperties = {
   fontFamily: "var(--font-display)",
   fontSize: "var(--fs-title-1)",
-  fontWeight: 500,
+  fontWeight: "var(--fw-display)",
   letterSpacing: "var(--ls-display-3)",
   lineHeight: 1,
 };
@@ -80,7 +80,7 @@ export function Impact({ lang = "es" }: { lang?: Lang } = {}) {
           maxWidth: "22ch",
           fontFamily: "var(--font-display)",
           fontSize: "var(--fs-display-3)",
-          fontWeight: 500,
+          fontWeight: "var(--fw-display)",
           letterSpacing: "var(--ls-display-3)",
           lineHeight: "var(--lh-tight)",
           textWrap: "balance",

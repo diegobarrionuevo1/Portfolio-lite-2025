@@ -12,7 +12,7 @@ const svcTitle: React.CSSProperties = {
   margin: 0,
   fontFamily: "var(--font-display)",
   fontSize: "var(--fs-title-3)",
-  fontWeight: 500,
+  fontWeight: "var(--fw-display)",
   letterSpacing: "var(--ls-title)",
   lineHeight: "var(--lh-title)",
 };
@@ -193,7 +193,7 @@ export function Capabilities({ lang = "es" }: { lang?: Lang } = {}) {
             margin: 0,
             fontFamily: "var(--font-display)",
             fontSize: "var(--fs-display-3)",
-            fontWeight: 500,
+            fontWeight: "var(--fw-display)",
             letterSpacing: "var(--ls-display-3)",
             lineHeight: "var(--lh-tight)",
           }}

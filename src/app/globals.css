@@ -4,84 +4,52 @@
 
 /* ============================================================
    Contraste — Portfolio Design System
-   Tokens ported from _ds/contraste-portfolio-design-system.
+   Token layer with a Directus-inspired skin: neutral greys, near-black
+   ground, one violet accent for light and one lavender accent for dark.
    Light is the default. Dark is an opt-in scope: [data-theme="dark"].
    ============================================================ */
 
-/* ── Fonts (self-hosted variable TTFs, served from /public/fonts) ── */
-@font-face {
-  font-family: "Bricolage Grotesque";
-  src: url("/fonts/BricolageGrotesque-Variable.ttf") format("truetype-variations");
-  font-weight: 200 800;
-  font-stretch: 75% 100%;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Instrument Sans";
-  src: url("/fonts/InstrumentSans-Variable.ttf") format("truetype-variations");
-  font-weight: 400 700;
-  font-stretch: 75% 100%;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Instrument Serif";
-  src: url("/fonts/InstrumentSerif-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Instrument Serif";
-  src: url("/fonts/InstrumentSerif-Italic.ttf") format("truetype");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-Variable.ttf") format("truetype-variations");
-  font-weight: 100 800;
-  font-style: normal;
-  font-display: swap;
-}
+/* ── Fonts: Source Serif 4, Inter and IBM Plex Mono are loaded with
+   next/font/google in the root layout, which exposes them as
+   --font-source-serif, --font-inter and --font-plex-mono on <html>. ── */
 
 :root {
-  /* ── Base ramps ── */
+  /* ── Base ramps (zero chroma: neutral, no warm cast) ── */
   --bone-50: #ffffff;
-  --bone-100: #fdfcfa;
-  --bone-200: #f7f4ed;
-  --bone-300: #f0ebe1;
-  --bone-400: #e4ded0;
-  --bone-500: #d3ccbb;
-  --bone-600: #b8af9b;
+  --bone-100: #fafafa;
+  --bone-200: #f5f5f5;
+  --bone-300: #ebebeb;
+  --bone-400: #dedede;
+  --bone-500: #cccccc;
+  --bone-600: #b0b0b0;
 
-  --ink-950: #050506;
-  --ink-900: #0b0b0d;
-  --ink-800: #141416;
-  --ink-700: #1e1e21;
-  --ink-600: #2b2b30;
-  --ink-500: #3c3c43;
-  --ink-400: #55555e;
-  --ink-300: #75757f;
-  --ink-200: #9a9aa3;
-  --ink-100: #bebec5;
+  --ink-950: #050505;
+  --ink-900: #090909;
+  --ink-800: #151515;
+  --ink-700: #1e1e1e;
+  --ink-600: #2a2a2a;
+  --ink-500: #404040;
+  --ink-400: #575757;
+  --ink-300: #6f6f6f;
+  --ink-200: #a0a0a0;
+  --ink-100: #c8c8c8;
 
-  --flare-300: #ff8557;
-  --flare-500: #ff4a17;
-  --flare-600: #d63508;
-  --flare-700: #a32805;
+  /* Light-mode accent. */
+  --violet-300: #9d8bff;
+  --violet-500: #6644ff;
+  --violet-600: #5533e6;
+  --violet-700: #4500b5;
 
   --cobalt-300: #6c81ff;
   --cobalt-500: #1b3bff;
   --cobalt-600: #0f26c7;
   --cobalt-700: #0a1b8f;
 
-  --acid-300: #e9ff8f;
-  --acid-500: #d8ff3e;
-  --acid-600: #b7e018;
-  --acid-700: #7e9c05;
+  /* Dark-mode accent and highlight. */
+  --lavender-300: #cbbfff;
+  --lavender-500: #b3a2ff;
+  --lavender-600: #9685df;
+  --lavender-700: #5d499d;
 
   --positive-500: #0f8f5c;
   --caution-500: #b87708;
@@ -94,43 +62,43 @@
   --surface-card: var(--bone-50);
   --surface-field: var(--bone-50);
   --surface-inverse: var(--ink-900);
-  --surface-accent: var(--flare-500);
+  --surface-accent: var(--violet-500);
   --surface-accent-alt: var(--cobalt-500);
-  --surface-highlight: var(--acid-500);
+  --surface-highlight: var(--lavender-500);
 
   --text-primary: var(--ink-900);
   --text-secondary: var(--ink-500);
   --text-muted: var(--ink-300);
   --text-disabled: var(--ink-200);
   --text-inverse: var(--bone-200);
-  --text-accent: var(--flare-600);
+  --text-accent: var(--violet-600);
   --text-on-accent: var(--bone-50);
   --text-link: var(--ink-900);
-  --text-link-hover: var(--flare-600);
+  --text-link-hover: var(--violet-600);
 
   --action-primary-bg: var(--ink-900);
   --action-primary-fg: var(--bone-100);
   --action-primary-bg-hover: var(--ink-700);
-  --action-accent-bg: var(--flare-500);
+  --action-accent-bg: var(--violet-500);
   --action-accent-fg: var(--bone-50);
-  --action-accent-bg-hover: var(--flare-600);
-  --action-quiet-fill: rgba(11, 11, 13, 0.06);
-  --action-quiet-fill-hover: rgba(11, 11, 13, 0.1);
+  --action-accent-bg-hover: var(--violet-600);
+  --action-quiet-fill: rgba(9, 9, 9, 0.06);
+  --action-quiet-fill-hover: rgba(9, 9, 9, 0.1);
 
-  --border-hairline: rgba(11, 11, 13, 0.13);
-  --border-mid: rgba(11, 11, 13, 0.22);
-  --border-strong: rgba(11, 11, 13, 0.42);
+  --border-hairline: rgba(9, 9, 9, 0.13);
+  --border-mid: rgba(9, 9, 9, 0.22);
+  --border-strong: rgba(9, 9, 9, 0.42);
   --border-accent: var(--ink-900);
-  --focus-ring: var(--cobalt-500);
+  --focus-ring: var(--violet-500);
 
-  --scrim-strong: rgba(11, 11, 13, 0.42);
-  --scrim-soft: rgba(11, 11, 13, 0.18);
+  --scrim-strong: rgba(9, 9, 9, 0.42);
+  --scrim-soft: rgba(9, 9, 9, 0.18);
 
-  /* ── Typography ── */
-  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  /* ── Typography: a serif display voice over a neutral sans ── */
+  --font-display: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
 
   --fs-display-1: clamp(3.5rem, 11vw, 11.5rem);
   --fs-display-2: clamp(2.875rem, 7.4vw, 7.5rem);
@@ -152,6 +120,8 @@
   --fw-semibold: 600;
   --fw-bold: 700;
   --fw-black: 800;
+  /* Source Serif 4 carries display sizes at its regular weight. */
+  --fw-display: 400;
 
   --lh-display: 0.86;
   --lh-tight: 0.98;
@@ -161,15 +131,15 @@
   --lh-loose: 1.7;
   --lh-mono: 1.45;
 
-  --ls-display-1: -0.045em;
-  --ls-display-2: -0.04em;
-  --ls-display-3: -0.035em;
-  --ls-title: -0.025em;
-  --ls-lede: -0.018em;
-  --ls-body: -0.008em;
+  --ls-display-1: -0.012em;
+  --ls-display-2: -0.012em;
+  --ls-display-3: -0.012em;
+  --ls-title: -0.01em;
+  --ls-lede: -0.005em;
+  --ls-body: 0em;
   --ls-label: 0.01em;
-  --ls-caps: 0.16em;
-  --ls-caps-tight: 0.11em;
+  --ls-caps: 0.08em;
+  --ls-caps-tight: 0.06em;
 
   --measure-display: 16ch;
   --measure-lede: 34ch;
@@ -228,8 +198,8 @@
   --ring-hairline: inset 0 0 0 1px var(--border-hairline);
   --ring-strong: inset 0 0 0 1px var(--border-strong);
   --ring-focus: 0 0 0 2px var(--surface-canvas), 0 0 0 4px var(--focus-ring);
-  --glow-acid: 0 0 0 3px rgba(216, 255, 62, 0.22);
-  --glow-flare: 0 0 0 3px rgba(255, 74, 23, 0.24);
+  --glow-lavender: 0 0 0 3px rgba(179, 162, 255, 0.24);
+  --glow-violet: 0 0 0 3px rgba(102, 68, 255, 0.22);
   --border-w-hair: 1px;
   --border-w-mid: 1.5px;
   --border-w-thick: 2px;
@@ -276,7 +246,7 @@
   --scrim-bottom: linear-gradient(to top, rgba(5, 5, 6, 0.92) 0%, rgba(5, 5, 6, 0.55) 34%, rgba(5, 5, 6, 0) 78%);
   --scrim-top: linear-gradient(to bottom, rgba(5, 5, 6, 0.78) 0%, rgba(5, 5, 6, 0) 62%);
   --scrim-full: rgba(5, 5, 6, 0.48);
-  --on-media-fg: #f7f4ed;
+  --on-media-fg: #f5f5f5;
 
   --duotone-blend: luminosity;
   --img-saturate-rest: 1;
@@ -293,30 +263,34 @@
   --surface-field: var(--ink-700);
   --surface-inverse: var(--bone-200);
 
-  --text-primary: var(--bone-200);
+  /* Pure white, not bone-200: the Night transition crosses a mid-grey canvas
+     and only full white keeps text-primary above 4.5:1 at the crossing. */
+  --text-primary: var(--bone-50);
   --text-secondary: var(--ink-100);
   --text-muted: var(--ink-200);
   --text-disabled: var(--ink-300);
   --text-inverse: var(--ink-900);
-  --text-accent: var(--acid-500);
+  --text-accent: var(--lavender-500);
   --text-on-accent: var(--ink-900);
-  --text-link: var(--acid-500);
+  --text-link: var(--lavender-500);
   --text-link-hover: var(--bone-100);
 
-  --action-primary-bg: var(--acid-500);
+  /* A white primary pill on the near-black ground. */
+  --action-primary-bg: var(--bone-50);
   --action-primary-fg: var(--ink-900);
-  --action-primary-bg-hover: var(--acid-300);
-  --action-accent-bg: var(--flare-500);
-  --action-accent-fg: var(--bone-50);
-  --action-accent-bg-hover: var(--flare-600);
-  --action-quiet-fill: rgba(247, 244, 237, 0.08);
-  --action-quiet-fill-hover: rgba(247, 244, 237, 0.13);
+  --action-primary-bg-hover: var(--bone-300);
+  /* Lavender is too light for white text, so the accent label turns ink. */
+  --action-accent-bg: var(--lavender-500);
+  --action-accent-fg: var(--ink-900);
+  --action-accent-bg-hover: var(--lavender-300);
+  --action-quiet-fill: rgba(245, 245, 245, 0.08);
+  --action-quiet-fill-hover: rgba(245, 245, 245, 0.13);
 
-  --border-hairline: rgba(247, 244, 237, 0.12);
-  --border-mid: rgba(247, 244, 237, 0.2);
-  --border-strong: rgba(247, 244, 237, 0.36);
-  --border-accent: var(--acid-500);
-  --focus-ring: var(--acid-500);
+  --border-hairline: rgba(245, 245, 245, 0.12);
+  --border-mid: rgba(245, 245, 245, 0.2);
+  --border-strong: rgba(245, 245, 245, 0.36);
+  --border-accent: var(--lavender-500);
+  --focus-ring: var(--lavender-500);
 
   --scrim-strong: rgba(5, 5, 6, 0.78);
   --scrim-soft: rgba(5, 5, 6, 0.42);
@@ -364,7 +338,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: var(--fw-medium);
+    font-weight: var(--fw-display);
     line-height: var(--lh-title);
     letter-spacing: var(--ls-title);
     margin: 0;
@@ -578,7 +552,7 @@
 .nav-sheet__links a {
   font-family: var(--font-display);
   font-size: var(--fs-display-3);
-  font-weight: 500;
+  font-weight: var(--fw-display);
   letter-spacing: var(--ls-display-3);
   line-height: var(--lh-tight);
   color: var(--text-primary);

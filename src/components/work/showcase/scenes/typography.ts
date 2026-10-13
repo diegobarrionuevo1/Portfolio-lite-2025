@@ -15,7 +15,7 @@ export const chapterTitle: CSSProperties = {
   maxWidth: "18ch",
   fontFamily: "var(--font-display)",
   fontSize: "var(--fs-title-1)",
-  fontWeight: 500,
+  fontWeight: "var(--fw-display)",
   letterSpacing: "var(--ls-title)",
   lineHeight: "var(--lh-snug)",
   textWrap: "balance",
@@ -35,7 +35,7 @@ export const factValue: CSSProperties = {
   margin: 0,
   fontFamily: "var(--font-display)",
   fontSize: "var(--fs-title-2)",
-  fontWeight: 500,
+  fontWeight: "var(--fw-display)",
   letterSpacing: "var(--ls-title)",
   lineHeight: "var(--lh-snug)",
 };
@@ -45,7 +45,7 @@ export const statValue: CSSProperties = {
   margin: 0,
   fontFamily: "var(--font-display)",
   fontSize: "var(--fs-display-3)",
-  fontWeight: 500,
+  fontWeight: "var(--fw-display)",
   letterSpacing: "var(--ls-display-3)",
   lineHeight: "var(--lh-tight)",
 };

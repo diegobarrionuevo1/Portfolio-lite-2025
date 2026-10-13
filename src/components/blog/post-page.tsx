@@ -171,7 +171,7 @@ export async function PostView({ slug, lang }: { slug: string; lang: Lang }) {
                 maxWidth: "20ch",
                 fontFamily: "var(--font-display)",
                 fontSize: "var(--fs-display-3)",
-                fontWeight: 500,
+                fontWeight: "var(--fw-display)",
                 letterSpacing: "var(--ls-display-3)",
                 lineHeight: "var(--lh-tight)",
                 textWrap: "balance",

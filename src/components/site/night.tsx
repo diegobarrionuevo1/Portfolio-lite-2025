@@ -3,13 +3,15 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Behaviour 1 — "Se hace de noche". The whole palette tweens from paper to ink
- * and back. Scroll only triggers; the 500ms tween runs on its own and is
- * reversible. Three treatments avoid the mid-grey blind spot at p=0.5:
+ * Behaviour 1 — "Se hace de noche". The whole palette tweens from the light
+ * neutral ramp to the near-black ink ramp and back. Scroll only triggers; the
+ * 500ms tween runs on its own and is reversible. Three treatments avoid the
+ * mid-grey blind spot at p=0.5:
  *   A. surfaces interpolate (steep centre curve)
  *   B. text/action/accent-border hard-swap at p>=0.5
  *   C. support greys/accents converge toward --text-primary near the crossing
- * Curves and token pairs are ported verbatim from the reference.
+ * Curves are ported verbatim from the reference. Each pair's dark end mirrors
+ * the [data-theme="dark"] scope in globals.css, so p=1 equals the dark theme.
  */
 
 const SURF: [string, string, string][] = [
@@ -18,34 +20,37 @@ const SURF: [string, string, string][] = [
   ["surface-raised", "var(--bone-100)", "var(--ink-800)"],
   ["surface-card", "var(--bone-50)", "var(--ink-800)"],
   ["surface-field", "var(--bone-50)", "var(--ink-700)"],
-  ["action-quiet-fill", "rgba(11,11,13,.06)", "rgba(247,244,237,.08)"],
-  ["action-quiet-fill-hover", "rgba(11,11,13,.10)", "rgba(247,244,237,.13)"],
-  ["border-hairline", "rgba(11,11,13,.13)", "rgba(247,244,237,.12)"],
-  ["border-mid", "rgba(11,11,13,.22)", "rgba(247,244,237,.20)"],
-  ["border-strong", "rgba(11,11,13,.42)", "rgba(247,244,237,.36)"],
-  ["scrim-strong", "rgba(11,11,13,.42)", "rgba(5,5,6,.78)"],
-  ["scrim-soft", "rgba(11,11,13,.18)", "rgba(5,5,6,.42)"],
+  ["action-quiet-fill", "rgba(9,9,9,.06)", "rgba(245,245,245,.08)"],
+  ["action-quiet-fill-hover", "rgba(9,9,9,.10)", "rgba(245,245,245,.13)"],
+  ["border-hairline", "rgba(9,9,9,.13)", "rgba(245,245,245,.12)"],
+  ["border-mid", "rgba(9,9,9,.22)", "rgba(245,245,245,.20)"],
+  ["border-strong", "rgba(9,9,9,.42)", "rgba(245,245,245,.36)"],
+  ["scrim-strong", "rgba(9,9,9,.42)", "rgba(5,5,6,.78)"],
+  ["scrim-soft", "rgba(9,9,9,.18)", "rgba(5,5,6,.42)"],
 ];
 
 const FG: [string, string, string][] = [
-  ["text-primary", "var(--ink-900)", "var(--bone-200)"],
+  ["text-primary", "var(--ink-900)", "var(--bone-50)"],
   ["text-disabled", "var(--ink-200)", "var(--ink-300)"],
   ["text-inverse", "var(--bone-200)", "var(--ink-900)"],
   ["text-on-accent", "var(--bone-50)", "var(--ink-900)"],
   ["surface-inverse", "var(--ink-900)", "var(--bone-200)"],
-  ["action-primary-bg", "var(--ink-900)", "var(--acid-500)"],
+  ["action-primary-bg", "var(--ink-900)", "var(--bone-50)"],
   ["action-primary-fg", "var(--bone-100)", "var(--ink-900)"],
-  ["action-primary-bg-hover", "var(--ink-700)", "var(--acid-300)"],
-  ["border-accent", "var(--ink-900)", "var(--acid-500)"],
-  ["focus-ring", "var(--cobalt-500)", "var(--acid-500)"],
+  ["action-primary-bg-hover", "var(--ink-700)", "var(--bone-300)"],
+  ["border-accent", "var(--ink-900)", "var(--lavender-500)"],
+  ["focus-ring", "var(--violet-500)", "var(--lavender-500)"],
+  ["action-accent-bg", "var(--violet-500)", "var(--lavender-500)"],
+  ["action-accent-fg", "var(--bone-50)", "var(--ink-900)"],
+  ["action-accent-bg-hover", "var(--violet-600)", "var(--lavender-300)"],
 ];
 
 const SOFT: [string, string, string][] = [
   ["text-secondary", "var(--ink-500)", "var(--ink-100)"],
   ["text-muted", "var(--ink-300)", "var(--ink-200)"],
-  ["text-accent", "var(--flare-600)", "var(--acid-500)"],
-  ["text-link", "var(--ink-900)", "var(--acid-500)"],
-  ["text-link-hover", "var(--flare-600)", "var(--bone-100)"],
+  ["text-accent", "var(--violet-600)", "var(--lavender-500)"],
+  ["text-link", "var(--ink-900)", "var(--lavender-500)"],
+  ["text-link-hover", "var(--violet-600)", "var(--bone-100)"],
 ];
 
 const ALL = [...SURF, ...FG, ...SOFT].map((t) => t[0]);

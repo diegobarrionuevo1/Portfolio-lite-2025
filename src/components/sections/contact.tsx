@@ -64,7 +64,7 @@ export function Contact({ lang = "es" }: { lang?: Lang } = {}) {
             maxWidth: "20ch",
             fontFamily: "var(--font-display)",
             fontSize: "var(--fs-display-2)",
-            fontWeight: 500,
+            fontWeight: "var(--fw-display)",
             letterSpacing: "var(--ls-display-2)",
             lineHeight: "var(--lh-display)",
             textWrap: "balance",
