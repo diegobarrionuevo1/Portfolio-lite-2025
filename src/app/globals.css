@@ -1227,7 +1227,8 @@
   /* Clip reveal: mono row items + name lines (inner span slides up) */
   .hero [data-hero] {
     display: inline-block;
-    transform: translateY(110%);
+    /* 140% clears the name wrappers' descender padding (0.24em) */
+    transform: translateY(140%);
     transition: transform var(--dur-slow) var(--ease-out-expo);
   }
   .hero.is-ready [data-hero] {

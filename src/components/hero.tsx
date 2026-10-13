@@ -111,8 +111,8 @@ export const Hero = ({ lang = "es" }: { lang?: Lang } = {}) => {
           style={{
             display: "block",
             overflow: "hidden",
-            paddingBottom: "0.06em",
-            marginBottom: "-0.06em",
+            paddingBottom: "0.24em",
+            marginBottom: "-0.24em",
           }}
         >
           <span data-hero style={{ display: "block", transitionDelay: "120ms" }}>
@@ -123,8 +123,8 @@ export const Hero = ({ lang = "es" }: { lang?: Lang } = {}) => {
           style={{
             display: "block",
             overflow: "hidden",
-            paddingBottom: "0.06em",
-            marginBottom: "-0.06em",
+            paddingBottom: "0.24em",
+            marginBottom: "-0.24em",
           }}
         >
           <span
