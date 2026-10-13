@@ -152,6 +152,11 @@ export function ShowcaseView({ slug, lang }: { slug: string; lang: Lang }) {
             color: "var(--text-primary)",
           }}
         >
+          {/* Protection strip under the transparent nav: scenes scroll beneath it
+              instead of colliding with the wordmark. Lives inside the atmosphere
+              scope so it takes the project's own canvas colour. */}
+          <div className="showcase-navguard" aria-hidden="true" />
+
           <ScrollDriver />
 
           <ShowcaseHero showcase={showcase} />

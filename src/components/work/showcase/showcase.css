@@ -17,6 +17,17 @@
   overflow-x: clip;
 }
 
+/* Sticks to the top while the showcase is on screen and adds no height. */
+.showcase-navguard {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: calc(var(--nav-h) + var(--space-4));
+  margin-bottom: calc((var(--nav-h) + var(--space-4)) * -1);
+  background: linear-gradient(to bottom, var(--surface-canvas) 72%, transparent);
+  pointer-events: none;
+}
+
 /* ── Link to a showcase from the carousel meta row: keeps the row colour and
    grows a hairline underline on hover. The base `a:hover` recolour is
    layered, so these unlayered rules win. ── */
