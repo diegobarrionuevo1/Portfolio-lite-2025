@@ -95,7 +95,7 @@ export const finanzasIa: ShowcaseDefinition = {
           title: "Un mensaje entra; un movimiento sale.",
           body: [
             "Escribís como hablás: “gasté 18 mil en nafta con la Visa Galicia”. También podés mandar un audio o sacarle una foto al ticket. El modelo devuelve un JSON con esquema estricto: tipo, monto, descripción, medio de pago, tarjeta, y si el movimiento toca o no el saldo de una cuenta.",
-            "Lo que falta queda marcado, no inventado: si el mensaje no dice la moneda, el movimiento cae en Pendientes con ese campo en ámbar. Y nada se guarda solo. La IA propone, vos confirmás (ADR-010): esa es la regla que ordena todo el producto.",
+            "Lo que falta queda marcado, no inventado: si el mensaje no dice la moneda, el movimiento cae en Pendientes con ese campo en ámbar. Y nada se guarda solo. La IA propone, vos confirmás: esa es la regla que ordena todo el producto.",
           ],
           facts: [
             { value: "3", label: "canales: texto, audio, foto" },
@@ -110,8 +110,8 @@ export const finanzasIa: ShowcaseDefinition = {
           kicker: "El disponible",
           title: "Disponible real, no saldo de cuenta.",
           body: [
-            "El número grande de Inicio no es el saldo del banco. Es lo que de verdad podés gastar: saldo real menos lo reservado, menos el ahorro, menos lo invertido. Cuentas, tarjetas, cuotas, deudas, reservas, metas de ahorro e inversiones viven en el mismo libro, y la resta se hace en el dominio, nunca en la pantalla (ADR-005).",
-            "Si reservás más de lo que tenés, el disponible se va a negativo y la app te lo dice: Sobre-comprometido · Revisar. No se recorta a cero (ADR-022), porque un cero tranquilizador esconde justo lo que tenés que ver.",
+            "El número grande de Inicio no es el saldo del banco. Es lo que de verdad podés gastar: saldo real menos lo reservado, menos el ahorro, menos lo invertido. Cuentas, tarjetas, cuotas, deudas, reservas, metas de ahorro e inversiones viven en el mismo libro, y la resta se hace en el dominio, nunca en la pantalla.",
+            "Si reservás más de lo que tenés, el disponible se va a negativo y la app te lo dice: Sobre-comprometido · Revisar. No se recorta a cero, porque un cero tranquilizador esconde justo lo que tenés que ver.",
           ],
           facts: [
             { value: "4", label: "términos: saldo real, reservado, ahorro, inversión" },
@@ -119,7 +119,7 @@ export const finanzasIa: ShowcaseDefinition = {
             { value: "0", label: "operaciones aritméticas en la UI" },
           ],
           mediaAlt:
-            "Gráfico en movimiento: una resta vertical, saldo real 1.250.000 menos reservado 300.000, menos ahorro 200.000, menos inversión 150.000, igual a disponible 600.000 en una tarjeta de tinta; después lo reservado sube a 950.000, el disponible cruza el cero, queda en rojo en menos 50.000 y aparece la etiqueta Sobre-comprometido · Revisar; una nota recuerda que por ADR-022 nunca se recorta a cero",
+            "Gráfico en movimiento: una resta vertical, saldo real 1.250.000 menos reservado 300.000, menos ahorro 200.000, menos inversión 150.000, igual a disponible 600.000 en una tarjeta de tinta; después lo reservado sube a 950.000, el disponible cruza el cero, queda en rojo en menos 50.000 y aparece la etiqueta Sobre-comprometido · Revisar; una nota recuerda que nunca se recorta a cero",
         },
         home: {
           kicker: "Inicio",
@@ -229,7 +229,7 @@ export const finanzasIa: ShowcaseDefinition = {
           title: "A message goes in; a movement comes out.",
           body: [
             "You write the way you talk: “gasté 18 mil en nafta con la Visa Galicia” (spent 18 grand on fuel with the Visa Galicia). You can also send a voice note or photograph the receipt. The model returns JSON under a strict schema: type, amount, description, payment method, card, and whether the movement touches an account balance or not.",
-            "Whatever is missing gets flagged, never invented: if the message does not say the currency, the movement lands in Pending with that field in amber. And nothing saves itself. The AI proposes, you confirm (ADR-010): that is the rule the whole product is built around.",
+            "Whatever is missing gets flagged, never invented: if the message does not say the currency, the movement lands in Pending with that field in amber. And nothing saves itself. The AI proposes, you confirm: that is the rule the whole product is built around.",
           ],
           facts: [
             { value: "3", label: "channels: text, voice, photo" },
@@ -244,8 +244,8 @@ export const finanzasIa: ShowcaseDefinition = {
           kicker: "Available money",
           title: "Real available money, not the account balance.",
           body: [
-            "The big number on the home screen is not the bank balance. It is what you can actually spend: real balance minus what is reserved, minus savings, minus investments. Accounts, cards, installments, debts, reserves, savings goals and investments live in the same ledger, and the subtraction happens in the domain, never on screen (ADR-005).",
-            "Reserve more than you have and the available figure goes negative, and the app says so: Over-committed · Review. It is never clamped to zero (ADR-022), because a reassuring zero hides exactly what you need to see.",
+            "The big number on the home screen is not the bank balance. It is what you can actually spend: real balance minus what is reserved, minus savings, minus investments. Accounts, cards, installments, debts, reserves, savings goals and investments live in the same ledger, and the subtraction happens in the domain, never on screen.",
+            "Reserve more than you have and the available figure goes negative, and the app says so: Over-committed · Review. It is never clamped to zero, because a reassuring zero hides exactly what you need to see.",
           ],
           facts: [
             { value: "4", label: "terms: real balance, reserved, savings, invested" },
@@ -253,7 +253,7 @@ export const finanzasIa: ShowcaseDefinition = {
             { value: "0", label: "arithmetic operations in the UI" },
           ],
           mediaAlt:
-            "Motion graphic: a vertical subtraction, real balance 1.250.000 minus reserved 300.000, minus savings 200.000, minus invested 150.000, equals available 600.000 on an ink card; then the reserved figure climbs to 950.000, the available figure crosses zero, turns red at minus 50.000 and the label Over-committed · Review appears; a note recalls that under ADR-022 it is never clamped to zero",
+            "Motion graphic: a vertical subtraction, real balance 1.250.000 minus reserved 300.000, minus savings 200.000, minus invested 150.000, equals available 600.000 on an ink card; then the reserved figure climbs to 950.000, the available figure crosses zero, turns red at minus 50.000 and the label Over-committed · Review appears; a note recalls that it is never clamped to zero",
         },
         home: {
           kicker: "Home",

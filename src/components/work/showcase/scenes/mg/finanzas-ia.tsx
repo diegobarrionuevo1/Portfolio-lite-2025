@@ -336,8 +336,8 @@ const BAL_UI = {
     pill: "Sobre-comprometido · Revisar",
     gauge: "disponible",
     zero: "0",
-    note: "ADR-022 · el disponible nunca se recorta a cero",
-    alt: "Gráfico en movimiento: una resta vertical, saldo real 1.250.000 menos reservado 300.000, menos ahorro 200.000, menos inversión 150.000, igual a disponible 600.000 en una tarjeta de tinta; después lo reservado sube a 950.000, el disponible cruza el cero, queda en rojo en menos 50.000 y aparece la etiqueta Sobre-comprometido · Revisar; una nota recuerda que por ADR-022 nunca se recorta a cero",
+    note: "El disponible nunca se recorta a cero",
+    alt: "Gráfico en movimiento: una resta vertical, saldo real 1.250.000 menos reservado 300.000, menos ahorro 200.000, menos inversión 150.000, igual a disponible 600.000 en una tarjeta de tinta; después lo reservado sube a 950.000, el disponible cruza el cero, queda en rojo en menos 50.000 y aparece la etiqueta Sobre-comprometido · Revisar; una nota recuerda que nunca se recorta a cero",
   },
   en: {
     headLeft: "home · available",
@@ -347,8 +347,8 @@ const BAL_UI = {
     pill: "Over-committed · Review",
     gauge: "available",
     zero: "0",
-    note: "ADR-022 · available money is never clamped to zero",
-    alt: "Motion graphic: a vertical subtraction, real balance 1.250.000 minus reserved 300.000, minus savings 200.000, minus invested 150.000, equals available 600.000 on an ink card; then the reserved figure climbs to 950.000, the available figure crosses zero, turns red at minus 50.000 and the label Over-committed · Review appears; a note recalls that under ADR-022 it is never clamped to zero",
+    note: "Available money is never clamped to zero",
+    alt: "Motion graphic: a vertical subtraction, real balance 1.250.000 minus reserved 300.000, minus savings 200.000, minus invested 150.000, equals available 600.000 on an ink card; then the reserved figure climbs to 950.000, the available figure crosses zero, turns red at minus 50.000 and the label Over-committed · Review appears; a note recalls that it is never clamped to zero",
   },
 } as const;
 

@@ -254,7 +254,7 @@
   --paper-pad: clamp(6px, 1cqw, 14px);
   position: relative;
   width: 100%;
-  aspect-ratio: 760 / 537;
+  aspect-ratio: 1024 / 768;
   overflow: hidden;
   border: clamp(3px, 0.5cqw, 7px) solid var(--tal-orange);
   background: var(--tal-paper);
@@ -327,7 +327,7 @@
   position: relative;
   flex: 0 0 auto;
   width: clamp(56px, 8cqw, 112px);
-  aspect-ratio: 760 / 537;
+  aspect-ratio: 1024 / 768;
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--border-hairline);

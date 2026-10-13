@@ -365,7 +365,7 @@ const ORDERS_UI = {
     wait: "espera 1 min",
     orderMeta: "Delivery · Efectivo · 2 ítems",
     chips: ["nuevo", "preparando", "listo"],
-    note: "Hermes no observa la entrega del mensaje: sin tilde · D-028",
+    note: "Hermes no observa la entrega del mensaje: sin tilde",
     alt: "Gráfico en movimiento: una cápsula con el total del pedido recorre cuatro paradas, catálogo, selección, pedido y WhatsApp más panel, y al final el mismo texto aparece dos veces, como mensaje de WhatsApp y como fila del centro de pedidos con los estados nuevo, preparando y listo, sin tilde de entrega",
   },
   en: {
@@ -397,7 +397,7 @@ const ORDERS_UI = {
     wait: "waiting 1 min",
     orderMeta: "Delivery · Cash · 2 items",
     chips: ["new", "preparing", "ready"],
-    note: "Hermes does not observe message delivery: no tick · D-028",
+    note: "Hermes does not observe message delivery: no tick",
     alt: "Motion graphic: a capsule with the running total travels four stops, catalog, selection, order and WhatsApp plus panel, and at the end the same text appears twice, as a WhatsApp message and as an order-centre row with the statuses new, preparing and ready, with no delivery tick",
   },
 } as const;

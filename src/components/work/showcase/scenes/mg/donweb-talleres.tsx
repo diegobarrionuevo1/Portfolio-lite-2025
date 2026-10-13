@@ -54,30 +54,14 @@ const MAX_TILT = 10;
 /** Diego's own certificate page: the real verification link the product hands out. */
 const VERIFY_URL = "https://certificados.donweb.com/cloud/certificado/18a94203-a9f5-4127-8b5f-e6a6d133af7f";
 
-/** The demo certificates the asset pipeline rendered, with the titles printed on them. */
+/** Diego's real certificate, the one behind VERIFY_URL. */
 const CERTS = [
   {
-    name: "cert-c1",
+    name: "cert-236-legacy",
     title: {
-      es: "Creá tu propia API REST desde cero con Node.js y Express",
-      en: "Build your own REST API from scratch with Node.js and Express",
+      es: "Dominá Search Console para impulsar el SEO de tu sitio web en WordPress",
+      en: "Master Search Console to boost your WordPress site's SEO",
     },
-  },
-  {
-    name: "cert-c2",
-    title: { es: "Autenticación y seguridad de APIs con JWT", en: "API authentication and security with JWT" },
-  },
-  {
-    name: "cert-c3",
-    title: { es: "React a prueba de balas con TypeScript", en: "Bulletproof React with TypeScript" },
-  },
-  {
-    name: "cert-c4",
-    title: { es: "Tailwind CSS: interfaces modernas y responsivas", en: "Tailwind CSS: modern, responsive interfaces" },
-  },
-  {
-    name: "cert-c5",
-    title: { es: "Docker y contenedores para desarrolladores", en: "Docker and containers for developers" },
   },
 ] as const;
 
@@ -244,8 +228,8 @@ export function CertTilt({ lang }: { lang: Lang }) {
                     data-active={i === index ? "" : undefined}
                     src={`${ROOT}/${cert.name}.webp`}
                     alt={i === index ? `${ui.certAlt}: ${cert.title[lang]}` : ""}
-                    width={760}
-                    height={537}
+                    width={1024}
+                    height={768}
                     decoding="async"
                     loading={i === 0 ? "eager" : "lazy"}
                   />
@@ -256,6 +240,7 @@ export function CertTilt({ lang }: { lang: Lang }) {
           </div>
         </div>
 
+        {CERTS.length > 1 && (
         <div className="mg-tal-cert__chips" role="group" aria-label={ui.others} onKeyDown={onChipsKeyDown}>
           <span className="mg-tal-label">{ui.others}</span>
           {CERTS.map((cert, i) => (
@@ -276,10 +261,11 @@ export function CertTilt({ lang }: { lang: Lang }) {
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`${ROOT}/${cert.name}.webp`} alt="" width={760} height={537} decoding="async" loading="lazy" />
+              <img src={`${ROOT}/${cert.name}.webp`} alt="" width={1024} height={768} decoding="async" loading="lazy" />
             </button>
           ))}
         </div>
+        )}
       </div>
     </div>
   );

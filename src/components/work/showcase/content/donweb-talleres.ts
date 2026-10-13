@@ -21,8 +21,6 @@ const SLUG = "donweb-talleres";
 const capture = (name: string, id?: string) => workImage(SLUG, name, 2400, 1500, { variants: [1200], id });
 /** 3x phone captures, portrait, single file. */
 const phone = (name: string, id?: string) => workImage(SLUG, name, 1170, 2532, { id });
-/** The 760x537 demo certificates the pipeline rendered. */
-const cert = (name: string, id?: string) => workImage(SLUG, name, 760, 537, { id });
 /** Screen recordings transcoded to mp4 + webm with a poster frame. */
 const clip = (name: string, width = 1920, height = 1080) => workVideo(SLUG, name, width, height);
 const live = (component: string, aspect: number): ShowcaseLive => ({ kind: "live", component, aspect });
@@ -69,8 +67,6 @@ export const donwebTalleres: ShowcaseDefinition = {
       phone("certificate-mobile", "certificate-mobile"),
       phone("registro-cloud-mobile", "registro-cloud-mobile"),
       workImage(SLUG, "cert-236-rrss", 1200, 627, { id: "cert-236-rrss" }),
-      cert("cert-c6", "cert-c6"),
-      cert("cert-c9", "cert-c9"),
     ],
     next: "ada13",
   },
@@ -219,14 +215,6 @@ export const donwebTalleres: ShowcaseDefinition = {
           "cert-236-rrss": {
             alt: "Tarjeta social de 1200 × 627 de un certificado, generada junto con el PDF",
             caption: "Tarjeta para redes",
-          },
-          "cert-c6": {
-            alt: "Certificado de demostración del taller de despliegue continuo con GitHub Actions",
-            caption: "Certificado: GitHub Actions",
-          },
-          "cert-c9": {
-            alt: "Certificado de demostración del taller de PostgreSQL",
-            caption: "Certificado: PostgreSQL",
           },
         },
       },
@@ -378,11 +366,6 @@ export const donwebTalleres: ShowcaseDefinition = {
             alt: "The 1200 × 627 social card of a certificate, rendered alongside the PDF",
             caption: "Social card",
           },
-          "cert-c6": {
-            alt: "Demo certificate for the continuous deployment with GitHub Actions workshop",
-            caption: "Certificate: GitHub Actions",
-          },
-          "cert-c9": { alt: "Demo certificate for the PostgreSQL workshop", caption: "Certificate: PostgreSQL" },
         },
       },
       links: [{ label: "Visit the site", href: "https://certificados.donweb.com", variant: "accent" }],

@@ -163,7 +163,7 @@ export const hermes: ShowcaseDefinition = {
           title: "Una sesión que sabe en qué estado está.",
           body: [
             "Los mensajes salen por una pasarela propia: Fastify con Baileys multidispositivo y el estado de autenticación guardado en Postgres. La sesión es una máquina de estados explícita, desconectada, QR pendiente, conectando y conectada, con dos finales que no se reintentan solos: sesión cerrada, que pide volver a escanear el código, y bloqueada.",
-            "Los límites también son explícitos. El QR se renueva hasta seis veces y después se detiene; la reconexión espera de 2 a 60 segundos entre intentos, con un máximo de ocho; los mensajes salientes se espacian entre 1 y 1,5 segundos. Hermes no observa la entrega del mensaje, decisión D-028, así que no promete tildes.",
+            "Los límites también son explícitos. El QR se renueva hasta seis veces y después se detiene; la reconexión espera de 2 a 60 segundos entre intentos, con un máximo de ocho; los mensajes salientes se espacian entre 1 y 1,5 segundos. Hermes no observa la entrega del mensaje, así que no promete tildes.",
           ],
           facts: [
             { value: "6", label: "estados de sesión, dos terminales" },
@@ -338,7 +338,7 @@ export const hermes: ShowcaseDefinition = {
           title: "A session that knows what state it is in.",
           body: [
             "Messages go out through a gateway of our own: Fastify with multi-device Baileys and the auth state kept in Postgres. The session is an explicit state machine, disconnected, QR pending, connecting and connected, with two terminal states that never retry on their own: logged out, which asks for a new scan, and banned.",
-            "The limits are explicit too. The QR refreshes up to six times and then stops; reconnection waits 2 to 60 seconds between attempts, eight at most; outbound messages are spaced 1 to 1.5 seconds apart. Hermes does not observe message delivery, decision D-028, so it promises no ticks.",
+            "The limits are explicit too. The QR refreshes up to six times and then stops; reconnection waits 2 to 60 seconds between attempts, eight at most; outbound messages are spaced 1 to 1.5 seconds apart. Hermes does not observe message delivery, so it promises no ticks.",
           ],
           facts: [
             { value: "6", label: "session states, two terminal" },

@@ -1,5 +1,5 @@
-import { Badge, SectionLabel, Tag } from "@/components/ds";
-import type { Lang } from "@/lib/i18n";
+import { Badge, Button, SectionLabel, Tag } from "@/components/ds";
+import { workHref, type Lang } from "@/lib/i18n";
 
 const mono: React.CSSProperties = {
   fontFamily: "var(--font-mono)",
@@ -11,6 +11,7 @@ const mono: React.CSSProperties = {
 const PRODUCTS = {
   es: [
     {
+      slug: "hermes",
       title: "Hermes",
       kind: "SaaS para comercios",
       body: "Plataforma para que un comercio administre catálogo, pedidos, caja y atención. El cliente arma el pedido en una tienda web y lo envía por WhatsApp.",
@@ -22,6 +23,7 @@ const PRODUCTS = {
       tags: ["Next.js", "PostgreSQL", "Cloud Run", "WhatsApp"],
     },
     {
+      slug: "finanzas-ia",
       title: "Finanzas personales con IA",
       kind: "Aplicación mobile-first",
       body: "App para registrar y analizar movimientos financieros desde texto, audio o fotos de comprobantes.",
@@ -35,6 +37,7 @@ const PRODUCTS = {
   ],
   en: [
     {
+      slug: "hermes",
       title: "Hermes",
       kind: "SaaS for local businesses",
       body: "A platform for a business to manage its catalog, orders, cash and customer service. Customers build their order in a web store and send it over WhatsApp.",
@@ -46,6 +49,7 @@ const PRODUCTS = {
       tags: ["Next.js", "PostgreSQL", "Cloud Run", "WhatsApp"],
     },
     {
+      slug: "finanzas-ia",
       title: "Personal finance with AI",
       kind: "Mobile-first application",
       body: "An app to record and analyze financial movements from text, audio or receipt photos.",
@@ -65,12 +69,14 @@ const COPY = {
     heading: "Productos propios",
     lede: "Proyectos que estoy construyendo por mi cuenta. Todavía en desarrollo: no tienen usuarios ni facturación.",
     badge: "En desarrollo",
+    presentation: "Ver la presentación",
   },
   en: {
     aside: "02 in progress",
     heading: "Own products",
     lede: "Projects I'm building on my own. Still in development: no users or revenue yet.",
     badge: "In development",
+    presentation: "See the presentation",
   },
 } as const;
 
@@ -165,6 +171,11 @@ export function Building({ lang = "es" }: { lang?: Lang } = {}) {
               {p.tags.map((t) => (
                 <Tag key={t}>{t}</Tag>
               ))}
+            </div>
+            <div>
+              <Button size="sm" variant="outline" arrow href={workHref(p.slug, lang)}>
+                {copy.presentation}
+              </Button>
             </div>
           </article>
         ))}
