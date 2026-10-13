@@ -330,7 +330,7 @@ const CLIMB_TO = 0.6;
 const BAL_UI = {
   es: {
     headLeft: "inicio · disponible",
-    headRight: "la resta vive en el dominio · adr-005",
+    headRight: "la resta vive en el dominio",
     rows: ["Saldo real", "Reservado", "Ahorro", "Inversión"],
     result: "Disponible",
     pill: "Sobre-comprometido · Revisar",
@@ -341,7 +341,7 @@ const BAL_UI = {
   },
   en: {
     headLeft: "home · available",
-    headRight: "the subtraction lives in the domain · adr-005",
+    headRight: "the subtraction lives in the domain",
     rows: ["Real balance", "Reserved", "Savings", "Invested"],
     result: "Available",
     pill: "Over-committed · Review",

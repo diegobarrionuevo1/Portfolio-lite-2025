@@ -115,8 +115,6 @@ export const finanzasIa: ShowcaseDefinition = {
           ],
           facts: [
             { value: "4", label: "términos: saldo real, reservado, ahorro, inversión" },
-            { value: "6", label: "decimales enteros en el objeto Money" },
-            { value: "0", label: "operaciones aritméticas en la UI" },
           ],
           mediaAlt:
             "Gráfico en movimiento: una resta vertical, saldo real 1.250.000 menos reservado 300.000, menos ahorro 200.000, menos inversión 150.000, igual a disponible 600.000 en una tarjeta de tinta; después lo reservado sube a 950.000, el disponible cruza el cero, queda en rojo en menos 50.000 y aparece la etiqueta Sobre-comprometido · Revisar; una nota recuerda que nunca se recorta a cero",
@@ -144,7 +142,6 @@ export const finanzasIa: ShowcaseDefinition = {
           facts: [
             { value: "20 / 10 / 10", label: "cuota diaria por dispositivo" },
             { value: "30", label: "pedidos por minuto por IP" },
-            { value: "1", label: "clave de OpenAI, y vive en el Worker" },
           ],
           mediaAlt:
             "Gráfico en movimiento: tres cajas, texto, audio y foto, dentro de un borde punteado que representa el teléfono, mandan paquetes por líneas finas a un Worker de Cloudflare, y de ahí llegan tarjetas con borde ámbar a una columna Pendientes cuya antigüedad avanza, hace 1 min, hace 2 min; la cuota del día baja de 20, 10 y 10 con cada captura; una nota dice que solo la captura viaja, nunca el ledger",
@@ -184,7 +181,6 @@ export const finanzasIa: ShowcaseDefinition = {
           { value: "1.119", label: "tests" },
           { value: "19", label: "migraciones" },
           { value: "3", label: "canales de captura" },
-          { value: "0", label: "datos en la nube: el ledger vive en el teléfono" },
         ],
         closer: "Sin publicar todavía: un producto propio en desarrollo, mobile-first.",
         note: "Capturas del simulador de iOS; sin usuarios ni métricas de uso.",
@@ -249,8 +245,6 @@ export const finanzasIa: ShowcaseDefinition = {
           ],
           facts: [
             { value: "4", label: "terms: real balance, reserved, savings, invested" },
-            { value: "6", label: "integer decimals in the Money object" },
-            { value: "0", label: "arithmetic operations in the UI" },
           ],
           mediaAlt:
             "Motion graphic: a vertical subtraction, real balance 1.250.000 minus reserved 300.000, minus savings 200.000, minus invested 150.000, equals available 600.000 on an ink card; then the reserved figure climbs to 950.000, the available figure crosses zero, turns red at minus 50.000 and the label Over-committed · Review appears; a note recalls that it is never clamped to zero",
@@ -278,7 +272,6 @@ export const finanzasIa: ShowcaseDefinition = {
           facts: [
             { value: "20 / 10 / 10", label: "daily quota per device" },
             { value: "30", label: "requests per minute per IP" },
-            { value: "1", label: "OpenAI key, and it lives in the Worker" },
           ],
           mediaAlt:
             "Motion graphic: three boxes, text, audio and photo, inside a dashed border that stands for the phone, send packets along thin wires to a Cloudflare Worker, and from there amber-edged cards arrive in a Pending column whose age advances, 1 min ago, 2 min ago; the day's quota drops from 20, 10 and 10 with each capture; a note says only the capture travels, never the ledger",
@@ -318,7 +311,6 @@ export const finanzasIa: ShowcaseDefinition = {
           { value: "1,119", label: "tests" },
           { value: "19", label: "migrations" },
           { value: "3", label: "capture channels" },
-          { value: "0", label: "data in the cloud: the ledger lives on the phone" },
         ],
         closer: "Not published yet: an own product in development, mobile-first.",
         note: "iOS simulator captures; no users and no usage metrics.",

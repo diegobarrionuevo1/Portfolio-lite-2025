@@ -124,7 +124,6 @@ export const hermes: ShowcaseDefinition = {
           facts: [
             { value: "6", label: "estados de pedido" },
             { value: "15 · 30 · 60", label: "minutos de pausa, o hasta el próximo turno" },
-            { value: "1", label: "fuente de verdad: el panel" },
           ],
           mediaAlt:
             "Gráfico en movimiento: una cápsula con el total del pedido recorre cuatro paradas, catálogo, selección, pedido y WhatsApp más panel, y al final el mismo texto aparece dos veces, como mensaje de WhatsApp y como fila del centro de pedidos, sin tilde de entrega",
@@ -299,7 +298,6 @@ export const hermes: ShowcaseDefinition = {
           facts: [
             { value: "6", label: "order statuses" },
             { value: "15 · 30 · 60", label: "minutes of pause, or until the next shift" },
-            { value: "1", label: "source of truth: the panel" },
           ],
           mediaAlt:
             "Motion graphic: a capsule with the running total travels four stops, catalog, selection, order and WhatsApp plus panel, and at the end the same text appears twice, as a WhatsApp message and as an order-centre row, with no delivery tick",
