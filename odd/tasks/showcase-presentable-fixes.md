@@ -28,10 +28,18 @@ graphics, video re-recording and copy rewrites are out of scope for now.
   - Home "Productos propios" cards link to the Hermes and Finanzas showcases.
   - Checks: `tsc --noEmit` clean, `eslint` clean on changed files, browser readback of
     /work/hermes, /work/donweb-talleres and /#building.
-- [ ] T2 Production build and fast-forward push to `main`; confirm the deploy.
-- [ ] T3 Next smallest fixes: nav overlapping text on showcase pages, trivia metrics,
-      contradictory figures (Talleres 121.087 vs 120.729), Expo scaffold icon, Camtasia
-      watermark on the Talleres peak.
+- [x] T2 (inline) `npm run build` green (SSG, 5 slugs × 2 langs); fast-forward push of
+      `5d517cb` to `main`; Vercel production deploy READY on diegobarrionuevo.com.
+      Native review assess: medium, `under_budget`, not due.
+- [x] T3a (inline) `ab80518` sticky protection strip under the nav on showcase pages
+      (browser readback on a dark and a light showcase). Deploy READY.
+- [x] T3b (inline) `09f5cac` filler metrics and the false "0 datos en la nube" stat
+      removed; last ADR suffix removed from the Finanzas graphic. Deploy READY;
+      production smoke test: all showcase routes and the restored assets return 200.
+- [ ] T4 Needs Diego's facts or new material: Talleres figures that disagree
+      (121.087 vs 120.729 inscriptions, 205 vs 204 programs), the Camtasia watermark on
+      the Talleres cinema clip, the Expo scaffold icon on Finanzas, the remaining 30 fps
+      clips, and the motion-graphics redesign (deferred by the user).
 
 ## Notes
 
